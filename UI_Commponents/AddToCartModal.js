@@ -327,7 +327,7 @@ console.log('stok',this.props.item)
             <CardItem style={{ paddingVertical: 0,marginEnd:10,marginStart:10 }}>
               <Left>
                 <Button transparent>
-                  <Text style={styles.itemPrice}>{`${parseFloat(this.state.Price).toFixed(4)}${i18n.t('jod')}`}</Text>
+                  <Text style={styles.itemPrice}>{`${parseFloat(this.state.Price).toFixed(3)}${i18n.t('jod')}`}</Text>
                 </Button>
               </Left>
               <Right>

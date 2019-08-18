@@ -280,12 +280,12 @@ if(res.data.data.length>0){
         //   lang=1;
         // }
             this._retrieveData()
-            if(this.props.Order.length>0){
+        //     if(this.props.Order.length>0){
               
           
-            }
+        //     }
             
-        this._retrieveData()
+        // this._retrieveData()
         // for(let i=0;i<=this.state.ExperienceArr.length;i++){
 
         // }
@@ -297,7 +297,7 @@ if(res.data.data.length>0){
         this.setState({data:[]})
         this.setSortModalVisible(false)
        
- 
+
         client.post(`/app/oldorders?customers_id=${this.state.userID}&language_id=${lang}&status=${statusVal}`
         
         ).then((res) => {

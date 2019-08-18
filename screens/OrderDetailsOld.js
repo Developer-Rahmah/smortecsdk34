@@ -890,7 +890,7 @@ return(
 </View>
 {!this.state.loading?
 this.state.orderDetailsArr.length>0?
-				        <View style={{height:15,backgroundColor: '#f3f3f3'}}>
+				        <View>
         {this.state.orderDetailsArr.map((item, index) => {
             console.log("iteeeeem",item)
 						return (
@@ -904,7 +904,6 @@ this.state.orderDetailsArr.length>0?
                                   <View style={[MyOrdersStyles.rowField]}>
                                   <Image source={{uri: BaseURL +item.image}} style={{ 	width: 300,height: 300}}/>
                                 </View>
-                                {/* <View /> */}
 								<View style={[MyOrdersStyles.rowListDivider,{marginTop:0}]} />
 								<View style={MyOrdersStyles.rowField}>
 									<Text style={MyOrdersStyles.fieldLabelTxt}>{i18n.t('orderId')}</Text>
@@ -918,23 +917,7 @@ this.state.orderDetailsArr.length>0?
 								</View>
                                 <View style={MyOrdersStyles.rowListDivider} />
 
-                                {/* <View style={{flexDirection: 'row',width:'100%',justifyContent:'space-between',
-		marginLeft: Metrics.WIDTH * 0.03,
-		marginRight: Metrics.WIDTH * 0.03,
-		marginTop: Metrics.WIDTH * 0.04,
-		marginBottom: Metrics.WIDTH * 0.04,}}>
-                                <Text style={{	color: "#959595",
-		fontSize: Fonts.moderateScale(15),
-		fontFamily: Fonts.type.newFontNeueLight,
-		width: (Metrics.WIDTH * 0.25)+10,backgroundColor:'red',
-		textAlign: 'left'}}>{i18n.t('productImage')}</Text>
-
-                                <Image source={{uri: BaseURL +item.image}} style={{height: '97%', 	width: Metrics.WIDTH * 0.25,resizeMode:'contain'}}/>
-    
-									</View>
-							
-								<View style={MyOrdersStyles.rowListDivider} /> */}
-
+                             
 								<View style={MyOrdersStyles.rowField}>
 									<Text style={MyOrdersStyles.fieldLabelTxt}>{i18n.t('price')}</Text>
 									<Text style={[MyOrdersStyles.fieldDescriptionTxt,{fontFamily: 'numFont'}]}>{item.products_price}{i18n.t('jod')}</Text>

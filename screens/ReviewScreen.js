@@ -554,9 +554,22 @@ for(let i=0;i<=arr.length;i++){
 
 
 
-  onOrderNOwPressed=(a3,a2,a3Agent,a2Agent)=>{
+  onOrderNOwPressed=async(a3,a2,a3Agent,a2Agent)=>{
+    try {
+      const value = await AsyncStorage.getItem('userID');
+      const myLang = await AsyncStorage.getItem('myLang');
+      if (value !== null) {
+        // We have data!!
+        if(myLang=='ar')
+        {
+          lang=4;
+        }else{
+          lang=1;
+        }
+    
     console.log("jshskhdksdhshdskhhsdhsdhshdshkd",a3)
     console.log("jshskhdksdhshdskhhsdhsdhshdshkdkhdhdkdkjdkdkdkjdkdjdkjdkjdjkdddddddda333333",a3Agent)
+    console.log("mmmmy ddddate",this.props.navigation.state.params.chosenDate)
 
      this.setState({fetching_from_server:true})
     if(this.props.navigation.state.params.screen=='item'){
@@ -599,7 +612,7 @@ for(let i=0;i<=arr.length;i++){
 
 console.log("1111111")
     let itemId = this.props.navigation.state.params.itemId
-    client.post(`/app/addtoorder?customers_id=${this.state.userID}&customers_telephone=${this.state.phone}&products[]&products[0][products_id]=${itemId}&products[0][customers_basket_quantity]=${this.props.navigation.state.params.count}&products[0][bounces]=${this.props.navigation.state.params.bonus}&type=${this.props.navigation.state.params.type1}&shipping_date=${this.state.chosenDate}&language_1d=${lang}&total=${finalPri*this.props.navigation.state.params.count}&tax=${((parseFloat(finaltaxF)+parseFloat(finaltaxE)+parseFloat(finaltaxS)).toFixed(3))}`).then((res) => {
+    client.post(`/app/addtoorder?customers_id=${this.state.userID}&customers_telephone=${this.state.phone}&products[]&products[0][products_id]=${itemId}&products[0][customers_basket_quantity]=${this.props.navigation.state.params.count}&products[0][bounces]=${this.props.navigation.state.params.bonus}&type=${this.props.navigation.state.params.type1}&shipping_date=${this.props.navigation.state.params.chosenDate}&language_1d=${lang}&total=${finalPri*this.props.navigation.state.params.count}&tax=${((parseFloat(finaltaxF)+parseFloat(finaltaxE)+parseFloat(finaltaxS)).toFixed(3))}`).then((res) => {
   if(res.data.status==200){
     this.setState({fetching_from_server:true})
   
@@ -706,7 +719,7 @@ let arrApp=bApproved
    console.log("arrApp99999999999999999999999999999999999999999",arrApp)
 //    console.log("arrApp10000000000000000000000000000000000000000",arrAppAgent)
 // console.log("ArrApp55555555555555555555555",ArrAppFinal)
-    client.post(`/app/addtoorder?customers_id=${this.state.userID}&type=${this.props.navigation.state.params.type1}&language_1d=${lang}&shipping_date=${this.state.chosenDate}&total=${this.props.navigation.state.params.tota}&tax=${this.props.navigation.state.params.taxes}&customers_telephone=${this.state.phone}&${arrApp}&products[}`
+    client.post(`/app/addtoorder?customers_id=${this.state.userID}&type=${this.props.navigation.state.params.type1}&language_1d=${lang}&shipping_date=${this.props.navigation.state.params.chosenDate}&total=${this.props.navigation.state.params.tota}&tax=${this.props.navigation.state.params.taxes}&customers_telephone=${this.state.phone}&${arrApp}&products[}`
     )
     .then(res => {
       if(res.data.status==200){
@@ -757,9 +770,14 @@ this.addUnApprovedProducts(allArrUnApprovedAll)
     });
    
    
-  }
+  }}
   
-    
+} catch (error) {
+  // Error retrieving data
+  console.log('getstorageitemerrrror',error);
+}
+
+
   }
   setModalVisible(visible) {
     this.setState({ paymentMethodModalVisibality: visible });

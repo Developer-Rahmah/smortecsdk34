@@ -334,7 +334,7 @@ class CheckoutScreen extends Component {
   })
   }
   latterBookingPressed(){ 
-  
+  console.log('rahmah choosedate',this.state.chosenDate)
     this.setState({deffultSeclcted:false,
       type:3,
         orderType:'office',
@@ -361,6 +361,7 @@ class CheckoutScreen extends Component {
   }
 
   onOrderNOwPressedUrgent(){
+    console.log('rrrahmah choosedate',this.state.chosenDate)
      this.setState({fetching_from_server:true})
     if(this.props.navigation.state.params.screen=='item'){
 
@@ -474,6 +475,8 @@ console.log("1111111")
   }
 
   onOrderNOwPressed(){
+    console.log('rrrahmah choosedate',this.state.chosenDate)
+
      this.setState({fetching_from_server:true})
     if(this.props.navigation.state.params.screen=='item'){
 
@@ -530,7 +533,8 @@ console.log("1111111")
       singleItem:this.props.navigation.state.params.singleItem,itemId:this.props.navigation.state.params.itemId,
       bonus:this.props.navigation.state.params.bonus,tota:this.props.navigation.state.params.tota,
       zone_price:this.props.navigation.state.params.zone_price,id:this.props.navigation.state.params.id,
-      finalPrice:this.props.navigation.state.params.finalPrice,type1:this.state.type
+      finalPrice:this.props.navigation.state.params.finalPrice,type1:this.state.type,
+      chosenDate:this.state.chosenDate
      });
 
     showMessage({
@@ -567,7 +571,9 @@ console.log("1111111")
         singleItem:this.props.navigation.state.params.singleItem,itemId:this.props.navigation.state.params.itemId,
         bonus:this.props.navigation.state.params.bonus,tota:this.props.navigation.state.params.tota,
         zone_price:this.props.navigation.state.params.zone_price,id:this.props.navigation.state.params.id,
-        finalPrice:this.props.navigation.state.params.finalPrice,type1:this.state.type
+        finalPrice:this.props.navigation.state.params.finalPrice,type1:this.state.type,
+        chosenDate:this.state.chosenDate
+
        });
       //  this.props.navigation.navigate("OrderAddedSuccesfully",{fromCart:'cart'});
            showMessage({
