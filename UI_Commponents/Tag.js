@@ -27,12 +27,12 @@ import { Localization } from 'expo-localization';
   };
 
 export const Tag = ({...props}) => {
-  console.log('tag id',props.item.id)
+
 
     let BaseURL = 'http://delico.qiotic.info';
     let item = props.item;
 
-    console.log('iteeems',item)
+ 
     return (
 
 

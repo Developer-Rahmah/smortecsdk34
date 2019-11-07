@@ -45,7 +45,6 @@ import { Localization } from 'expo-localization';
  class AddToCartModal extends Component {
     constructor(props){
         super(props)
-        console.log('ppppriiiice',this.props.item.new_price !=null &&this.props.item.new_price !=''?parseFloat(this.props.item.new_price): parseFloat(this.props.item.cost_price))
         this.state = {
           bounsNum:0,
 
@@ -82,9 +81,7 @@ import { Localization } from 'expo-localization';
       client.post(`app/getallproducts?products_id=${this.props.item.products_id}&language_id=${1}`).then((res) => {
        
         for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
-  
-          // this.setState({ testArr: this.props.Order[i].products_id})
+
           this.setState({
             testArr: [...this.state.testArr, (this.props.Order[i]).products_id]
           })
@@ -103,7 +100,7 @@ import { Localization } from 'expo-localization';
     onPlusPressed(qty){
       
       let price=this.props.item.new_price !=null &&this.props.item.new_price !=''?parseFloat(this.props.item.new_price): parseFloat(this.props.item.cost_price);
-console.log('stok',this.props.item)
+
       price = parseFloat(price);
       this.setState({
         Price :  (price *(qty+1)).toFixed(2),
@@ -125,48 +122,28 @@ console.log('stok',this.props.item)
     }
   
    async addToOrder(){
-     console.log('iteeeeem',this.props.item)
-      // let{ isModalVisible} = this.props;
-      // let BaseURL = 'https://smortec.com';
-      // let item={
-      //   products_id:this.props.item.products_id,
-      //   products_name : this.props.item.products_name,
-      //   final_price: this.state.Price,
-      //   price:this.props.finalPrice ==undefined? parseFloat(this.props.item.products_price):parseFloat(this.props.finalPrice),
-      //   customers_basket_quantity: this.state.count,
-      //   image: BaseURL + '/' + this.props.item.products_image,
-      //   products_weight:(this.props. products_weight),
-      //   products_shape:this.props.products_shape,
-      //   products_finalWeightPrice:this.props.products_finalWeightPrice,
-      //   redeem:this.props.redeem,
-
-      // }
+   
 
 
       let test=0;
       for(let i=0;i<=this.props.item.bounce.length;i++){
     
         if(this.props.item.bounce[i]!=undefined){ 
-          console.log('test array=:',this.props.item.bounce[i])
-    
-             console.log('test=:',this.props.item.bounce[i].type)
+
     
         if(this.state.count>=this.props.item.bounce[i].qty_from){
           if(this.props.item.bounce[i].type=='percent'){
-            console.log('test= in percent:',this.props.item.bounce[i].type)
-            console.log('test=:',this.props.item.bounce[i].bounces)
+ 
     
             test=this.props.item.bounce[i].bounces;
     test=(this.props.item.bounce[i].bounces)/100*this.state.count
           }else{
                   test=this.props.item.bounce[i].bounces;
-                  console.log('test type=:',this.props.item.bounce[i].type)
     
-                  console.log('test= in pice:',this.props.item.bounce[i].bounces)
     
           }
           this.setState({bounsNum:this.props.item.bounce[i].bounces})
-          // console.log('bouuuuns number is:',this.state.bounsNum)
+   
         }
       }
     }
@@ -200,12 +177,7 @@ console.log('stok',this.props.item)
           ppp=parseFloat(this.props.item.cost_price)
         }
     
-        
-       
-    
-        console.log('teeest is:',test);
-        console.log('bounsnum is:',this.state.bounsNum)
-        // console.log('bounsnum in staaate is:',this.state.custmizeBonusNum)
+  
     let profitmarginratio=0;
     let profitmargion=0;
     
@@ -214,13 +186,7 @@ console.log('stok',this.props.item)
         let margin=ppp*(this.state.count+parseInt(test))
         profitmarginratio=(parseFloat(profitmargion / margin)*100).toFixed(3)
     
-        console.log('this.state.singleItem.publicPrice is:',this.props.item.products_price);
-        console.log('this.state.counte is:',this.state.count);
-        console.log('ttest is:',parseInt(test));
-        console.log('ppp is:',ppp);
-    
-        console.log('profitmargion is:',profitmargion);
-        console.log('profitmargion ratiooo is:',profitmarginratio);
+
     
     
       let item={
@@ -288,15 +254,14 @@ console.log('stok',this.props.item)
   render() {
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
-    //i18n.locale =null;
-    console.log('test:' + this.state.myLang);
+
 
     i18n.locale = this.state.myLang;
     let BaseURL = 'https://smortec.com';
     let{ isModalVisible} = this.props;
     let image = BaseURL + '/' + this.props.item.products_image
     let {products_name } = this.props.item
-    console.log('addtocartmodal',this.props.item)
+   
     return (
         <Modal isVisible={isModalVisible}>
         <Card  style={{ borderTopStartRadius:20 ,borderTopEndRadius: 20 ,alignItems:'center'}}>

@@ -94,7 +94,7 @@ check_out:'Check Out',
  pharmacyName:'Pharmacy Name',
  country:'Country',
  jordan:'Jordan',
- makePurchase:'MAKE PURCHASE',
+ makePurchase:'PROCEED',
  paymentAmount:'PAYMENT AMOUNT',
  checkOut:'CHECK OUT',
  inCart:'IN CART',
@@ -111,7 +111,8 @@ check_out:'Check Out',
  DrugStore:'Drug Store: ',
  SubAgent:'Sub Agent: ',
  checkout:'CHECKOUT',
- jordan:'Jordan'
+ jordan:'Jordan',
+ total:"Total"
 
  
 
@@ -154,7 +155,7 @@ email:'الايميل',
 pharmacyName:'اسم الصيدلية',
 country:'البلد',
 jordan:'الاردن',
-makePurchase:'ادفع الان',
+makePurchase:'متابعة',
 paymentAmount:'المجموع',
 inCart:'تمت الاضافة',
 enterYourBonus:' البونص',
@@ -168,8 +169,10 @@ type: 'النوع: ',
 tax: 'ضريبة المبيعات: ',  
 Referencenumber:'الرقم المرجعي',
 DrugStore:'مستودع الادوية',
- SubAgent:'الوكيل: ',
- jordan:'الاردن'
+ SubAgent:'الموزع: ',
+ jordan:'الاردن',
+ total:"المجموع"
+
 
 
 
@@ -218,7 +221,7 @@ class CheckoutScreen extends Component {
         bounsNum:0,
         bounsArr:[],
         chosenDate: date,
-        type:1,
+        type:this.props.navigation.state.params.screen!='item'?1:2,
         firstNmae:'',
         lastName:'',
         userEmail:'',
@@ -228,17 +231,17 @@ class CheckoutScreen extends Component {
         name:'',
         email:'',
         phone:'',
-        deffultSeclcted:true,
-        urgentSelected:false,
+        deffultSeclcted:this.props.navigation.state.params.screen!='item'?true:false,
+        urgentSelected:this.props.navigation.state.params.screen!='item'?false:true,
         latterBookingSelected:false,
   
         defaultBackgroundColor:'#8FCFEB',
         defultTextColor:'gray',
         defultTextWeight:"bold",
   
-        urgentBackgroundColor:'white',
+        urgentBackgroundColor:this.props.navigation.state.params.screen!='item'?'white':'#8FCFEB',
         urgentTextColor:'#A9A9A9',
-        urgentTextWeight:'normal',
+        urgentTextWeight:this.props.navigation.state.params.screen!='item'?'normal':"bold",
   
         latterBookingBackgroundColor:'white',
         latterBookingTextColor:'#A9A9A9',
@@ -334,7 +337,6 @@ class CheckoutScreen extends Component {
   })
   }
   latterBookingPressed(){ 
-  console.log('rahmah choosedate',this.state.chosenDate)
     this.setState({deffultSeclcted:false,
       type:3,
         orderType:'office',
@@ -361,9 +363,9 @@ class CheckoutScreen extends Component {
   }
 
   onOrderNOwPressedUrgent(){
-    console.log('rrrahmah choosedate',this.state.chosenDate)
      this.setState({fetching_from_server:true})
     if(this.props.navigation.state.params.screen=='item'){
+      console.log("here buy now")
 
     let test=0;
     for(let i=0;i<=this.state.bounsArr.length;i++){
@@ -400,16 +402,18 @@ class CheckoutScreen extends Component {
   
   }
     this.setState({popUpModal:false})
-
-console.log("1111111")
+console.log("typeeeeeeeeeeiteeeeeeem",this.state.type)
     let itemId = this.props.navigation.state.params.itemId
-    client.post(`/app/addtoorder?customers_id=${this.state.userID}&customers_telephone=${this.state.phone}&products[]&products[0][products_id]=${itemId}&products[0][customers_basket_quantity]=${this.props.navigation.state.params.count}&products[0][bounces]=${this.props.navigation.state.params.bonus}&type=${this.state.type}&shipping_date=${this.state.chosenDate}&language_1d=${lang}&total=${finalPri*this.props.navigation.state.params.count}&tax=${((parseFloat(finaltaxF)+parseFloat(finaltaxE)+parseFloat(finaltaxS)).toFixed(3))}`).then((res) => {
+    client.post(`/app/addtoorder?customers_id=${this.state.userID}&customers_telephone=${this.state.phone}&products[]&products[0][products_id]=${itemId}&products[0][customers_basket_quantity]=${this.props.navigation.state.params.count}&products[0][bounces]=${this.props.navigation.state.params.bonus}&type=${this.state.type}}&shipping_date=${this.state.chosenDate}&language_1d=${lang}&total=${finalPri*this.props.navigation.state.params.count}&tax=${((parseFloat(finaltaxF)+parseFloat(finaltaxE)+parseFloat(finaltaxS)).toFixed(3))}`).then((res) => {
+      console.log("res",res)
   if(res.data.status==200){
     this.setState({fetching_from_server:true})
   
   
       if(res.data.status==200) {
-    this.props.navigation.navigate("OrderAddedSuccesfully",{fromCart:'item'});
+    // this.props.navigation.navigate("OrderAddedSuccesfully",{fromCart:'item'});
+    this.props.navigation.navigate("OrderAddedSuccesfully",{fromCart:'item',order_id:res.data.data});
+
   
     showMessage({
 
@@ -428,14 +432,7 @@ console.log("1111111")
   }
     })
   }else{
-    console.log("this.state.userID",this.state.userID)
-    console.log("this.state.type",this.state.type)
-    console.log("lang",lang)
-    console.log("this.state.chosenDate",this.state.chosenDate)
-    console.log("this.props.navigation.state.params.tota",this.props.navigation.state.params.tota)
-    console.log("this.props.navigation.state.params.taxes",this.props.navigation.state.params.taxes)
-    console.log("this.state.phone",this.state.phone)
-    console.log("this.props.navigation.state.params.orderArr",this.props.navigation.state.params.orderArr)
+ 
 
 //}
 
@@ -475,7 +472,6 @@ console.log("1111111")
   }
 
   onOrderNOwPressed(){
-    console.log('rrrahmah choosedate',this.state.chosenDate)
 
      this.setState({fetching_from_server:true})
     if(this.props.navigation.state.params.screen=='item'){
@@ -518,9 +514,7 @@ console.log("1111111")
 
 
     let itemId = this.props.navigation.state.params.itemId
-
     client.post(`/app/proceedproducts?products[]&products[0][products_id]=${itemId}&products[0][customers_basket_quantity]=${this.props.navigation.state.params.count}&products[0][bounces]=${this.props.navigation.state.params.bonus}`).then((res) => {
-      console.log("resss for single product",res)
   if(res.data.status==200){
     this.setState({fetching_from_server:true})
   
@@ -554,12 +548,12 @@ console.log("1111111")
   }
     })
   }else{
+
     client
     .post(
       `/app/proceedproducts?products[]&${this.props.navigation.state.params.orderArr}`
     )
     .then(res => {
-      console.log("resssssssssssssssssss",res)
       if(res.data.status==200){
         this.setState({fetching_from_server:true})
       
@@ -718,7 +712,6 @@ console.log("1111111")
   }
 
   _handlePress = async () => { {
-    console.log("1111111111111111")
 
     if(paymentMethod[this.state.selectedPayment]==0){
       this.setState({finalPay:'visa_cod'})
@@ -753,12 +746,10 @@ a=[];
     }
   }
   // We have data!!
-  console.log(' proooops ordeeeeer cart async arr is',JSON.parse(myArray));
 }
 } 
 catch (error) {
 // Error retrieving data
-console.log(' proooops ordeeeeer cart async arr is error',error)
 }
    // }
     // b = []
@@ -772,7 +763,6 @@ console.log(' proooops ordeeeeer cart async arr is error',error)
         }`
       )
       .then(res => {
-       console.log("resssss",res)
         if (res.data.status === 200) {
           this.props.clearCart();
            
@@ -785,7 +775,6 @@ console.log(' proooops ordeeeeer cart async arr is error',error)
     }
   };
   render() {
-    console.log("this.state.type",this.state.type)
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
 
@@ -849,7 +838,7 @@ console.log(' proooops ordeeeeer cart async arr is error',error)
     color: "#777777"}} >{i18n.t('typeOfOrder')}</Text>
 
 <View style={{width:'100%',justifyContent:'space-between',flexDirection:'row'}}>
-
+{this.props.navigation.state.params.screen!='item'?
 <TouchableOpacity 
 onPress={()=>{this.deffultPressed()}}
 
@@ -870,6 +859,8 @@ letterSpacing: 0,
 color: this.state.defultTextColor}}>{i18n.t('deffult')}</Text>
 
 </TouchableOpacity>
+:
+null}
 <TouchableOpacity 
 onPress={()=>{this.urgentPressed()}}
 style={{width:'32.5%',height:45,backgroundColor:this.state.urgentBackgroundColor,justifyContent:'center',alignItems:'center',borderRadius:0,
@@ -889,6 +880,7 @@ letterSpacing: 0,
 color: this.state.urgentTextColor}}>{i18n.t('urgent')}</Text>
 
 </TouchableOpacity>
+{this.props.navigation.state.params.screen!='item'?
 
 <TouchableOpacity 
 
@@ -973,7 +965,8 @@ this.onConfiremPressed(date);
 }}
 />
 </TouchableOpacity>
-
+:
+null}
 </View>
 
 
@@ -1012,7 +1005,7 @@ fontSize: 13,
 fontWeight:'bold',
 fontStyle: "normal",
 letterSpacing: 0,
-color: 'gray'}}>{i18n.t('cod')}</Text>
+color: 'gray'}}>{i18n.t('total')}</Text>
 <Text style={{fontFamily: 'numFont',
 fontSize: 13,
 fontWeight: 'bold',
@@ -1048,7 +1041,6 @@ color: 'white'}}>{this.props.navigation.state.params.totalAfterTax}{i18n.t('jod'
 
 
 
-    <View style={{ height: 10 }} />
 
 
                    
@@ -1112,9 +1104,9 @@ color: 'white'}}>{this.props.navigation.state.params.totalAfterTax}{i18n.t('jod'
    
   </View>
 
-<View style={{width:10}}/>
+{/* <View style={{width:10}}/> */}
 
-                <Text
+                {/* <Text
        
        style={{ 
          
@@ -1139,7 +1131,7 @@ color: 'white'}}>{this.props.navigation.state.params.totalAfterTax}{i18n.t('jod'
 
                    
 
-                                           <View style={{height:30}}/>
+                                           <View style={{height:30}}/> */}
 
  
            

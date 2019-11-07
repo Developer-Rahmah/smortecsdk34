@@ -31,12 +31,7 @@ export const ItemCardPoint = ({...props}) => {
     let item = props.item;
     let Order=props.Order;
     let wish=props.wish;
-    console.log('ordersin add tocart',Order)
-    console.log('test includes',Order.includes(item.products_id));
-    console.log('wishin add tocart',wish)
 
-    // console.log(Order.filter(Order, { products_id: 2 }));
-    // console.log('teeeeeest',Order.find(x => x.products_id === 2))
     
 
     return (
@@ -110,7 +105,7 @@ export const ItemCardPoint = ({...props}) => {
   fontStyle: "normal",
   letterSpacing: 0,
   color: "#ffffff"
-}}>{I18nManager.isRTL?'أضف الى السلة':'Add to Cart'}</Text>      
+}}>{I18nManager.isRTL?this.state.testArr.includes(item.products_id)?'تمت الاضافه الى السلة':'أضف الى السلة':this.state.testArr.includes(item.products_id)?'Added to Cart':'Add to Cart'}</Text>      
     </Button>
           </Body>
             </CardItem>

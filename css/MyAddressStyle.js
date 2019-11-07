@@ -1,5 +1,5 @@
 import { Platform, StyleSheet, Dimensions } from 'react-native';
-import { Fonts, Metrics, Colors } from '../Themes/';
+import { Metrics, Colors } from '../Themes/';
 
 const MyAddressStyle = StyleSheet.create({
 	container: {
@@ -43,9 +43,9 @@ const MyAddressStyle = StyleSheet.create({
 
 	textTitle: {
 		color: Colors.snow,
-		fontSize: Fonts.moderateScale(20),
+		fontSize: 20,
 		alignSelf: 'center',
-		fontFamily: Fonts.type.newFontNeueLight,
+		fontFamily: 'newFont',
 	},
 
 	right: {
@@ -78,8 +78,8 @@ const MyAddressStyle = StyleSheet.create({
 
 	shippingAddressText: {
 		color: '#959595',
-		fontSize: Fonts.moderateScale(16),
-		fontFamily: Fonts.type.newFontNeueLight,
+		fontSize: 16,
+		fontFamily: 'newFont',
 		textAlign: 'left',
 	},
 
@@ -89,8 +89,8 @@ const MyAddressStyle = StyleSheet.create({
 	},
 
 	addressText: {
-		fontSize: Fonts.moderateScale(16),
-		fontFamily: Fonts.type.newFontNeueLight,
+		fontSize: 16,
+		fontFamily: "newFont",
 		textAlign: 'left',
 	},
 
@@ -162,8 +162,8 @@ const MyAddressStyle = StyleSheet.create({
 	},
 	cancelApplyTxt: {
 		color: '#ffc700',
-		fontSize: Fonts.moderateScale(15),
-		fontFamily: Fonts.type.sfuiDisplayLight,
+		fontSize: 15,
+		fontFamily: "newFont",
 	},
 	cancelApplyTxtt: {
 		alignSelf: 'center',
@@ -186,7 +186,7 @@ const MyAddressStyle = StyleSheet.create({
 		borderBottomWidth: 2,
 		borderColor: '#ebebeb',
 		paddingTop: 5,
-		fontSize: Fonts.moderateScale(16),
+		fontSize: 16,
 		marginLeft: 15,
 		color: '#ebebeb',
 	},
@@ -198,7 +198,7 @@ const MyAddressStyle = StyleSheet.create({
 		borderBottomWidth: 2,
 		borderColor: '#ebebeb',
 		paddingTop: 5,
-		fontSize: Fonts.moderateScale(16),
+		fontSize: 16,
 		marginLeft: 15,
 		color: '#ebebeb',
 	},
@@ -210,7 +210,7 @@ const MyAddressStyle = StyleSheet.create({
 		borderBottomWidth: 2,
 		borderColor: '#ebebeb',
 		paddingTop: 5,
-		fontSize: Fonts.moderateScale(16),
+		fontSize: 16,
 		marginLeft: 15,
 		color: '#ebebeb',
 	},

@@ -30,26 +30,26 @@ async function  registerForPushNotificationsAsync() {
   
     // POST the token to your backend server from where you can retrieve it to send push notifications.
     // this.setState({token:token}).bind(this);
-    console.log('tokeeen:'+token)
 }
 const client= axios.create({
 // baseURL: 'http://delico.qiotic.info/app',
 baseURL:'https://smortec.com',
 
 });
-
+console.log("etToken()",getToken())
 client.defaults.headers.common['consumer-key'] = '6df56cf915318431043dd7a75d';
 client.defaults.headers.common['consumer-secret'] ='95032b42153184310488f5fb8f';
 client.defaults.headers.common['consumer-nonce'] = 'afczxcfasd';
 client.defaults.headers.common['consumer-device-id'] =getToken();
 registerForPushNotificationsAsync();
+
 async function getToken(){
   let ttoken = await Notifications.getExpoPushTokenAsync();
-  console.log('myyyyyy tooooken iiis firrst:',ttoken)
+  console.log("token",ttoken)
+
 return ttoken
 }
  
- console.log('myyyyyy tooooken iiis seccond:',getToken())
 
 // getToken()
 

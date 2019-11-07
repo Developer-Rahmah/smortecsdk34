@@ -28,12 +28,15 @@ const en = {
     signup: 'SIGN UP',
     verificationCode:'Verification Code',
     verify: 'VERIFY',
+    verfmessage:'Your verification code sent for your email address'
    
 };
 const ar = {
     signup: 'إنشاء حساب',
     verificationCode:'رمز التأكيد',
     verify: 'تأكيد',
+    verfmessage:'تم ارسال رمز التأكيدالى بريدك الالكتروني'
+
 
 
 
@@ -71,38 +74,7 @@ export default class SignUpVerficationScreen extends Component {
         }
     }
 
-    // _retrieveData = async () => {
-    //     try {
-    //       const value = await AsyncStorage.getItem('userID');
-    //       const namevalue =  await AsyncStorage.getItem("userName"); 
-    //       const phonevalue = await AsyncStorage.getItem("userPhone");
-    //       const passwvalue = await AsyncStorage.getItem("userPassword");
-    //       const myLang = await AsyncStorage.getItem("myLang")
-    //       if(myLang !== null){
-    //         this.setState({ myLang: myLang });
 
-    //         I18nManager.forceRTL(myLang === "ar");
-    
-    //         this.setState({ isRTL: myLang === "ar" });
-    
-    //         i18n.locale = this.state.myLang;
-          
-    //       }
-  
-    //       if (value !== null) {
-    //         // We have data!!
-    //         console.log('userid:',value);
-    //         console.log('namevalue:',namevalue);
-    //         console.log('phonevalue:',phonevalue);
-    //         console.log('passwvalue:',passwvalue);
-
-    //          this.props.navigation.navigate('Home')
-    //       }
-    //     } catch (error) {
-    //       // Error retrieving data
-    //       console.log('getstorageitemerrrror',error);
-    //     }
-    //   };
     _retrieveData = async () => {
         try {
           const value = await AsyncStorage.getItem('userEmail');
@@ -110,7 +82,7 @@ export default class SignUpVerficationScreen extends Component {
             // We have data!!
             this.setState({userEmail:value})
           
-            console.log('useremaiiiiiiiiil',this.state.userEmail);
+
 
            
           }
@@ -122,16 +94,7 @@ export default class SignUpVerficationScreen extends Component {
       };
     async componentWillMount() {
         this._retrieveData()
-    //     if(this.state.myLang=="ar"){
-    //         I18nManager.forceRTL(true);
 
-           
-    
-    //         i18n.locale = this.state.myLang;
-    //     }
-    //    this._retrieveData()
-    //     this.setState({ loading: false });
-    //     console.log('willmountaaaa=' + this.state.isRTL)
     
     }
     async  componentDidMount() {
@@ -182,7 +145,7 @@ export default class SignUpVerficationScreen extends Component {
         })
     }
     onSignupPreesd() {
-        console.log('signupPreesd')
+
         this.signupBG();
         this.props.navigation.navigate('ProfileScreen')
 
@@ -203,7 +166,7 @@ export default class SignUpVerficationScreen extends Component {
        
     
         client.post(`/verifyemail?email=${this.state.userEmail}&code=${this.state.verfCode}`).then((res) => {
-            console.log('data user signup',res)
+        
 if(res.data.message==='Verified Done'){
     // this._storeData(res.data.data[0].customers_id,res.data.data[0].customers_firstname,
     //     res.data.data[0].customers_telephone,this.state.password, res.data.data[0].email
@@ -211,7 +174,7 @@ if(res.data.message==='Verified Done'){
     this.props.navigation.navigate('ProfileScreen',{
         loginTab:2
     })
-        console.log('suceess saved')
+
     showMessage({
         message: res.data.message,
         type: "success",
@@ -226,8 +189,7 @@ if(res.data.message==='Verified Done'){
 }
         })
 
-    //    console.log('setstorageitem',userID)
-    //}
+  
      } else{
 this.setState({verfCodeBottomLine:'red'})
     }
@@ -235,10 +197,9 @@ this.setState({verfCodeBottomLine:'red'})
     render() {
         i18n.fallbacks = true;
         i18n.translations = { ar, en };
-        //i18n.locale =null;
-        console.log('test:' + this.state.myLang);
+     
 
-        i18n.locale = this.state.myLang;
+        i18n.locale = I18nManager.isRTL?'ar':'en';
 
      
 
@@ -279,7 +240,7 @@ this.setState({verfCodeBottomLine:'red'})
                 fontStyle: "normal",
               //   lineHeight: 11,
                 letterSpacing: 0,
-                color: "#191919"}} >Your verification code sent for your email address</Text>
+                color: "#191919"}} >{i18n.t('verfmessage')}</Text>
                 {/* <View style={{height:10}}/> */}
                 <TextInput 
                   onChangeText={(text) => this.setState({verfCode:text})}

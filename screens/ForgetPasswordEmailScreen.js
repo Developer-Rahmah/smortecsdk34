@@ -85,13 +85,11 @@ export default class ForgetPasswordEmailScreen extends Component {
             // We have data!!
             this.setState({userEmail:value})
           
-            console.log('useremaiiiiiiiiil',this.state.userEmail);
 
            
           }
         } catch (error) {
           // Error retrieving data
-          console.log('getstorageitemerrrror',error);
         }
         
       };
@@ -198,7 +196,6 @@ export default class ForgetPasswordEmailScreen extends Component {
        
     
         client.post(`/app/processforgotpassword?user_name=${this.state.userName}`).then((res) => {
-            console.log('send email forgeet pass',res.data)
            
             if(res.data.status=='200'){
                  showMessage({
@@ -230,7 +227,6 @@ this.setState({userNamePBottomLine:'red'})
     render() {
         i18n.fallbacks = true;
         i18n.translations = { ar, en };
-        console.log('test:' + this.state.myLang);
 
         i18n.locale = this.state.myLang;
 

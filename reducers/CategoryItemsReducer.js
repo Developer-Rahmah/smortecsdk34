@@ -1,7 +1,9 @@
 import {RECIVE_CATEGORY_ITEMS} from '../actions/types';
 
 const initialState = {
-    CtegoryItems: {}
+    CtegoryItems: {},
+  
+
 };
 
 
@@ -12,6 +14,9 @@ export default (state= initialState, action)=>{
                 ...state,
                 CtegoryItems: action.payload
             }
+  
+    
+
         default:
             return state;
     }

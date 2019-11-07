@@ -4,13 +4,9 @@ import getTheme from '../native-base-theme/components';
 import variables from '../native-base-theme/variables/variables';
 import { connect } from "react-redux";
 import { requestCategoryItem } from '../actions/getCategoryItemsAction';
-import { ItemCard } from '../UI_Commponents/ItemCard';
 import AddToCartModal from '../UI_Commponents/AddToCartModal';
 import { SinglePickerMaterialDialog } from 'react-native-material-dialog';
-import axios from 'axios';
-import FlashMessage from "react-native-flash-message";
 import client from '../api/constant'
-import { Avatar, Badge, withBadge } from 'react-native-elements'
 
 import { showMessage, hideMessage } from "react-native-flash-message";
 import {addItem} from '../actions/AddToOrder'
@@ -58,6 +54,9 @@ const en = {
     addToCart:'ADD TO CART',
     addedToWishList:'Added to Wishlist',
     removedFromWishList:"Removed from Wishlist",
+    reset:"Reset",
+    noRecordFound:'No Record Found',
+
     
    
 };
@@ -80,6 +79,10 @@ const ar = {
   addedSuccessfully:'تمت اضافة العنصر بنجاح',
     inCart:'تمت الاضافة',
     addToCart:'أضف إلى السلة',
+    reset:'اعادة تعيين',
+    noRecordFound:'القائمة فارغة',
+
+
 
 
 
@@ -92,65 +95,31 @@ class SubAgentListing extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      recordTotal:0,
       item:null,
+      disableddefult:false,
 
       btnVisabilty:false,
       btnVisabilty_defult:false,
-      btnVisabilty_ztoa:false,
-      btnVisabilty_hightolow:false,
-      btnVisabilty_lowtohignt:false,
-      btnVisabilty_topseller:false,
-      btnVisabilty_mostliked:false,
-
       count:1,
       value: 1,
       testArr:[],
-
       message: null ,
-
       val: 1,
-      minColor: 'white',
       btnDisabled:false,
-
-
-
+      typeOfAll:"",
       loading: true,
       loading_defult: true,
-      loading_ztoa:true,
-      loading_hightolow:true,
-      loading_lowtohight: true,
-      loading_topseller: true,
-      loading_mostliked: true,
-
-
-
-      //Loading state used while loading the data for the first time
-      serverData: [],
-      //Data Source for the FlatList
+  
       fetching_from_server: false,
       fetching_from_server_defult: false,
-      fetching_from_server_ztoa: false,
-      fetching_from_server_hightolow: false,
-      fetching_from_server_lowtohight: false,
-      fetching_from_server_topseller: false,
-      fetching_from_server_mostliked: false,
 
 
-
-      //Loading state used while loading more data
       isModalVisible: false,
       isModalSortVisible: false,
       filter: 'defult',
       status:200,
       defultArr:[],
-      aToZArr: [],
-      zToAArr:[],
-      highToLowArr:[],
-      lowToHightArr:[],
-      topSellerArr:[],
-      mostlikedArr:[],
-      phonCall:'07999999',
-      wish:[],
       popUpModal: false,
       testArr:[],
       wish:[],
@@ -184,7 +153,7 @@ this.offset_mostliked=0;
     // if(this.state.wish.includes() !=undefined){
 if(this.state.wish.includes(products_id)){
 client.post(`/app/unlikeproduct?liked_products_id=${products_id}&liked_customers_id=${this.state.userID}`).then((res) => {
-  console.log('wishlist',res)
+console.log("res00",res)
   // this.setState({wish:[]})
 if(res.data.status==200){
   Alert.alert(
@@ -211,9 +180,8 @@ if(res.data.status==200){
 }else{
 
 client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_id=${this.state.userID}`).then((res) => {
-  console.log('wishlist',res)
-  console.log('wishlist user id',this.state.userID)
-    console.log('wishlist item id',products_id)
+  console.log("res11",res)
+
     if(res.data.status==200){
 
       Alert.alert(
@@ -235,7 +203,12 @@ client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_i
 })
 }
 }
+
 handelAddToOrder(item){
+  i18n.fallbacks = true;
+  i18n.translations = { ar, en };
+
+  i18n.locale = this.state.myLang;
   this.setState({testArr: this.state.testArr.concat(item.products_id)});
   let test=0;
   for(let i=0;i<=item.bounce.length;i++){
@@ -295,6 +268,8 @@ let profitmargion=0;
    
   let itemss={
     drug_store:item.drug_store,
+    sub_agent:item.sub_agent,
+
     products_id:item.products_id,
     products_name : item.products_name,
     
@@ -329,7 +304,10 @@ let profitmargion=0;
   });
 
 }
-  _retrieveData = async () => {
+  _retrieveData = async (type,z) => {
+    console.log("typeeeeeeee",type)
+    this.setState({typeOfAll:type})
+
     try {
       const value = await AsyncStorage.getItem('userID');
       const myLang = await AsyncStorage.getItem('myLang');
@@ -343,7 +321,7 @@ let profitmargion=0;
         }
         // We have data!!
         this.setState({userID:value})
-        console.log('user item in itemscreen',value);
+       
         client.post(`/app/getallproducts?type=wishlist&customers_id=${value}&language_id=${lang}`).then((res) => {
           for (let i=0;i<res.data.product_data.length;i++){
           this.setState({
@@ -353,221 +331,159 @@ let profitmargion=0;
         
         
        
-          console.log('wishlist array',this.state.wish)
-
-         
-          // this.setState({
-            
-          //   wishListArr: res.data.product_data
-          // })
+   
         })
       }
 
+      if(type==null||type==undefined){
+        console.log("this.offset_defult}000",this.offset_defult)
 
-    
+        client.post(`/app/getallproducts?page_number=${this.offset_defult}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}`).then((res) => {
+          if(res.data.message=='Returned all products.'){
+            this.offset_defult = this.offset_defult + 1;
+    console.log("this.offset_defult2222",this.offset_defult)
+            this.setState({ defultArr: res.data.product_data, loading_defult: false, })
+            this.setState({recordTotal:res.data.total_record})
 
-    client.post(`/app/getallproducts?page_number=${this.offset_defult}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}`).then((res) => {
-      console.log('filter a to z', res.data)
-      console.log('filter a to z', res.data.product_data)
-      if(res.data.status==200){
-        this.setState({status:200})
-      }else{
-        this.setState({status:204})        }
-      if(res.data.message=='Returned all products.'){
-      this.offset_defult = this.offset_defult + 1;
-
-      this.setState({ defultArr: res.data.product_data, loading_defult: false, })
-      if(this.state.defultArr.length==res.data.total_record){
-        this.setState({btnVisabilty_defult:false})
-      }else{
-        this.setState({btnVisabilty_defult:true})
-      }
-  
-      for (let i=0;i<this.props.Order.length;i++){
-        console.log('order of idssssssss',this.props.Order[i].products_id)
- this.setState({
-      testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
-
-      
-    })
-        // this.setState({ testArr: this.props.Order[i].products_id})
-      
-      }
-
-      // this.setState({
-      //   testArr:this.props.Order
-      // })
-      console.log('order of idssssssss',this.state.testArr)
-    }
-   
-    
-    })
-
-
-    client.post(`/app/getallproducts?page_number=${this.offset}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=a to z`).then((res) => {
-      console.log('filter a to z', res.data)
-      console.log('filter a to z', res.data.product_data)
-      if(res.data.message=='Returned all products.'){
-      this.offset = this.offset + 1;
-
-      this.setState({ aToZArr: res.data.product_data, loading: false, })
-      if(this.state.aToZArr.length==res.data.total_record){
-        this.setState({btnVisabilty:false})
-      }else{
-        this.setState({btnVisabilty:true})
-      }
-  
-      for (let i=0;i<this.props.Order.length;i++){
-        console.log('order of idssssssss',this.props.Order[i].products_id)
-
-        // this.setState({ testArr: this.props.Order[i].products_id})
-       this.setState({
-      testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
-
-      
-    })
-      }
-
-      // this.setState({
-      //   testArr:this.props.Order
-      // })
-      console.log('order of idssssssss',this.state.testArr)
-    }
-   
-    
-    })
-
-
-    
-
-    client.post(`/app/getallproducts?page_number=${this.offset_ztoa}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=z to a`).then((res) => {
-      console.log('filter z to a', res.data.product_data)
-      // this.setState({ zToAArr: res.data.product_data })
-      if(res.data.message=='Returned all products.'){
+            if(this.state.defultArr.length==res.data.total_record){
+              this.setState({btnVisabilty_defult:false})
+            }else{
+              this.setState({btnVisabilty_defult:true})
+            }
         
-        this.offset_ztoa = this.offset_ztoa + 1;
-  
-        this.setState({ zToAArr: res.data.product_data, loading_ztoa: false, })
-  
-        for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
-          this.setState({
+            for (let i=0;i<this.props.Order.length;i++){
+      this.setState({
             testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
       
             
           })
-          // this.setState({ testArr: this.props.Order[i].products_id})
-        
-        }}
-if(this.state.zToAArr.length==res.data.total_record){
-  this.setState({btnVisabilty_ztoa:false})
-}else{
-  this.setState({btnVisabilty_ztoa:true})
-}
-    })
+            
+            }
+      
+           
+          }
+          if(res.data.status==200){
+            this.setState({status:200})
+          }else{
+            this.setState({status:204})        }
 
-    client.post(`/app/getallproducts?page_number=${this.offset_hightolow}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=high to low`).then((res) => {
-      console.log('filter high to low', res.data.product_data)
-      // this.setState({ highToLowArr: res.data.product_data })
-      if(res.data.message=='Returned all products.'){
-        this.offset_hightolow = this.offset_hightolow + 1;
-  
-        this.setState({ highToLowArr: res.data.product_data, loading_hightolow: false, })
-  
-        for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
-          this.setState({
-            testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
-      
-            
-          })
-          // this.setState({ testArr: this.props.Order[i].products_id})
+            console.log("11sssss",res.data.product_data)
+
+        this.setState({loading_defult:false})
         
-        }
-  
-        // this.setState({
-        //   testArr:this.props.Order
-        // })
-        console.log('order of idssssssss',this.state.testArr)
+        })
       }
-      if(this.state.highToLowArr.length==res.data.total_record){
-        this.setState({btnVisabilty_hightolow:false})
-      }else{
-        this.setState({btnVisabilty_hightolow:true})
+      else if(type=='reset'&&z==0){
+        console.log("jdhjsdhjshdjshdhjshdjshjdsjhdjhsd",this.offset_defult)
+        this.offset_defult=z
+        client.post(`/app/getallproducts?page_number=${this.offset_defult}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}`).then((res) => {
+    
+          if(res.data.status==200){
+            this.setState({status:200})
+          }else{
+            this.setState({status:204})        }
+          if(res.data.message=='Returned all products.'){
+          this.offset_defult = this.offset_defult + 1;
+    
+          this.setState({ defultArr: res.data.product_data, loading_defult: false, })
+          this.setState({recordTotal:res.data.total_record})
+
+          if(this.state.defultArr.length==res.data.total_record){
+            this.setState({btnVisabilty_defult:false})
+          }else{
+            this.setState({btnVisabilty_defult:true})
+          }
+      
+          for (let i=0;i<this.props.Order.length;i++){
+    this.setState({
+          testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
+    
+          
+        })
+          
+          }
+    
+         
+        }
+        
+        
+        })
       }
-    })
-    client.post(`/app/getallproducts?page_number=${this.offset_lowtohight}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=low to high`).then((res) => {
-      console.log('filter high to low', res.data.product_data)
-      // this.setState({ lowToHightArr: res.data.product_data })
-      if(res.data.message=='Returned all products.'){
-        this.offset_lowtohight = this.offset_lowtohight+ 1;
-  
-        this.setState({ lowToHightArr: res.data.product_data, loading_lowtohight: false, })
-  
-        for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
-  
-          // this.setState({ testArr: this.props.Order[i].products_id})
-          this.setState({
-            testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
-      
-            
-          })
-        }}
-        if(this.state.lowToHightArr.length==res.data.total_record){
-          this.setState({btnVisabilty_lowtohignt:false})
-        }else{
-          this.setState({btnVisabilty_lowtohignt:true})
+      else{
+        var offset_guest
+        if(type=='a to z'){
+          offset_guest=this.offset
         }
-    })
-    client.post(`/app/getallproducts?page_number=${this.offset_topseller}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=top seller`).then((res) => {
-      console.log('filter top seller', res.data.product_data)
-      // this.setState({ topSellerArr: res.data.product_data })
-      if(res.data.message=='Returned all products.'){
-        this.offset_topseller = this.offset_topseller+ 1;
-  
-        this.setState({ topSellerArr: res.data.product_data, loading_topseller: false, })
-  
-        for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
-  
-          // this.setState({ testArr: this.props.Order[i].products_id})
-          this.setState({
-            testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
-      
-            
-          })
-        }}
-        if(this.state.topSellerArr.length==res.data.total_record){
-          this.setState({btnVisabilty_topseller:false})
-        }else{
-          this.setState({btnVisabilty_topseller:true})
+        else if(type =='z to a'){
+          offset_guest=this.offset_ztoa
+    
         }
-    })
-    client.post(`/app/getallproducts?page_number=${this.offset_mostliked}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=most liked`).then((res) => {
-      console.log('filter most liked', res.data.product_data)
-      // this.setState({ mostlikedArr: res.data.product_data })
-      if(res.data.message=='Returned all products.'){
-        this.offset_mostliked = this.offset_mostliked+ 1;
-  
-        this.setState({ mostlikedArr: res.data.product_data, loading_mostliked: false, })
-  
-        for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
-  
-          // this.setState({ testArr: this.props.Order[i].products_id})
-          this.setState({
-            testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
-      
-            
-          })
-        }}
-        if(this.state.mostlikedArr.length==res.data.total_record){
-          this.setState({btnVisabilty_mostliked:false})
-        }else{
-          this.setState({btnVisabilty_mostliked:true})
+        else if(type=='high to low'){
+          offset_guest=this.offset_hightolow
         }
-    })
+        else if(type=='low to high'){
+          offset_guest=this.offset_lowtohight
+        }
+        else if(type=='top seller'){
+          offset_guest=this.offset_topseller
+        }
+        else if(type=='most liked'){
+          offset_guest= this.offset_mostliked
+        }
+        console.log("offset_guest",offset_guest)
+        client.post(`/app/getallproducts?page_number=${this.offset_guest}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=${type}`).then((res) => {
+    console.log("res filterss",res)
+    this.setState({recordTotal:res.data.total_record})
+
+          if(res.data.status==200){
+            this.setState({status:200})
+          }else{
+            this.setState({status:204})        }
+          if(res.data.message=='Returned all products.'){
+          if(type=='a to z'){
+            this.offset = this.offset + 1;
+          }
+          else if(type =='z to a'){
+            this.offset_ztoa=this.offset_ztoa+1;
+      
+          }
+          else if(type=='high to low'){
+            this.offset_hightolow=this.offset_hightolow+1
+          }
+          else if(type=='low to high'){
+            this.offset_lowtohight=this.offset_lowtohight+1
+          }
+          else if(type=='top seller'){
+            this.offset_topseller=this.offset_topseller+1
+          }
+          else if(type=='most liked'){
+            this.offset_mostliked= this.offset_mostliked+1
+          }
+          this.setState({ defultArr: res.data.product_data, loading_defult: false, })
+          if(this.state.defultArr.length==res.data.total_record){
+            this.setState({btnVisabilty_defult:false})
+          }else{
+            this.setState({btnVisabilty_defult:true})
+          }
+      
+          for (let i=0;i<this.props.Order.length;i++){
+    this.setState({
+          testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
+    
+          
+        })
+          
+          }
+    
+         
+        }
+        
+        
+        })
+      }
+    
+
+
 
     } catch (error) {
       // Error retrieving data
@@ -631,39 +547,86 @@ setSortModalVisible(visible) {
     title: null,
     drawerLabel: 'Home', backgroundColor: 'red'
   };
-  componentDidMount() {
-    // if (I18nManager.isRTL)
+  async componentWillMount(){
+  
+    const myLang = await AsyncStorage.getItem('myLang');
+    const value = await AsyncStorage.getItem('userID');
+
+      // We have data!!
+      if(myLang=='ar')
+      {
+        lang=4;
+      }else{
+        lang=1;
+      }
+    
+    this.setState({userID:value})
+client.post(`/app/getallproducts?page_number=${this.offset_defult}&agentId=${this.props.navigation.state.params.itemId
+}&language_id=${lang}`).then((res) => {
+  console.log("ress2222",res)
+  this.setState({recordTotal:res.data.total_record})
+this.setState({loading_defult:false})
+      if(res.data.status==200){
+        this.setState({ defultArr: res.data.product_data })
+
+        this.offset_defult = this.offset_defult + 1;
+
+        if(this.state.defultArr.length==res.data.total_record){
+          this.setState({btnVisabilty_defult:false})
+        }else{
+          this.setState({btnVisabilty_defult:true})
+        }
+      }}).catch((error) => {
+        console.log("error3333333",error)
+        this.setState({loading_defult:false})
+  
+  
+    //   dispatch({type: HOME_LOADING, payload: false})
+  
+    })
+    
+
+  }
+  async componentDidMount() {    // if (I18nManager.isRTL)
     // {
     //   lang=4;
     // }
     // else{
     //   lang=1;
     // }
-        this._retrieveData()
-        if(this.props.Order.length>0){
+        // this._retrieveData()
+       
+        const value = await AsyncStorage.getItem('userID');
+        const myLang = await AsyncStorage.getItem('myLang');
+        if (value !== null) {
+          // We have data!!
+          if(myLang=='ar')
+          {
+            lang=4;
+          }else{
+            lang=1;
+          }
+          this.setState({userID:value})
+         
+          client.post(`/app/getallproducts?type=wishlist&customers_id=${value}&language_id=${lang}`).then((res) => {
+            for (let i=0;i<res.data.product_data.length;i++){
+            this.setState({
+              wish: [...this.state.wish, (res.data.product_data[i]).products_id]
+            })
+          }
           
-      
-        }
-        
-    this._retrieveData()
-    if(this.props.Order.length>0){
-      
-  
-    }
-    
+          
+         
+     
+          })
    
-
+        }
     this.props.getCategoryItem()
 
     let itemId = this.props.navigation.state.params.itemId
     let image = this.props.navigation.state.params.image
-    console.log('my category', this.props.Items)
-    // client.post(`/getallproducts?products_id=${itemId}&language_id=1`).then((res) => {
-    //   this.setState({
-    //     singleItem: res.data.product_data[0]
-    //   })
-    // })
 
+        // }
   }
   static navigationOptions = {
 
@@ -704,83 +667,26 @@ setSortModalVisible(visible) {
 
 
 
-  loadMoreData = () => {
-console.log('in load moreeee')
-    //On click of Load More button We will call the web API again
-    this.setState({ fetching_from_server: true }, () => {
-
-    client.post(`/app/getallproducts?page_number=${this.offset}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=a to z`).then((res) => {
-      console.log('filter a to z', res.data)
-      console.log('filter a to z', res.data.product_data)
-      if(res.data.message=='Returned all products.'){
-        this.offset = this.offset + 1;
-        // this.state.aToZArr.push(res.data.product_data)
-        for (let i=0;i<res.data.product_data.length;i++){
-          console.log("final retail array",res.data.product_data[i])
-         
-          this.setState({
-            aToZArr: [...this.state.aToZArr,res.data.product_data[i]],fetching_from_server: false
-          })
-          if(this.state.aToZArr.length==res.data.total_record){
-            this.setState({btnVisabilty:false})
-          }else{
-            this.setState({btnVisabilty:true})
-          }
-      
-          
-          console.log("final retail array with setstate",this.state.aToZArr)
-  
-        }
-        // this.setState({
-        //   // aToZArr: this.state.aToZArr,
-        //   aToZArr: [...this.state.aToZArr, res.data.product_data],
-
-        //   fetching_from_server: false
-        // })
-        console.log('state atozarrr', this.state.aToZArr)
-
-        // this.setState({ aToZArr: res.data.product_data ,
-        //   fetching_from_server: false
-        // })
-  
-        
-            
-  
-  
-        
-  
-        // this.setState({
-        //   testArr:this.props.Order
-        // })
-        console.log('order of idssssssss',this.state.testArr)
-  
-      }
-     
-
-    })
-
-  });
-    };
 
 
 
-    loadMoreDataDefult = () => {
-      console.log('in load moreeee')
+
+    loadMoreDataDefult = (type) => {
+  console.log("honaaaaa1111",this.props.navigation.state.params.itemId)
           //On click of Load More button We will call the web API again
-          this.setState({ fetching_from_server_defult: true }, () => {
-      
+          this.setState({ fetching_from_server_defult: true,disableddefult:true  }, () => {
+ 
+          if(type==undefined||type==null||type=='reset'|| type=='')
+      {
+
           client.post(`/app/getallproducts?page_number=${this.offset_defult}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}`).then((res) => {
-            console.log('filter a to z', res.data)
-            console.log('filter a to z', res.data.product_data)
+console.log("res1111",res)
             if(res.data.message=='Returned all products.'){
+              this.setState({defultArr:this.state.defultArr.concat(res.data.product_data),fetching_from_server_defult: false,disableddefult:false}) 
+              this.setState({recordTotal:res.data.total_record})
+
               this.offset_defult = this.offset_defult + 1;
-              // this.state.aToZArr.push(res.data.product_data)
-              for (let i=0;i<res.data.product_data.length;i++){
-                console.log("final retail array",res.data.product_data[i])
-               
-                this.setState({
-                  defultArr: [...this.state.defultArr,res.data.product_data[i]],fetching_from_server_defult: false
-                })
+         
                 if(this.state.defultArr.length==res.data.total_record){
                   this.setState({btnVisabilty_defult:false})
                 }else{
@@ -788,383 +694,86 @@ console.log('in load moreeee')
                 }
             
                 
-                console.log("final retail array with setstate",this.state.aToZArr)
         
-              }
-              // this.setState({
-              //   // aToZArr: this.state.aToZArr,
-              //   aToZArr: [...this.state.aToZArr, res.data.product_data],
-      
-              //   fetching_from_server: false
-              // })
-              console.log('state atozarrr', this.state.aToZArr)
-      
-              // this.setState({ aToZArr: res.data.product_data ,
-              //   fetching_from_server: false
-              // })
+              // }
+            
         
-              
-                  
-        
-        
-              
-        
-              // this.setState({
-              //   testArr:this.props.Order
-              // })
-              console.log('order of idssssssss',this.state.testArr)
-        
+            }else{
+              this.setState({fetching_from_server_defult:false})
             }
-           
       
           })
+        }
+   
+      else{
+        var offset_guest_load
+        if(type=='most liked'){
+          offset_guest_load=this.offset_mostliked
+        }
+        else if(type=='z to a'){
+          offset_guest_load=this.offset_ztoa
+        }
+        else if(type=='a to z'){
+          offset_guest_load=this.offset
+        }
+        else if(type=='low to high'){
+          offset_guest_load=this.offset_lowtohight
+        }
+        else if(type=='high to low'){
+          offset_guest_load=this.offset_hightolow
+        }
+        else if(type=='top seller'){
+          offset_guest_load=this.offset_topseller
+        }
+        client.post(`/app/getallproducts?page_number=${offset_guest_load}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=${type}`).then((res) => {
+          this.setState({
+            defultArr: [...this.state.defultArr,res.data.product_data[i]],fetching_from_server_defult: false
+          })
+          this.setState({recordTotal:res.data.total_record})
+          if(res.data.message=='Returned all products.'){
+            if(type=='most liked'){
+              this.offset_mostliked=this.offset_mostliked+1
+            }
+            else if(type=='z to a'){
+this.offset_ztoa=this.offset_ztoa+1
+            }
+            else if(type=='a to z'){
+              this.offset=this.offset+1
+            }
+            else if(type=='low to high'){
+              this.offset_lowtohight=this.offset_lowtohight+1
+            }
+            else if(type=='high to low'){
+              this.offset_hightolow=this.offset_hightolow+1
+            }
+            else if(type=='top seller'){
+              this.offset_topseller=this.offset_topseller+1
+            }
+            for (let i=0;i<res.data.product_data.length;i++){
+             
+           
+              if(this.state.defultArr.length==res.data.total_record){
+                this.setState({btnVisabilty_defult:false})
+              }else{
+                this.setState({btnVisabilty_defult:true})
+              }
+          
+              
+      
+            }
+          
+      
+          }
+         
+    
+        })
+      }
       
         });
           };
 
-    loadMoreDatamostliked = () => {
-      console.log('in load moreeee')
-          //On click of Load More button We will call the web API again
-          this.setState({ fetching_from_server_mostliked: true }, () => {
+    
 
-          client.post(`/app/getallproducts?page_number=${this.offset_mostliked}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=most liked`).then((res) => {
-            console.log('filter a to z', res.data)
-            console.log('filter a to z', res.data.product_data)
-            if(res.data.message=='Returned all products.'){
-              this.offset_mostliked = this.offset_mostliked + 1;
-              // this.state.aToZArr.push(res.data.product_data)
-              for (let i=0;i<res.data.product_data.length;i++){
-                console.log("final retail array",res.data.product_data[i])
-               
-                this.setState({
-                  mostlikedArr: [...this.state.mostlikedArr,res.data.product_data[i]],fetching_from_server: false
-                })
-                if(this.state.mostlikedArr.length==res.data.total_record){
-                  this.setState({btnVisabilty_mostliked:false})
-                }else{
-                  this.setState({btnVisabilty_mostliked:true})
-                }
-            
-                console.log("final retail array with setstate",this.state.mostlikedArr)
-        
-              }
-              // this.setState({
-              //   // aToZArr: this.state.aToZArr,
-              //   aToZArr: [...this.state.aToZArr, res.data.product_data],
-      
-              //   fetching_from_server: false
-              // })
-              console.log('state atozarrr', this.state.aToZArr)
-      
-              // this.setState({ aToZArr: res.data.product_data ,
-              //   fetching_from_server: false
-              // })
-        
-              
-                  
-        
-        
-              
-        
-              // this.setState({
-              //   testArr:this.props.Order
-              // })
-              console.log('order of idssssssss',this.state.testArr)
-        
-            }
-           
-      
-         
-    })
-
-  });
-      
-          };
-      
-
-
-    loadMoreDataztoa = () => {
-      console.log('in load moreeee')
-          //On click of Load More button We will call the web API again
-          this.setState({ fetching_from_server_ztoa: true }, () => {
-
-          client.post(`/app/getallproducts?page_number=${this.offset_ztoa}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=z to a`).then((res) => {
-            console.log('filter a to z', res.data)
-            console.log('filter a to z', res.data.product_data)
-            if(res.data.message=='Returned all products.'){
-              this.offset_ztoa = this.offset_ztoa + 1;
-              // this.state.aToZArr.push(res.data.product_data)
-              for (let i=0;i<res.data.product_data.length;i++){
-                console.log("final retail array",res.data.product_data[i])
-               
-                this.setState({
-                  zToAArr: [...this.state.zToAArr,res.data.product_data[i]],fetching_from_server_ztoa: false
-                })
-                if(this.state.zToAArr.length==res.data.total_record){
-                  this.setState({btnVisabilty_ztoa:false})
-                }else{
-                  this.setState({btnVisabilty_ztoa:true})
-                }
-            
-                console.log("final retail array with setstate",this.state.zToAArr)
-        
-              }
-              // this.setState({
-              //   // aToZArr: this.state.aToZArr,
-              //   aToZArr: [...this.state.aToZArr, res.data.product_data],
-      
-              //   fetching_from_server: false
-              // })
-              console.log('state atozarrr', this.state.zToAArr)
-      
-              // this.setState({ aToZArr: res.data.product_data ,
-              //   fetching_from_server: false
-              // })
-        
-              
-                  
-        
-        
-              
-        
-              // this.setState({
-              //   testArr:this.props.Order
-              // })
-              console.log('order of idssssssss',this.state.testArr)
-        
-            }
-           
-      
-    })
-
-  });
-      
-          };
-          loadMoreDatahightolow = () => {
-            console.log('in load moreeee')
-            this.setState({ fetching_from_server_hightolow: true }, () => {
-
-                //On click of Load More button We will call the web API again
-                client.post(`/app/getallproducts?page_number=${this.offset_hightolow}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=high to low`).then((res) => {
-                  console.log('filter a to z', res.data)
-                  console.log('filter a to z', res.data.product_data)
-                  if(res.data.message=='Returned all products.'){
-                    this.offset_hightolow = this.offset_hightolow + 1;
-                    // this.state.aToZArr.push(res.data.product_data)
-                    for (let i=0;i<res.data.product_data.length;i++){
-                      console.log("final retail array",res.data.product_data[i])
-                     
-                      this.setState({
-                        highToLowArr: [...this.state.highToLowArr,res.data.product_data[i]],fetching_from_server_hightolow: false
-                      })
-                      if(this.state.highToLowArr.length==res.data.total_record){
-                        this.setState({btnVisabilty_hightolow:false})
-                      }else{
-                        this.setState({btnVisabilty_hightolow:true})
-                      }
-                  
-                      console.log("final retail array with setstate",this.state.highToLowArr)
-              
-                    }
-                    // this.setState({
-                    //   // aToZArr: this.state.aToZArr,
-                    //   aToZArr: [...this.state.aToZArr, res.data.product_data],
-            
-                    //   fetching_from_server: false
-                    // })
-                    console.log('state atozarrr', this.state.highToLowArr)
-            
-                    // this.setState({ aToZArr: res.data.product_data ,
-                    //   fetching_from_server: false
-                    // })
-              
-                    
-                        
-              
-              
-                    
-              
-                    // this.setState({
-                    //   testArr:this.props.Order
-                    // })
-                    console.log('order of idssssssss',this.state.testArr)
-              
-                  }
-                 
-            
-               
-    })
-
-  });
-                };
-
-                loadMoreDatalowtohight = () => {
-                  console.log('in load moreeee')
-                  this.setState({ fetching_from_server_lowtohight: true }, () => {
-
-                      //On click of Load More button We will call the web API again
-                      client.post(`/app/getallproducts?page_number=${this.offset_lowtohight}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=low to high`).then((res) => {
-                        console.log('filter a to z', res.data)
-                        console.log('filter a to z', res.data.product_data)
-                        if(res.data.message=='Returned all products.'){
-                          this.offset_lowtohight = this.offset_lowtohight + 1;
-                          // this.state.aToZArr.push(res.data.product_data)
-                          for (let i=0;i<res.data.product_data.length;i++){
-                            console.log("final retail array",res.data.product_data[i])
-                           
-                            this.setState({
-                              lowToHightArr: [...this.state.lowToHightArr,res.data.product_data[i]],fetching_from_server_lowtohight: false
-                            })
-                            if(this.state.lowToHightArr.length==res.data.total_record){
-                              this.setState({btnVisabilty_lowtohignt:false})
-                            }else{
-                              this.setState({btnVisabilty_lowtohignt:true})
-                            }
-                        
-                            console.log("final retail array with setstate",this.state.lowToHightArr)
-                    
-                          }
-                          // this.setState({
-                          //   // aToZArr: this.state.aToZArr,
-                          //   aToZArr: [...this.state.aToZArr, res.data.product_data],
-                  
-                          //   fetching_from_server: false
-                          // })
-                          console.log('state atozarrr', this.state.aToZArr)
-                  
-                          // this.setState({ aToZArr: res.data.product_data ,
-                          //   fetching_from_server: false
-                          // })
-                    
-                          
-                              
-                    
-                    
-                          
-                    
-                          // this.setState({
-                          //   testArr:this.props.Order
-                          // })
-                          console.log('order of idssssssss',this.state.testArr)
-                    
-                        }
-                       
-                  
-                    
-    })
-
-  });
-                  
-                      };
-
-
-                      loadMoreDatatopseller = () => {
-                        console.log('in load moreeee')
-                        this.setState({ fetching_from_server_topseller: true }, () => {
-
-                            //On click of Load More button We will call the web API again
-                            client.post(`/app/getallproducts?page_number=${this.offset_topseller}&agentId=${this.props.navigation.state.params.itemId}&language_id=${lang}&type=top seller`).then((res) => {
-                              console.log('filter a to z', res.data)
-                              console.log('filter a to z', res.data.product_data)
-                              if(res.data.message=='Returned all products.'){
-                                this.offset_topseller = this.offset_topseller + 1;
-                                // this.state.aToZArr.push(res.data.product_data)
-                                for (let i=0;i<res.data.product_data.length;i++){
-                                  console.log("final retail array",res.data.product_data[i])
-                                 
-                                  this.setState({
-                                    topSellerArr: [...this.state.topSellerArr,res.data.product_data[i]],fetching_from_server_topseller: false
-                                  })
-                                  if(this.state.topSellerArr.length==res.data.total_record){
-                                    this.setState({btnVisabilty_topseller:false})
-                                  }else{
-                                    this.setState({btnVisabilty_topseller:true})
-                                  }
-                              
-                                  console.log("final retail array with setstate",this.state.topSellerArr)
-                          
-                                }
-                                // this.setState({
-                                //   // aToZArr: this.state.aToZArr,
-                                //   aToZArr: [...this.state.aToZArr, res.data.product_data],
-                        
-                                //   fetching_from_server: false
-                                // })
-                                console.log('state atozarrr', this.state.topSellerArr)
-                        
-                                // this.setState({ aToZArr: res.data.product_data ,
-                                //   fetching_from_server: false
-                                // })
-                          
-                                
-                                    
-                          
-                          
-                                
-                          
-                                // this.setState({
-                                //   testArr:this.props.Order
-                                // })
-                                console.log('order of idssssssss',this.state.testArr)
-                          
-                              }
-                             
-                        
-                          
-    })
-
-  });
-                        
-                            };
-                        
-                        
-
-
-   
-    renderFooter() {
-      if(this.state.btnVisabilty){
-
-      
-      return (
-      //Footer View with Load More button
-        <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-          justifyContent: 'center',height:80,paddingBottom:60,
-          
-          alignItems: 'center',
-          flexDirection: 'row',}}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={this.loadMoreData}
-
-            style={{padding: 10,
-              backgroundColor: 'white',shadowOffset: {
-                width: 0,
-                height: 2,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              
-              elevation: 5,
-              
-              borderRadius: 4,
-              flexDirection: 'row',
-              justifyContent: 'center',width:50,height:50,borderRadius:25,
-              alignItems: 'center',}}>
-           
-    <Image  style={{ height:this.state.fetching_from_server? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-            {this.state.fetching_from_server ? (
-              <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-            ) : null}
-          </TouchableOpacity>
-        </View>
-      );
-            } else{
-              return(
-                null
-              )
-            }
-           
-    }
 
 
     renderFooterDefult() {
@@ -1180,8 +789,9 @@ console.log('in load moreeee')
           flexDirection: 'row',}}>
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={this.loadMoreDataDefult}
+            disabled={this.state.disableddefult?true:false}
 
+            onPress={()=>{this.loadMoreDataDefult(this.state.typeOfAll)}}
             style={{padding: 10,
               backgroundColor: 'white',shadowOffset: {
                 width: 0,
@@ -1199,7 +809,9 @@ console.log('in load moreeee')
             {/* <Text style={{color: 'white',
     fontSize: 15,
     textAlign: 'center',}}>Load More</Text> */}
-    <Image  style={{ height:this.state.fetching_from_server_defult? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
+    {/* <Image  style={{ height:this.state.fetching_from_server_defult? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/> */}
+    <Icon name="md-add" style={{ height:this.state.fetching_from_server_defult? 0:27,width:27,color:"#8FCFEB",textAlign:"center"}}/>
+
             {this.state.fetching_from_server_defult ? (
               <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
             ) : null}
@@ -1216,242 +828,23 @@ console.log('in load moreeee')
 
 
 
-    renderFootermostliked() {
-      if(this.state.btnVisabilty_mostliked){
-
-      return (
-      //Footer View with Load More button
-      <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-      justifyContent: 'center',height:80,paddingBottom:60,
-      
-      alignItems: 'center',
-      flexDirection: 'row',}}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={this.loadMoreDatamostliked}
-
-        style={{padding: 10,
-          backgroundColor: 'white',shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          
-          elevation: 5,
-          
-          borderRadius: 4,
-          flexDirection: 'row',
-          justifyContent: 'center',width:50,height:50,borderRadius:25,
-          alignItems: 'center',}}>
-        {/* <Text style={{color: 'white',
-fontSize: 15,
-textAlign: 'center',}}>Load More</Text> */}
-<Image  style={{ height:this.state.fetching_from_server_mostliked? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-        {this.state.fetching_from_server_mostliked ? (
-          <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-        ) : null}
-      </TouchableOpacity>
-    </View>
-      );
-            }
-      else{
-        return(
-          null
-        )
-      }
-    }
-
-
-
-    renderFooterztoa() {
-      if(this.state.btnVisabilty_ztoa){
-
-      return (
-      //Footer View with Load More button
-      <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-      justifyContent: 'center',height:80,paddingBottom:60,
-      
-      alignItems: 'center',
-      flexDirection: 'row',}}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={this.loadMoreDataztoa}
-
-        style={{padding: 10,
-          backgroundColor: 'white',shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          
-          elevation: 5,
-          
-          borderRadius: 4,
-          flexDirection: 'row',
-          justifyContent: 'center',width:50,height:50,borderRadius:25,
-          alignItems: 'center',}}>
-        {/* <Text style={{color: 'white',
-fontSize: 15,
-textAlign: 'center',}}>Load More</Text> */}
-<Image  style={{ height:this.state.fetching_from_server_ztoa? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-        {this.state.fetching_from_server_ztoa ? (
-          <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-        ) : null}
-      </TouchableOpacity>
-    </View>
-      );
-            }
-            else{
-              return(
-                null
-              )
-            }
-    }
-
-
-    renderFooterhightolow() {
-      if(this.state.btnVisabilty_hightolow){
-
-      return (
-      //Footer View with Load More button
-      <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-      justifyContent: 'center',height:80,paddingBottom:60,
-      
-      alignItems: 'center',
-      flexDirection: 'row',}}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={this.loadMoreDatahightolow}
-
-        style={{padding: 10,
-          backgroundColor: 'white',shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          
-          elevation: 5,
-          
-          borderRadius: 4,
-          flexDirection: 'row',
-          justifyContent: 'center',width:50,height:50,borderRadius:25,
-          alignItems: 'center',}}>
-        {/* <Text style={{color: 'white',
-fontSize: 15,
-textAlign: 'center',}}>Load More</Text> */}
-<Image  style={{ height:this.state.fetching_from_server_hightolow? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-        {this.state.fetching_from_server_hightolow ? (
-          <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-        ) : null}
-      </TouchableOpacity>
-    </View>
-      );
-            } else{
-              return(
-                null
-              )
-            }
-    }
-
-    renderFooterlowtohight() {
-      if(this.state.btnVisabilty_lowtohignt){
-
-      return (
-      //Footer View with Load More button
-      <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-      justifyContent: 'center',height:80,paddingBottom:60,
-      
-      alignItems: 'center',
-      flexDirection: 'row',}}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={this.loadMoreDatalowtohight}
-
-        style={{padding: 10,
-          backgroundColor: 'white',shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          
-          elevation: 5,
-          
-          borderRadius: 4,
-          flexDirection: 'row',
-          justifyContent: 'center',width:50,height:50,borderRadius:25,
-          alignItems: 'center',}}>
-        {/* <Text style={{color: 'white',
-fontSize: 15,
-textAlign: 'center',}}>Load More</Text> */}
-<Image  style={{ height:this.state.fetching_from_server_lowtohight? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-        {this.state.fetching_from_server_lowtohight ? (
-          <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-        ) : null}
-      </TouchableOpacity>
-    </View>
-      );
-            } else{
-              return(
-                null
-              )
-            }
-    }
-
-    renderFootertopseller() {
-      if(this.state.btnVisabilty_topseller){
-
-      return (
-      //Footer View with Load More button
-      <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-          justifyContent: 'center',height:80,paddingBottom:60,
-          
-          alignItems: 'center',
-          flexDirection: 'row',}}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={this.loadMoreDatatopseller}
-
-            style={{padding: 10,
-              backgroundColor: 'white',shadowOffset: {
-                width: 0,
-                height: 2,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              
-              elevation: 5,
-              
-              borderRadius: 4,
-              flexDirection: 'row',
-              justifyContent: 'center',width:50,height:50,borderRadius:25,
-              alignItems: 'center',}}>
-            {/* <Text style={{color: 'white',
-    fontSize: 15,
-    textAlign: 'center',}}>Load More</Text> */}
-    <Image  style={{ height:this.state.fetching_from_server_topseller? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-            {this.state.fetching_from_server_topseller ? (
-              <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-            ) : null}
-          </TouchableOpacity>
-        </View>
-      );
-            } else{
-              return(
-                null
-              )
-            }
-    }
-
 
   returnArray() {
+    var testArrTest=this.state.testArr
+    for (let i=0;i<this.props.Order.length;i++){
+      // this.setState({
+      //     //   testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
+      
+            
+      //     // })
+          testArrTest=[...testArrTest, (this.props.Order[i]).products_id]
+        }
+        console.log("testArrTest22",testArrTest)
+
     const { Items } = this.props;
-    console.log('listingarray',Items)
+
     // this.setState({arr:Items})
-    if (this.state.filter === 'defult') {
+    if (this.state.filter === 'defult'||this.state.filter === 'AtoZ'||this.state.filter=='ZtoA'||this.state.filter=='hightolow'||this.state.filter=='lowtohigh'||this.state.filter=='topseller'||this.state.filter=='mostliked') {
       return (
         <Content>
           <View style={{ flex: 1 }}>
@@ -1465,9 +858,16 @@ textAlign: 'center',}}>Load More</Text> */}
             }
            
          {this.state.status==200 ?(
+                this.state.loading_defult? (
+                  <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB',marginTop:50}}/>
+                ) :   
           this.state.defultArr.length > 0 ? (
+            
+       
               <FlatGrid
-              itemDimension={130}
+              // itemDimension={130}
+              itemDimension={Dimensions.get('window').width>420?200:130}
+
               items={this.state.defultArr}
               // items={arr}
               style={styles.gridView}
@@ -1500,17 +900,23 @@ textAlign: 'center',}}>Load More</Text> */}
                              this.Navigate (item.products_id,item.products_name)
                              }}> 
                   <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
+                              source={{uri: BaseURL +item.products_image}} 
+                               style={{ 
+                                 position: 'absolute',
                               top: 0,height:null,
                               flex:1,
                               left: 0,
                               bottom: 0,
-                              right: 0,}}/>
+                              right: 0,
+                              }}/>
                    </TouchableOpacity> 
                    <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
              
-              <Text   numberOfLines={1}
+              <Text   numberOfLines={2}
               style={{  fontSize: 13,
+                height:40,
+
+                textAlign:I18nManager.isRTL?"left":null,
                 fontWeight: "normal",
                 fontStyle: "normal",
                 letterSpacing: 0,
@@ -1585,10 +991,10 @@ textAlign: 'center',}}>Load More</Text> */}
 
                               //  this.Navigate (item.products_id,item.products_name)
                                }}
-                               disabled={ this.state.testArr.includes(item.products_id)? true:false}
+                               disabled={ testArrTest.includes(item.products_id)||item.in_stock==0? true:false}
 
                              // disabled={ Order.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
+                             style={{height:30,backgroundColor:testArrTest.includes(item.products_id)||item.in_stock==0?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
                              block 
                             //onPress={()=>{
                              
@@ -1603,7 +1009,7 @@ textAlign: 'center',}}>Load More</Text> */}
                  fontStyle: "normal",
                  letterSpacing: 0,
                  color: "#ffffff"
-               }}>{I18nManager.isRTL?'أضف الى السلة':'Add to Cart'}</Text>      
+               }}>{I18nManager.isRTL?testArrTest.includes(item.products_id)?'تمت الاضافه الى السلة':'أضف الى السلة':testArrTest.includes(item.products_id)?'Added to Cart':'Add to Cart'}</Text>      
                    </Button>
                          </Body>
                            </View>
@@ -1614,9 +1020,17 @@ textAlign: 'center',}}>Load More</Text> */}
               )}
               ListFooterComponent={this.renderFooterDefult.bind(this)}
             />
+            
             ) : 
-            <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB',marginTop:20}}/>
-
+            <View style={{justifyContent:'center',alignItems:'center',width:'100%'}}>
+            <Text style={{fontFamily: "Acens",
+         fontSize: 15,marginTop:100,
+         fontWeight: "normal",
+         fontStyle: "normal",
+         letterSpacing: 0,
+         textAlign: "left",
+         color: "#777777"}} >{i18n.t('noRecordFound')}</Text>
+          </View>
    ):
 
   
@@ -1635,1066 +1049,118 @@ color: "#777777"}} >{i18n.t('noRecordFound')}</Text>
         </Content>
       
     
-       ) } else if (this.state.filter === 'AtoZ') {
+       ) }
+       
 
 
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-              />
-            }
-             {this.state.loading ? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB',marginTop:20}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.aToZArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"newFont",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 10,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 12,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 12,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'black'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <View style={{width:'100%'}}>
-                             <Body style={{width:'100%'}}>
-                             <Button style={{width:'100%'}}
-                              onPress={() =>{
-                                this.handelAddToOrder(item)
-
-                              //  this.Navigate (item.products_id,item.products_name)
-                               }}
-                               disabled={ this.state.testArr.includes(item.products_id)? true:false}
-
-                             // disabled={ Order.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
-                             block 
-                            //onPress={()=>{
-                             
-                           
-                            //    props.navigate(props.item.products_id)
-                               
-                            //  }}
-                             >
-               <Text style={{fontFamily: "Acens",
-                 fontSize: 12,textAlign:'center',
-                 fontWeight: "normal",
-                 fontStyle: "normal",
-                 letterSpacing: 0,
-                 color: "#ffffff"
-               }}>{I18nManager.isRTL?'أضف الى السلة':'Add to Cart'}</Text>      
-                   </Button>
-                         </Body>
-                           </View>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-              )}
-              // ItemSeparatorComponent={() => <View style={styles.separator} />}
-              ListFooterComponent={this.renderFooter.bind(this)}
-              //Adding Load More button as footer component
-            />
-        )}
-          </View>
-        </Content>
-      );
-    }
-
-    else if (this.state.filter === 'ZtoA') {
-
-
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-                
-
-              />
-            }
-             {this.state.loading_ztoa ? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB',marginTop:20}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.zToAArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"newFont",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 10,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 12,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 12,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'black'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <View style={{width:'100%'}}>
-                             <Body style={{width:'100%'}}>
-                             <Button style={{width:'100%'}}
-                              onPress={() =>{
-                                this.handelAddToOrder(item)
-
-                              //  this.Navigate (item.products_id,item.products_name)
-                               }}
-                               disabled={ this.state.testArr.includes(item.products_id)? true:false}
-
-                             // disabled={ Order.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
-                             block 
-                            //onPress={()=>{
-                             
-                           
-                            //    props.navigate(props.item.products_id)
-                               
-                            //  }}
-                             >
-               <Text style={{fontFamily: "Acens",
-                 fontSize: 12,textAlign:'center',
-                 fontWeight: "normal",
-                 fontStyle: "normal",
-                 letterSpacing: 0,
-                 color: "#ffffff"
-               }}>{I18nManager.isRTL?'أضف الى السلة':'Add to Cart'}</Text>      
-                   </Button>
-                         </Body>
-                           </View>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-              )}
-              ListFooterComponent={this.renderFooterztoa.bind(this)}
-              />
-        )}
-          </View>
-        </Content>
-      );
-    }
-
-    else if (this.state.filter === 'hightolow') {
-
-
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-              />
-            }
-             {this.state.loading_hightolow? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB',marginTop:20}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.highToLowArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"newFont",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 10,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 12,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 12,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'black'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <View style={{width:'100%'}}>
-                             <Body style={{width:'100%'}}>
-                             <Button style={{width:'100%'}}
-                              onPress={() =>{
-                                this.handelAddToOrder(item)
-
-                              //  this.Navigate (item.products_id,item.products_name)
-                               }}
-                               disabled={ this.state.testArr.includes(item.products_id)? true:false}
-
-                             // disabled={ Order.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
-                             block 
-                            //onPress={()=>{
-                             
-                           
-                            //    props.navigate(props.item.products_id)
-                               
-                            //  }}
-                             >
-               <Text style={{fontFamily: "Acens",
-                 fontSize: 12,textAlign:'center',
-                 fontWeight: "normal",
-                 fontStyle: "normal",
-                 letterSpacing: 0,
-                 color: "#ffffff"
-               }}>{I18nManager.isRTL?'أضف الى السلة':'Add to Cart'}</Text>      
-                   </Button>
-                         </Body>
-                           </View>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-              )}
-              ListFooterComponent={this.renderFooterhightolow.bind(this)}
-              />
-        )}
-          </View>
-        </Content>
-      );
-    }
-    else if (this.state.filter === 'lowtohigh') {
-
-
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-              />
-            }
-             {this.state.loading_lowtohight ? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB',marginTop:20}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.lowToHightArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"newFont",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 10,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 12,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 12,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'black'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <View style={{width:'100%'}}>
-                             <Body style={{width:'100%'}}>
-                             <Button style={{width:'100%'}}
-                              onPress={() =>{
-                                this.handelAddToOrder(item)
-
-                              //  this.Navigate (item.products_id,item.products_name)
-                               }}
-                               disabled={ this.state.testArr.includes(item.products_id)? true:false}
-
-                             // disabled={ Order.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
-                             block 
-                            //onPress={()=>{
-                             
-                           
-                            //    props.navigate(props.item.products_id)
-                               
-                            //  }}
-                             >
-               <Text style={{fontFamily: "Acens",
-                 fontSize: 12,textAlign:'center',
-                 fontWeight: "normal",
-                 fontStyle: "normal",
-                 letterSpacing: 0,
-                 color: "#ffffff"
-               }}>{I18nManager.isRTL?'أضف الى السلة':'Add to Cart'}</Text>      
-                   </Button>
-                         </Body>
-                           </View>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-              )}
-              ListFooterComponent={this.renderFooterlowtohight.bind(this)}
-              />
-        )}
-          </View>
-        </Content>
-      );
-    }
-
-    else if (this.state.filter === 'topseller') {
-
-
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-              />
-            }
-             {this.state.loading_topseller? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB',marginTop:20}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.topSellerArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"newFont",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 10,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 12,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 12,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: 'numFont',marginTop:0,marginBottom:0,color:'black'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <View style={{width:'100%'}}>
-                             <Body style={{width:'100%'}}>
-                             <Button style={{width:'100%'}}
-                              onPress={() =>{
-                                this.handelAddToOrder(item)
-
-                              //  this.Navigate (item.products_id,item.products_name)
-                               }}
-                               disabled={ this.state.testArr.includes(item.products_id)? true:false}
-
-                             // disabled={ Order.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
-                             block 
-                            //onPress={()=>{
-                             
-                           
-                            //    props.navigate(props.item.products_id)
-                               
-                            //  }}
-                             >
-               <Text style={{fontFamily: "Acens",
-                 fontSize: 12,textAlign:'center',
-                 fontWeight: "normal",
-                 fontStyle: "normal",
-                 letterSpacing: 0,
-                 color: "#ffffff"
-               }}>{I18nManager.isRTL?'أضف الى السلة':'Add to Cart'}</Text>      
-                   </Button>
-                         </Body>
-                           </View>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-              )}
-              ListFooterComponent={this.renderFootertopseller.bind(this)}
-              />
-        )}
-          </View>
-        </Content>
-      );
-    }
-
-
-    else if (this.state.filter === 'mostliked') {
-
-
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-              />
-            }
-             {this.state.loading_mostliked ? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB',marginTop:20}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.mostlikedArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center',height:210}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: "Acens",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                {item.new_price !=null &&item.new_price !=''?(
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: "Acens",marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}}>{item.new_price}JOD</Text>
-               
-                ):
-                null}
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                  
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: "Acens",marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 13,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily: "Acens",marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD</Text>
-                 }  
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <View style={{width:'100%'}}>
-                             <Body style={{width:'100%'}}>
-                             <Button style={{width:'100%'}}
-                              onPress={() =>{
-                                this.handelAddToOrder(item)
-
-                              //  this.Navigate (item.products_id,item.products_name)
-                               }}
-                               disabled={ this.state.testArr.includes(item.products_id)? true:false}
-
-                             // disabled={ Order.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
-                             block 
-                            //onPress={()=>{
-                             
-                           
-                            //    props.navigate(props.item.products_id)
-                               
-                            //  }}
-                             >
-               <Text style={{fontFamily: "Acens",
-                 fontSize: 12,textAlign:'center',
-                 fontWeight: "normal",
-                 fontStyle: "normal",
-                 letterSpacing: 0,
-                 color: "#ffffff"
-               }}>{I18nManager.isRTL?'أضف الى السلة':'Add to Cart'}</Text>      
-                   </Button>
-                         </Body>
-                           </View>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-
-              )}
-              ListFooterComponent={this.renderFootermostliked.bind(this)}
-              />
-        )}
-          </View>
-        </Content>
-      );
-    }
+   
   
   }
   defultSort() {
     this.setSortModalVisible(false)
     this.setState({ filter: 'defult' })
-    console.log("defult",this.state. defultArr)
+    this.setState({ loading_defult: true })
+
+    this._retrieveData('reset',0)
+
   }
   aToz() {
     this.setSortModalVisible(false)
     this.setState({ filter: 'AtoZ' })
-    console.log("atoz",this.state. aToZArr)
+    this.setState({ loading_defult: true })
+    this._retrieveData('a to z')
+
+
   }
   zToa() {
     this.setSortModalVisible(false)
 
     this.setState({ filter: 'ZtoA' })
+    this.setState({ loading_defult: true })
+    this._retrieveData('z to a')
+   
   }
   highToLow() {
     this.setSortModalVisible(false)
 
+  
     this.setState({ filter: 'hightolow' })
+    this.setState({ loading_defult: true })
+    this._retrieveData('high to low')
   }
   
   lowToHight(){
     this.setSortModalVisible(false)
 
     this.setState({ filter: 'lowtohigh' })
+    this.setState({ loading_defult: true })
+    this._retrieveData('low to high')
 
   }
   topseller(){
     this.setSortModalVisible(false)
 
     this.setState({ filter: 'topseller' })
-
+    this.setState({ loading_defult: true })
+    this._retrieveData('top seller')
   }
   mostliked(){
     this.setSortModalVisible(false)
 
     this.setState({ filter: 'mostliked' })
+    this.setState({ loading_defult: true })
+    this._retrieveData('most liked')
 
   }
+  // defultSort() {
+  //   this.setSortModalVisible(false)
+  //   this.setState({ filter: 'defult' })
+ 
+  // }
+  // aToz() {
+  //   this.setSortModalVisible(false)
+  //   this.setState({ filter: 'AtoZ' })
+
+  // }
+  // zToa() {
+  //   this.setSortModalVisible(false)
+
+  //   this.setState({ filter: 'ZtoA' })
+  // }
+  // highToLow() {
+  //   this.setSortModalVisible(false)
+
+  //   this.setState({ filter: 'hightolow' })
+  // }
+  
+  // lowToHight(){
+  //   this.setSortModalVisible(false)
+
+  //   this.setState({ filter: 'lowtohigh' })
+
+  // }
+  // topseller(){
+  //   this.setSortModalVisible(false)
+
+  //   this.setState({ filter: 'topseller' })
+
+  // }
+  // mostliked(){
+  //   this.setSortModalVisible(false)
+
+  //   this.setState({ filter: 'mostliked' })
+
+  // }
   popup() { }
   render() {
-   
+   console.log("defultArrrrrrr",this.state.defultArr)
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
-    //i18n.locale =null;
-    console.log('test:' + this.state.myLang);
+ 
 
     i18n.locale = this.state.myLang;
     const { Items } = this.props;
-    // if (!Items.length) {
-    //   return (
-    //     <View style={{width:Dimensions.get('window').width,height:Dimensions.get('window').height,justifyContent:'center',alignItems:'center'}}>
-     
-    //   <ActivityIndicator  size="large" color="#8FCFEB" />
-    //   </View>
-    //   )
-    // }
+  
 
     return (
       <StyleProvider style={getTheme(variables)}>
@@ -2778,7 +1244,7 @@ color: "#777777"}} >{i18n.t('noRecordFound')}</Text>
                   lineHeight: 17,
                   letterSpacing: 0,
                   color: "#8FCFEB",marginStart: 15, marginEnd: 13
-                }}> ({this.props.navigation.state.params.total_products})</Text>
+                }}> ({this.state.recordTotal})</Text>
                 </Text>
             </View>
 </View>
@@ -2875,13 +1341,12 @@ color: "#777777"}} >{i18n.t('noRecordFound')}</Text>
                                     {/* <Text style={{width:30,height:30,fontSize: 23, color: 'white', marginEnd:-20,marginStart:10,marginTop:-5}}>x</Text> */}
                                     </TouchableOpacity>
                                         <Text style={{ fontSize: 20, color: 'white', fontFamily: 'Acens',width:Dimensions.get('window').width/1.67,textAlign:'center' }}>Filter Products</Text>
-                                        <TouchableOpacity 
+                                        {/* <TouchableOpacity 
      onPress={ () => { this.defultSort() } }>  
  <Image style={{width:22,height:22,marginLeft:0}} 
  source={require('../assets/images/clearefilter.png')}
  />
-                                    {/* <Text style={{width:30,height:30,fontSize: 23, color: 'white', marginEnd:-20,marginStart:10,marginTop:-5}}>x</Text> */}
-                                    </TouchableOpacity>
+                                    </TouchableOpacity> */}
                                    
                                        </View>
                                        </View>
@@ -2956,6 +1421,15 @@ color: "#777777"}} >{i18n.t('noRecordFound')}</Text>
                {i18n.t('mostLiked')}
                 </Text>
                 </TouchableOpacity>
+                <TouchableOpacity  onPress={ () => { this.defultSort() } } style={{width:'100%',height:44,justifyContent:'center',alignItems:'center'}}>
+
+<Text style={{fontFamily: "Acens",
+fontSize: 16,
+fontWeight: "bold",
+fontStyle: "normal",}}>
+{i18n.t('reset')}
+</Text>
+</TouchableOpacity>
 <View style={{width:Dimensions.get('window').width/1.37,alignItems:'flex-end',justifyContent:'flex-end',paddingTop:30}}>
 {/* <TouchableOpacity
 onPress={()=>{this.setSortModalVisible(false)}}

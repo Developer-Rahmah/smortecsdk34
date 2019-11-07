@@ -540,8 +540,8 @@ addToCartTouchable:{
 descBodyStyle:{
     fontFamily: "newFont",
     fontSize: 13,
-    fontWeight: "normal",
-    fontStyle: "normal",
+    // fontWeight: "normal",
+    // fontStyle: "normal",
     // letterSpacing: 0.03,
     color: "#777777"
 },

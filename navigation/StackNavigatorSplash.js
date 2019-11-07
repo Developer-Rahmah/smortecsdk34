@@ -29,19 +29,13 @@ import RestPasswordFinal from '../screens/RestPasswordFinal';
  import FaqsPage from '../screens/FaqsPage';
  import OrderDetails from '../screens/OrderDetails';
  import OrderDetailsOld from '../screens/OrderDetailsOld';
- import Splash from '../screens/Splash';
  import AboutUs from '../screens/AboutUs';
  import ReviewScreen from '../screens/ReviewScreen';
 
 export const StackNavigatorSplash = createStackNavigator({
 
  
-    Splash:{ 
-        screen: Splash,
-        navigationOptions: {
-            headerTintColor: 'white', fontFamily:'Acens',//here I mean that the tintColor will be have that value on the CURRENT(!) screen,
-        }
-    },
+  
     Home:{ 
         screen: HomeScreen,
         navigationOptions: {
@@ -270,16 +264,3 @@ export const StackNavigatorSplash = createStackNavigator({
   
 //   {  headerMode: 'none'}
   )
-//   _retrieveData = async () => {
-//     try {
-//       const value = await AsyncStorage.getItem('userID');
-//       if (value !== null) {
-//         // We have data!!
-//         console.log('getstorageitem',value);
-//          this.props.navigation.navigate('Home')
-//       }
-//     } catch (error) {
-//       // Error retrieving data
-//       console.log('getstorageitemerrrror',error);
-//     }
-//   };

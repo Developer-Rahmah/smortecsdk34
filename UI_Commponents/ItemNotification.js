@@ -5,7 +5,7 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  View,Share,ImageBackground,I18nManager
+  View,Share,ImageBackground,I18nManager,Dimensions
 
 } from 'react-native';
 import { Localization } from 'expo-localization';
@@ -31,12 +31,12 @@ export const ItemNotification = ({...props}) => {
     let BaseURL = 'http://delico.qiotic.info';
     let item = props.item;
     let index=props.index;
-    console.log('ntify prrops',item)
+  
     return (
 
 
 
-      <Card cardBorderRadius={5} style={{height:45,justifyContent:'center',alignItems:'center'}}>
+      <Card cardBorderRadius={5} style={{ minHeight:80,heigth:Dimensions.get('window').height/4,justifyContent:'center',alignItems:'center'}}>
       <TouchableOpacity
        
       >
@@ -47,7 +47,7 @@ export const ItemNotification = ({...props}) => {
 <View style={{width:20}}/>
              <Icon name='md-notifications'  color='black' style={{color:'black',}} />  
              <View style={{width:5}}/>
-                 <Text style={[styles.itemText,{marginTop:0,marginBottom:0,width:"70%"}]}>{item.text}</Text>
+                 <Text  style={[styles.itemText,{width:"70%"}]}>{item.text}</Text>
                  </View>
                  <TouchableOpacity onPress={() =>  props.onDelete(index,item)}>
 

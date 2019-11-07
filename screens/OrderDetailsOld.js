@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Images, Fonts, Metrics, Colors } from '../Themes';
 
 import { StyleSheet,View,TouchableOpacity ,TextInput,Dimensions,Platform,Image,Modal,AsyncStorage,FlatList,ScrollView,I18nManager,ActivityIndicator} from 'react-native'
 import {
@@ -65,7 +64,8 @@ const en = {
     proceed:'Proceed',
     filterOrders:'Filter Orders',
     noResult:'No Result Found',
-    shippingDate:'Shipping Date'
+    shippingDate:'Sending Date',
+
 
    
     
@@ -99,7 +99,8 @@ const ar = {
  proceed:'قيد التحضير',
  filterOrders:'فلترة الطلبات',
  noResult:'لا يوجد نتائج',
- shippingDate:'تاريخ الشحن'
+ shippingDate:'تاريخ الارسال',
+
 
 
 
@@ -246,7 +247,6 @@ this.setModalVisible(false)
 
     _retrieveData = async () => {
         this.setState({loading:true})
-        console.log('all states',this.state)
         try {
           const value = await AsyncStorage.getItem('userID');
           const namevalue =  await AsyncStorage.getItem("userName"); 
@@ -255,7 +255,6 @@ this.setModalVisible(false)
           const userEmail = await AsyncStorage.getItem("userEmail");
           const userCity = await AsyncStorage.getItem('userCity');
           const userAddress = await AsyncStorage.getItem('userAddress');
-          console.log('new data',userCity,',',userAddress)
           const myLang = await AsyncStorage.getItem('myLang');
       
       
@@ -266,11 +265,7 @@ this.setModalVisible(false)
           }
           if (value !== null) {
             // We have data!!
-            console.log('userid:',value);
-            console.log('namevalue:',namevalue);
-            console.log('phonevalue:',phonevalue);
-            console.log('passwvalue:',passwvalue);
-            console.log('userEmail:',userEmail);
+        
 
       this.setState({
         userID:value,
@@ -283,44 +278,33 @@ this.setModalVisible(false)
 
       })
          
-      console.log("hereeeeeeeeeeeeeeeeeeeeeeee",loading)
       client.post(`app/oldorders?customers_id=${value}`
         
       ).then((res) => {
           this.setState({loading:false})
-          console.log('all orders3333333',res.data.data)
-          console.log('all orders in index'+ res.data.data[this.props.navigation.state.params.index ].data+'is',)
+
 
          this.setState({orderDetailsArr:res.data.data[this.props.navigation.state.params.index].data})
-         console.log('all orders in orderDetailsArr',this.state.orderDetailsArr)
 
     for(let i=0;i<=this.state.orderDetailsArr.length;i++){
-        // if(res.data.data[this.props.navigation.state.params.index ].data[i].status==4 || res.data.data[this.props.navigation.state.params.index ].data[i].status==5 ){
-        //     this.setState({proccedCancelinallOrder:true})
-        // }else{
-        //     this.setState({proccedCancelinallOrder:false})
-        // }
-        console.log('iiiiiiii',this.state.orderDetailsArr[i].status)
+   
 
 
         if(this.state.orderDetailsArr[i].status==4){
             this.setState({
                 canceldArr: [...this.state.canceldArr, this.state.orderDetailsArr[i].status_name]
               })
-              console.log('canceldArr res',this.state.orderDetailsArr[i].status_name)
 
             }else  if(this.state.orderDetailsArr[i].status==5){
                 this.setState({
                     proccedArr: [...this.state.proccedArr, this.state.orderDetailsArr[i].status_name]
                   })
-                  console.log('procced res',this.state.orderDetailsArr[i].status_name)
 
                 }
                 
 
     }
-    console.log('canceldArr state',this.state.canceldArr)
-    console.log('proccedArr state',this.state.proccedArr)
+
 
     })
 
@@ -334,18 +318,7 @@ this.setModalVisible(false)
         
       };
       componentWillMount() {
-        // if (I18nManager.isRTL)
-        // {
-        //   lang=4;
-        // }
-        // else{
-        //   lang=1;
-        // }
-        //     this._retrieveData()
-        //     if(this.props.Order.length>0){
-              
-          
-        //     }
+
             
         this._retrieveData()
         // for(let i=0;i<=this.state.ExperienceArr.length;i++){
@@ -364,7 +337,6 @@ this.setModalVisible(false)
         })
         .then(res => res.json())
         .then((apiResponse)=>{ 
-            console.log("api response", apiResponse) 
             return {
                 type: "REGISTER_USER",
                 api_response: apiResponse.data
@@ -420,32 +392,14 @@ handelCompleted(){
         //  products[${i}][customers_basket_quantity]=${this.state.products[i].customers_basket_quantity}`
 a.push(`products[${i}][products_id]=${this.state.products[i].products_id}&products[${i}][products_price]=${this.state.products[i].final_price}&products[${i}][customers_basket_quantity]=${this.state.products[i].customers_basket_quantity}`)
     }
-//}
-    console.log('cheeeeckout array',a)
-    console.log('str arr',a.toString())
+
     let b=a.toString()
     b.replace(",","&")
-    console.log('str after replacing',b.split(",").join("&"))
-    console.log('all params','userid',this.state.userID,
-    'username',this.state.username,
-    'phone',this.state.phone,
-    'address',this.state.userAddress,
-   'city', this.state.userCity,
-   'finalprice',this.props.navigation.state.params.finalPrice,
-   'array',b.split(",").join("&"))
-console.log('final final request',`/addtoorder?customers_id=${this.state.userID}&delivery_firstname=${this.state.username}&customers_telephone=${this.state.phone}
-&delivery_street_address=${this.state.userAddress}&delivery_city=${this.state.userCity}&total=${this.props.navigation.state.params.finalPrice}&products[]&
-&payment_method=cod&language_id=${lang}&${b.split(",").join("&")}`)
-    // client.post(`/addtoorder?customers_id=${this.state.userID}&delivery_firstname=${this.state.username}&customers_telephone=${this.state.phone}
-    //     &delivery_street_address=${this.state.userAddress}&delivery_city=${this.state.userCity}&total=${this.props.navigation.state.params.finalPrice}&products[]&
-    // &payment_method=cod&language_id=1&${b.split(",").join("&")}`)
+
         client.post(`/addtoorder?customers_id=${this.state.userID}&delivery_firstname=${this.state.username}&customers_telephone=${this.state.phone}&delivery_city=${this.state.userCity}&total=${this.props.navigation.state.params.finalPrice}&payment_method=cod&language_id=${lang}& ${b.split(",").join("&")}&products[&city_id=1&billing_street_address=${this.state.userAddress}`)
         .then((res) => {
-            console.log('shipning address',res)
              if(res.data.message==='Order has been placed successfully.'){
-                 console.log('order arr before removing',this.props.Order)
                  this.props.clearCart();
-                 console.log('order arr afteeer removing',this.props)
 
                 this.props.navigation.navigate('OrderAddedSuccesfully')  
             }
@@ -459,21 +413,17 @@ console.log('final final request',`/addtoorder?customers_id=${this.state.userID}
       } 
 DeleteProduct(orders_products_id,index,type){ 
     let newItem = this.state.orderDetailsArr;
-    console.log(' ondelet preesed ')
 
     client.post(`/app/cancelproduct?orders_products_id=${orders_products_id}&type=${type}`
         
     ).then((res) => {
-        console.log('cancelproduct id ',res)
        if(res.data.status==200){
         client.post(`app/getorders?customers_id=${this.state.userID}`
         
         ).then((res) => {
-            console.log('all orders44444',res.data.data)
-          console.log('all orders in index'+ res.data.data[this.props.navigation.state.params.index ].data+'is',)
+       
 
          this.setState({orderDetailsArr:res.data.data[this.props.navigation.state.params.index].data})
-         console.log('all orders in orderDetailsArr',this.state.orderDetailsArr)
 
     for(let i=0;i<=this.state.orderDetailsArr.length;i++){
         // if(res.data.data[this.props.navigation.state.params.index ].data[i].status==4 || res.data.data[this.props.navigation.state.params.index ].data[i].status==5 ){
@@ -486,25 +436,21 @@ DeleteProduct(orders_products_id,index,type){
             this.setState({
                 canceldArr: [...this.state.canceldArr, this.state.orderDetailsArr[i].status_name]
               })
-              console.log('canceldArr res',this.state.orderDetailsArr[i].status_name)
 
             }else  if(this.state.orderDetailsArr[i].status==5){
                 this.setState({
                     proccedArr: [...this.state.proccedArr, this.state.orderDetailsArr[i].status_name]
                   })
-                  console.log('procced res',this.state.orderDetailsArr[i].status_name)
 
                 }
                 
 
     }
-    console.log('canceldArr state',this.state.canceldArr)
-    console.log('proccedArr state',this.state.proccedArr)
+
 
     })
   
   
-        console.log('cancelproduct id ',res)
         if(type=0){
            this.setState({caceld:true})
  
@@ -513,12 +459,8 @@ DeleteProduct(orders_products_id,index,type){
 
         }
        
-        // newItem.splice(index, 1)
-        // this.setState({ orderDetailsArr: newItem })
-
-        // this.props.navigation.navigate('Home')
+  
        }
-       console.log(' afteeeer delet preesed ',this.state.orderDetailsArr)
   
   })
 
@@ -533,91 +475,67 @@ client.post(`app/oldorders?customers_id=${this.state.userID}&status=${statusVal}
 ).then((res) => {
     this.setState({loading:false})
 
-    console.log('all orders555555',res.data.data)
-    console.log('all orders in index'+ res.data.data[this.props.navigation.state.params.index ].data+'is',)
 
    this.setState({orderDetailsArr:res.data.data[this.props.navigation.state.params.index].data})
-   console.log('all orders in orderDetailsArr11111',this.state.orderDetailsArr)
 
 for(let i=0;i<=this.state.orderDetailsArr.length;i++){
-  // if(res.data.data[this.props.navigation.state.params.index ].data[i].status==4 || res.data.data[this.props.navigation.state.params.index ].data[i].status==5 ){
-  //     this.setState({proccedCancelinallOrder:true})
-  // }else{
-  //     this.setState({proccedCancelinallOrder:false})
-  // }
-  console.log('iiiiiiii',this.state.orderDetailsArr[i].status)
+
 
 
   if(this.state.orderDetailsArr[i].status==4){
       this.setState({
           canceldArr: [...this.state.canceldArr, this.state.orderDetailsArr[i].status_name]
         })
-        console.log('canceldArr res',this.state.orderDetailsArr[i].status_name)
 
       }else  if(this.state.orderDetailsArr[i].status==5){
           this.setState({
               proccedArr: [...this.state.proccedArr, this.state.orderDetailsArr[i].status_name]
             })
-            console.log('procced res',this.state.orderDetailsArr[i].status_name)
 
           }
           
 
 }
-console.log('canceldArr state',this.state.canceldArr)
-console.log('proccedArr state',this.state.proccedArr)
+
 
 })
 }
   
 DeleteOrder(orders_id,type){ 
     let newItem = this.state.orderDetailsArr;
-    console.log(' ondelet preesed ')
 
     client.post(`/app/proceedorder?orders_id=${orders_id}&type=${type}`
         
     ).then((res) => {
-        console.log('cancelproduct id ',res)
        if(res.data.status==200){
         client.post(`app/getorders?customers_id=${this.state.userID}`
         
         ).then((res) => {
-            console.log('all orders222222222',res.data.data)
-          console.log('all orders in index'+ res.data.data[this.props.navigation.state.params.index ].data+'is',)
+
 
          this.setState({orderDetailsArr:res.data.data[this.props.navigation.state.params.index].data})
-         console.log('all orders in orderDetailsArr',this.state.orderDetailsArr)
 
     for(let i=0;i<=this.state.orderDetailsArr.length;i++){
-        // if(res.data.data[this.props.navigation.state.params.index ].data[i].status==4 || res.data.data[this.props.navigation.state.params.index ].data[i].status==5 ){
-        //     this.setState({proccedCancelinallOrder:true})
-        // }else{
-        //     this.setState({proccedCancelinallOrder:false})
-        // }
-console.log('iiiiiiii',this.state.orderDetailsArr[i])
+    
         if(this.state.orderDetailsArr[i].status==4){
             this.setState({
                 canceldArr: [...this.state.canceldArr, this.state.orderDetailsArr[i].status_name]
               })
-              console.log('canceldArr res',this.state.orderDetailsArr[i].status_name)
 
             }else  if(this.state.orderDetailsArr[i].status==5){
                 this.setState({
                     proccedArr: [...this.state.proccedArr, this.state.orderDetailsArr[i].status_name]
                   })
-                  console.log('procced res',this.state.orderDetailsArr[i].status_name)
 
                 }
                 
 
     }
-    console.log('canceldArr state',this.state.canceldArr)
-    console.log('proccedArr state',this.state.proccedArr)
+ 
 
     })
   
   
-        console.log('cancelproduct id ',res)
         if(type=0){
            this.setState({caceld:true})
  
@@ -626,12 +544,8 @@ console.log('iiiiiiii',this.state.orderDetailsArr[i])
 
         }
        
-        // newItem.splice(index, 1)
-        // this.setState({ orderDetailsArr: newItem })
-
-        // this.props.navigation.navigate('Home')
+  
        }
-       console.log(' afteeeer delet preesed ',this.state.orderDetailsArr)
   
   })
 
@@ -786,33 +700,13 @@ return(
         i18n.fallbacks = true;
         i18n.translations = { ar, en };
         //i18n.locale =null;
-        console.log('test:' + this.state.myLang);
     
         i18n.locale = this.state.myLang;
-        console.log("hereee",this.props)
-        // console.log('order array final',this.state.products[1].products_id)
+     
         return (
             <StyleProvider style={getTheme(variables)}>
                 <Container style={{ backgroundColor: "#FFF"}}>
-                {/* <Header style={{height:99,backgroundColor:'#8FCFEB'}}>
-        
-        <Left style={{}}>
-        <Button style={{}} transparent onPress={() => this.props.navigation.goBack()}>
-        <Icon
-         style={{  transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }],}}
-        name={
-        Platform.OS === 'ios'
-          ? `ios-arrow-back`
-          : 'arrow-back'
-      }  />
-                  </Button>
-           
-        </Left>
-        <Body style={[styles.header,{width:Dimensions.get('window').width/1.2,justifyContent:'center',alignItems:'center'}]}>
-              <Title style={[styles.header,{fontSize:25,width:Dimensions.get('window').width/1.4,fontFamily:'helivet',marginStart:-40}]}>{i18n.t('orderDetails')}</Title>
-            </Body>
-          
-        </Header>  */}
+         
 
 <Header style={{height:99,backgroundColor:'#8FCFEB'}}>
         
@@ -855,13 +749,13 @@ return(
         <Content style={MyOrdersStyles.content}>
         <View style={{
             backgroundColor: '#f3f3f3',
-            height: 47,marginBottom:-15,
+            height: 30,marginBottom:-15,
             flexDirection: 'row',
             justifyContent: 'space-between',
             marginTop: -6
           }}>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', width: '50%', alignItems: 'center' }}>
+            {/* <View style={{ flexDirection: 'row', justifyContent: 'flex-start', width: '50%', alignItems: 'center' }}>
               <TouchableOpacity
               style={{flexDirection: 'row', justifyContent: 'flex-start', width: '50%', alignItems: 'center'}}
               onPress={() => {
@@ -885,9 +779,9 @@ return(
                   color: "#787878"
                 }}>{i18n.t('filter')}</Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
 
-</View>
+</View> 
 {!this.state.loading?
 this.state.orderDetailsArr.length>0?
 				        <View>

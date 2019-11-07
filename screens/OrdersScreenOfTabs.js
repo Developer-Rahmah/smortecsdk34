@@ -181,7 +181,6 @@ componentWillUnmount() {
 
 
     client.post(`app/allcategories?language_id=${lang}`).then((res) => {
-      console.log('wishlist array',res.data)
       if(res.data.status==200){
         this.setState({status:200})
       }else{
@@ -205,7 +204,6 @@ componentWillUnmount() {
 
 
     this.setState({ loading: false });
-    console.log('willmountaaaa=' + this.state.isRTL)
     if (Platform.OS === 'android' && !Constants.isDevice) {
       this.setState({
         errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
@@ -214,17 +212,7 @@ componentWillUnmount() {
       this._getLocationAsync();
     }
   }
-  // _getLocationAsync = async () => {
-  //   let { status } = await Permissions.askAsync(Permissions.LOCATION);
-  //   if (status !== 'granted') {
-  //     this.setState({
-  //       errorMessage: 'Permission to access location was denied',
-  //     });
-  //   }
 
-  //   let location = await Location.getCurrentPositionAsync({});
-  //   this.setState({ location });
-  // };
 
 _goToYosemite() {
   openMap({ latitude: 31.995513, longitude:  35.859667 });
@@ -254,16 +242,7 @@ async  componentDidMount() {
 }
 
 
-  // Navigate(itemId,image,name) {
-    
-  //   console.log('catid',itemId)
-  //   this.props.navigation.navigate('ItemListScreen', {
-  //     itemId: itemId,
-  //     image:image,
-  //     name:name
 
-  //   })
-  // }
 
   N360() {
     this.props.navigation.navigate('WebView360')
@@ -271,16 +250,13 @@ async  componentDidMount() {
  
   componentDidMount() {
     client.get(`/sitesetting`).then((res) => {
-      console.log('phone num',res.data.data[0].value)
     this.setState({phonCall:res.data.data[0].value})
     
       
     })
-    console.log('cat array', this.props.CategoriesData)
 
     this.props.getCategories();
     client.get('/app/getbanners').then((res)=>{
-      console.log('banner',res)
       for (let i = 0; i < res.data.data.length; i++) {
         this.state.Banner.push(res.data.data[i]);
         
@@ -332,7 +308,6 @@ _callShowDirections = () => {
  
 }
 openMap= () =>  {
-  console.log('open directions')
   Platform.select({
       ios: () => {
           Linking.openURL('http://maps.apple.com/maps?daddr=32.004734,%2035.861525');
@@ -405,72 +380,21 @@ _renderComponent = () => {
 //       return <HotOffersListingTab  navigation={this.props.navigation}/>
 }
   render() {
-    console.log('order  array',this.props.Order)
 
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
-    //i18n.locale =null;
-    console.log('test:' + this.state.myLang);
+
 
     i18n.locale = this.state.myLang;
     const images = this.state.Banner
-    console.log('images  rahmah', this.state.Banner )
-    console.log('home screen array',this.props.CategoriesData)
-
-//    if (!this.state.isReady) {
+ 
 
 
-//       return (
-//         <View style={{ height: Dimensions.get('window').height, width: Dimensions.get('window').width,backgroundColor:'white' }}>
-      
-//         <View style={{ height: Dimensions.get('window').height, width: Dimensions.get('window').width, justifyContent: 'center', alignItems: 'center', }}
-//             >
-//             <View style={{ height: Dimensions.get('window').height / 5,flexDirection:'column' }}>
-//             </View>
-
-//             <Image
-//                 source={require('../assets/images/smorteclogo.png')}
-//                 style={{
-//                     width: Dimensions.get('window').width/1.5,
-//                     height: Dimensions.get('window').width/2.5, paddingTop: 2,marginBottom:-10,
-//                     // resizeMode: 'contain'
-//                 }}
-//                 onLoad={this._cacheResourcesAsync}
-//             />
-//             <View style={{ height: Dimensions.get('window').height / 2.5 ,flexDirection:'column'}}>
-// <Text style={{fontSize:30,fontFamily:'Acens',color:'#8FCFEB',textAlign:'center'}}>SMORTEC</Text>
-// <Text style={{fontSize:30,fontFamily:'Acens',color:'gray',textAlign:'center'}}>We are the future</Text>
-
-//             </View>
-//             <Text style={{fontFamily:'Acens',color:'gray',textAlign:'center'}} >©SMORTEC 2019</Text>
-
-//         </View>
-
-//     </View>
-//       );
-//   }
   if (this.state.loading) {
       return <Expo.AppLoading />;
   }
 
-    // if (!this.props.CategoriesData.length) {
-    //   return (
-    //     <View style={{width:Dimensions.get('window').width,height:Dimensions.get('window').height,justifyContent:'center',alignItems:'center'}}>
-     
-    //   <ActivityIndicator  size="large" color="#8FCFEB" />
-    //   </View>
-    //   )
-    // } else {
-    //   this.props.CategoriesData.length = 10;
-    // }
-// if(this.props.CategoriesData.length==0){
-//   return(
 
-//     <View>
-//       <Text> NO DATA</Text>
-//     </View>
-//   )
-// }
     return (
       <StyleProvider style={getTheme(variables)}>
         <Container>
@@ -488,7 +412,7 @@ name={
            
         </Left>
         <Body style={styles.header}>
-              <Title style={[styles.header,{fontSize:25,width:Dimensions.get('window').width/2,fontFamily:'Acens',marginLeft:0}]}>{i18n.t('myOrders')}</Title>
+              <Title style={[styles.header,{fontSize:25,width:Dimensions.get('window').width/2,fontFamily:'Acens',marginLeft:0,color:"#fff"}]}>{i18n.t('myOrders')}</Title>
             </Body>
             <Right style={{width:50,justifyContent:'flex-end',marginRight:-70}} >
               <Body> 

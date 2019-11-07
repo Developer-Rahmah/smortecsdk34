@@ -147,28 +147,6 @@ let a = 1;
   }
 
 
-//   _onChangeDirection = async (lang) => {
-//     // save the lang in storage
-//     await AsyncStorage.setItem("myLang", lang);
-
-//     this.setState({ "myLang": lang });
-
-//     // I18nManager.forceRTL(lang === "ar");
-
-//     this.setState({ isRTL: lang === "ar" });
-
-//     i18n.locale = this.state.myLang;
-//     // await Updates.fetchUpdateAsync();
-
-//     try {
-//       await AsyncStorage.setItem('@MySuperStore:key', JSON.stringify(this.props.Order)); 
-//         Updates.reloadFromCache();
-
-//     } catch (error) {
-//       // Error saving data
-//       console.log('errror in saving cart arrrrr',error)
-//     }
-// }
 _onChangeDirection = async (lang) => {
   // save the lang in storage
   await AsyncStorage.setItem("myLang", lang);
@@ -242,13 +220,11 @@ selectComponent2 = () => () => {
     this.setState({ activePage: 1 })
    this. _onDirectionChangeFinal('ar')
     
-    // this.setState({fLang:'en'})
-  //  console.log('final lang'+this.state.fLang)
+
 }
 selectComponent3 = () => () => {
     this.setState({ activePage: 2 })
-    // this.setState({fLang:'ar'})
-    // console.log('final lang'+this.state.fLang)
+
 this._onDirectionChange()
 }
 
@@ -256,14 +232,12 @@ this._onDirectionChange()
     AsyncStorage.setItem("switchOn",JSON.stringify(!this.state.switchOn))
      this.setState({ switchOn: !this.state.switchOn });
 
-     console.log('test notify me',this.state.switchOn)
      if(this.state.switchOn){
 
 
       client.post(`/app/notify_me?is_notify=0&customers_id=${this.state.userID}`
         
       ).then((res) => {
-          console.log('cites',res.data.message)
           
     
     })
@@ -272,7 +246,6 @@ this._onDirectionChange()
       client.post(`/app/notify_me?is_notify=1&customers_id=${this.state.userID}`
         
       ).then((res) => {
-          console.log('cites',res.data.message)
           
     
     })
@@ -295,12 +268,7 @@ this._onDirectionChange()
   
       if (value !== null) {
 
-      
-        // We have data!!
-        console.log('userid:',value);
-        console.log('namevalue:',namevalue);
-        console.log('phonevalue:',phonevalue);
-        console.log('passwvalue:',passwvalue); 
+    
        
   this.setState({
     userID:value,
@@ -328,7 +296,6 @@ this._onDirectionChange()
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
     //i18n.locale =null;
-    console.log('test:' + this.state.myLang);
 
     i18n.locale = this.state.myLang;
     this.selectComponent()

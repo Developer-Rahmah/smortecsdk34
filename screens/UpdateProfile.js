@@ -156,13 +156,7 @@ finalNameState:'',
           
       
           if (value !== null) {
-            // We have data!!
-            console.log('userid:',value);
-            console.log('namevalue:',namevalue);
-            console.log('phonevalue:',phonevalue);
-            console.log('passwvalue:',passwvalue);
-            console.log('userEmail:',userEmail);
-            console.log('lastttname:',lastName);
+   
 
       this.setState({
         userID:value,
@@ -253,8 +247,7 @@ finalNameState:'',
 _handlePress2 = async () => {
     // save the lang in storage
     if(this.state.firstNew==''){
-        console.log('usernamenew',this.state.firstNew)
-        console.log('usernameprev',this.state.firstNew)
+  
 
         this.setState({firstNew:this.state.firstNmae})
         this._storeDataName(this.state.firstNmae)
@@ -262,7 +255,7 @@ _handlePress2 = async () => {
     }else{
         this._storeDataName(this.state.firstNew)
         this.setState({userName:this.state.firstNew})
-        console.log('usernamenew',this.state.firstNew)
+   
 
     }
     if(this.state.userNewPass==''){
@@ -273,8 +266,7 @@ _handlePress2 = async () => {
         }
    
     if(this.state.userPhoneNew==''){
-        console.log('userphonenew',this.state.userPhoneNew)
-        console.log('userphoneprev',this.state.userPhone)
+    
 
         this.setState({userPhoneNew:this.state.userPhone})
         this._storeDataPhone(this.state.userPhone)
@@ -282,13 +274,12 @@ _handlePress2 = async () => {
     }else{
         this._storeDataPhone(this.state.userPhoneNew)
         this.setState({userPhone:this.state.userPhoneNew})
-        console.log('userphonenew',this.state.userPhoneNew)
+      
 
     }
 
     if(this.state.lastNew==''){
-        console.log('usernamenew',this.state.lastName)
-        console.log('usernameprev',this.state.lastNew)
+
 
         this.setState({lastNew:this.state.lastName})
         this._storeDataLastName(this.state.lastName)
@@ -296,14 +287,13 @@ _handlePress2 = async () => {
     }else{
         this._storeDataLastName(this.state.lastNew)
         this.setState({userName:this.state.lastNew})
-        console.log('usernamenew',this.state.lastNew)
+    
 
     }
     
 
     if(this.state.userEmailNew==''){
-        console.log('usernamenew',this.state.userEmail)
-        console.log('usernameprev',this.state.userEmailNew)
+   
 
         this.setState({lastNew:this.state.userEmail})
         this._storeDataEmail(this.state.userEmail)
@@ -311,7 +301,6 @@ _handlePress2 = async () => {
     }else{
         this._storeDataEmail(this.state.userEmailNew)
         this.setState({userName:this.state.userEmailNew})
-        console.log('usernamenew',this.state.userEmailNew)
 
     }
     
@@ -389,25 +378,15 @@ showMessage({
                 }else{
                     this.setState({yes:true})
                 }
-                console.log('user old password',this.state.userPassword)
-                console.log('user new password',this.state.userPassword)
-console.log('post apiiii',`app/updatecustomerinfo?customers_id=${this.state.userID}&
-    customers_firstname=${finaln}&customers_telephone=${finalp}&customers_lastname=${finalLN}&email=${finalEm}&new_password=${this.state.password}&old_password=${this.state.userPassword}`)
+
     if(this.state.yes){
             
     client.post(`/app/updatecustomerinfo?customers_id=${this.state.userID}&
     customers_firstname=${finaln}&customers_telephone=${finalp}&customers_lastname=${finalLN}&email=${finalEm}&new_password=${this.state.password}&old_password=${this.state.oldPassowrd}`).then((res) => {
-        console.log('data user update profile',res.data)
-        console.log('test',res.data)
+   
 
         if(res.data.status=='200'){
-            console.log('res',res.data)
-//             this.setState({lastUsName:res.data.data[0].customers_firstname,
-//                 lastPhone:res.data.data[0].customers_telephone,
-//                 lastPass:this.state.userNewPass})
-//             this._storeData(this.state.lastUsName,this.state.lastPhone,)
-// console.log('lasstttupdate',this.state.lastUsName,this.state.lastPhone,this.state.userNewPass)
-// this._retrieveData()
+
 showMessage({
     
     message: i18n.t ('profileupdattedsuccessfully'),
@@ -439,17 +418,10 @@ showMessage({
     }else{
         client.post(`/app/updatecustomerinfo?customers_id=${this.state.userID}&
     customers_firstname=${finaln}&customers_telephone=${finalp}&customers_lastname=${finalLN}&email=${finalEm}`).then((res) => {
-        console.log('data user update profile',res.data)
-        // console.log('test',res.data)
+   
 
         if(res.status=='200'){
-            // console.log('res',res.data)
-//             this.setState({lastUsName:res.data.data[0].customers_firstname,
-//                 lastPhone:res.data.data[0].customers_telephone,
-//                 lastPass:this.state.userNewPass})
-//             this._storeData(this.state.lastUsName,this.state.lastPhone,)
-// console.log('lasstttupdate',this.state.lastUsName,this.state.lastPhone,this.state.userNewPass)
-// this._retrieveData()
+
 showMessage({
     
     message: i18n.t ('profileupdattedsuccessfully'),
@@ -463,73 +435,18 @@ this.props.navigation.navigate("Home")
 
     }
    
-//     client.post(`/app/updatecustomerinfo?customers_id=${this.state.userID}&
-//     customers_firstname=${finaln}&customers_telephone=${finalp}&customers_lastname=${finalLN}&email=${finalEm}`).then((res) => {
-//         console.log('data user update profile',res.data)
-//         // console.log('test',res.data)
 
-//         if(res.status=='200'){
-//             // console.log('res',res.data)
-// //             this.setState({lastUsName:res.data.data[0].customers_firstname,
-// //                 lastPhone:res.data.data[0].customers_telephone,
-// //                 lastPass:this.state.userNewPass})
-// //             this._storeData(this.state.lastUsName,this.state.lastPhone,)
-// // console.log('lasstttupdate',this.state.lastUsName,this.state.lastPhone,this.state.userNewPass)
-// // this._retrieveData()
-// this.props.navigation.navigate("Home") 
-//         }
-// // if(res.data.message==='Sign Up successfully!'){
-
-//     })
-
-// }
-// console.log('paswword',this.state.userPassword)
 
 }}
     render() {
         i18n.fallbacks = true;
         i18n.translations = { ar, en };
-        //i18n.locale =null;
-        console.log('test:' + this.state.myLang);
+     
     
         i18n.locale = this.state.myLang;
         return (
             <Container>
-                 {/* <Header style={{height:99,backgroundColor:'#8FCFEB'}}>
-        
-        <Left style={{}}>
-        <Button style={{}} transparent onPress={() => this.props.navigation.goBack()}>
-        <Icon style={{  transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }],}} name={
-        Platform.OS === 'ios'
-          ? `ios-arrow-back`
-          : 'arrow-back'
-      }  />
-                  </Button>
-           
-        </Left>
-        <Body style={styles.header}>
-              <Title style={[styles.header,{fontSize:25,width:Dimensions.get('window').width/1.5,fontFamily:'Acens',marginLeft:0}]}>{i18n.t('myProfile')} </Title>
-            </Body>
-            <Right style={{width:50,justifyContent:'flex-end',marginRight:-70}} >
-              <Body> 
-              <TouchableOpacity 
-     onPress={() =>
-      this.props.navigation.navigate('OrderScreen')
-
-  }
-    style={{flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-
-    <Icon style={{color:'white',}} name={
-        Platform.OS === 'ios'
-          ? `md-cart`
-          : 'md-cart'
-      }/>
-          
-</TouchableOpacity>
-                
-</Body>
-            </Right>
-        </Header>  */}
+              
            <Header style={{height:99,backgroundColor:'#8FCFEB'}}>
         
         <Left>

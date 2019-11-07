@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Images, Fonts, Metrics, Colors } from '../Themes';
 
 import { StyleSheet,View,TouchableOpacity ,TextInput,Dimensions,Platform,Image,Modal,AsyncStorage,FlatList,ScrollView,I18nManager} from 'react-native'
 import {
@@ -237,7 +236,7 @@ this.setModalVisible(false)
     };
 
     _retrieveData = async () => {
-        console.log('all states',this.state)
+   
         try {
           const value = await AsyncStorage.getItem('userID');
           const namevalue =  await AsyncStorage.getItem("userName"); 
@@ -246,15 +245,10 @@ this.setModalVisible(false)
           const userEmail = await AsyncStorage.getItem("userEmail");
           const userCity = await AsyncStorage.getItem('userCity');
           const userAddress = await AsyncStorage.getItem('userAddress');
-          console.log('new data',userCity,',',userAddress)
+        
       
           if (value !== null) {
-            // We have data!!
-            console.log('userid:',value);
-            console.log('namevalue:',namevalue);
-            console.log('phonevalue:',phonevalue);
-            console.log('passwvalue:',passwvalue);
-            console.log('userEmail:',userEmail);
+        
 
       this.setState({
         userID:value,
@@ -271,39 +265,32 @@ this.setModalVisible(false)
       client.post(`app/oldorders?customers_id=${value}`
         
       ).then((res) => {
-          console.log('all orders',res.data.data)
-          console.log('all orders in index'+ res.data.data[this.props.navigation.state.params.index ].data+'is',)
+  
 
          this.setState({orderDetailsArr:res.data.data[this.props.navigation.state.params.index].data})
-         console.log('all orders in orderDetailsArr',this.state.orderDetailsArr)
+       
 
     for(let i=0;i<=this.state.orderDetailsArr.length;i++){
-        // if(res.data.data[this.props.navigation.state.params.index ].data[i].status==4 || res.data.data[this.props.navigation.state.params.index ].data[i].status==5 ){
-        //     this.setState({proccedCancelinallOrder:true})
-        // }else{
-        //     this.setState({proccedCancelinallOrder:false})
-        // }
-        console.log('iiiiiiii',this.state.orderDetailsArr[i].status)
+     
 
 
         if(this.state.orderDetailsArr[i].status==4){
             this.setState({
                 canceldArr: [...this.state.canceldArr, this.state.orderDetailsArr[i].status_name]
               })
-              console.log('canceldArr res',this.state.orderDetailsArr[i].status_name)
+          
 
             }else  if(this.state.orderDetailsArr[i].status==5){
                 this.setState({
                     proccedArr: [...this.state.proccedArr, this.state.orderDetailsArr[i].status_name]
                   })
-                  console.log('procced res',this.state.orderDetailsArr[i].status_name)
+         
 
                 }
                 
 
     }
-    console.log('canceldArr state',this.state.canceldArr)
-    console.log('proccedArr state',this.state.proccedArr)
+
 
     })
 
@@ -315,27 +302,7 @@ this.setModalVisible(false)
         }
         
       };
-    //   componentWillMount() {
-    //     if (I18nManager.isRTL)
-    //     {
-    //       lang=4;
-    //     }
-    //     else{
-    //       lang=1;
-    //     }
-    //         this._retrieveData()
-    //         if(this.props.Order.length>0){
-              
-          
-    //         }
-            
-    //     this._retrieveData()
-    //     // for(let i=0;i<=this.state.ExperienceArr.length;i++){
-
-    //     // }
-         
-       
-    //   }
+ 
        registerUser(data){
     return fetch(url, {
         method: 'POST',
@@ -346,7 +313,7 @@ this.setModalVisible(false)
         })
         .then(res => res.json())
         .then((apiResponse)=>{ 
-            console.log("api response", apiResponse) 
+    
             return {
                 type: "REGISTER_USER",
                 api_response: apiResponse.data
@@ -402,32 +369,17 @@ handelCompleted(){
         //  products[${i}][customers_basket_quantity]=${this.state.products[i].customers_basket_quantity}`
 a.push(`products[${i}][products_id]=${this.state.products[i].products_id}&products[${i}][products_price]=${this.state.products[i].final_price}&products[${i}][customers_basket_quantity]=${this.state.products[i].customers_basket_quantity}`)
     }
-//}
-    console.log('cheeeeckout array',a)
-    console.log('str arr',a.toString())
+
     let b=a.toString()
     b.replace(",","&")
-    console.log('str after replacing',b.split(",").join("&"))
-    console.log('all params','userid',this.state.userID,
-    'username',this.state.username,
-    'phone',this.state.phone,
-    'address',this.state.userAddress,
-   'city', this.state.userCity,
-   'finalprice',this.props.navigation.state.params.finalPrice,
-   'array',b.split(",").join("&"))
-console.log('final final request',`/addtoorder?customers_id=${this.state.userID}&delivery_firstname=${this.state.username}&customers_telephone=${this.state.phone}
-&delivery_street_address=${this.state.userAddress}&delivery_city=${this.state.userCity}&total=${this.props.navigation.state.params.finalPrice}&products[]&
-&payment_method=cod&language_id=${lang}&${b.split(",").join("&")}`)
-    // client.post(`/addtoorder?customers_id=${this.state.userID}&delivery_firstname=${this.state.username}&customers_telephone=${this.state.phone}
-    //     &delivery_street_address=${this.state.userAddress}&delivery_city=${this.state.userCity}&total=${this.props.navigation.state.params.finalPrice}&products[]&
-    // &payment_method=cod&language_id=1&${b.split(",").join("&")}`)
+
         client.post(`/addtoorder?customers_id=${this.state.userID}&delivery_firstname=${this.state.username}&customers_telephone=${this.state.phone}&delivery_city=${this.state.userCity}&total=${this.props.navigation.state.params.finalPrice}&payment_method=cod&language_id=${lang}& ${b.split(",").join("&")}&products[&city_id=1&billing_street_address=${this.state.userAddress}`)
         .then((res) => {
-            console.log('shipning address',res)
+      
              if(res.data.message==='Order has been placed successfully.'){
-                 console.log('order arr before removing',this.props.Order)
+              
                  this.props.clearCart();
-                 console.log('order arr afteeer removing',this.props)
+              
 
                 this.props.navigation.navigate('OrderAddedSuccesfully')  
             }
@@ -441,21 +393,20 @@ console.log('final final request',`/addtoorder?customers_id=${this.state.userID}
       } 
 DeleteProduct(orders_products_id,index,type){ 
     let newItem = this.state.orderDetailsArr;
-    console.log(' ondelet preesed ')
+
 
     client.post(`/app/cancelproduct?orders_products_id=${orders_products_id}&type=${type}`
         
     ).then((res) => {
-        console.log('cancelproduct id ',res)
+       
        if(res.data.status==200){
         client.post(`app/getorders?customers_id=${this.state.userID}`
         
         ).then((res) => {
-            console.log('all orders',res.data.data)
-          console.log('all orders in index'+ res.data.data[this.props.navigation.state.params.index ].data+'is',)
+
 
          this.setState({orderDetailsArr:res.data.data[this.props.navigation.state.params.index].data})
-         console.log('all orders in orderDetailsArr',this.state.orderDetailsArr)
+      
 
     for(let i=0;i<=this.state.orderDetailsArr.length;i++){
         // if(res.data.data[this.props.navigation.state.params.index ].data[i].status==4 || res.data.data[this.props.navigation.state.params.index ].data[i].status==5 ){
@@ -468,25 +419,21 @@ DeleteProduct(orders_products_id,index,type){
             this.setState({
                 canceldArr: [...this.state.canceldArr, this.state.orderDetailsArr[i].status_name]
               })
-              console.log('canceldArr res',this.state.orderDetailsArr[i].status_name)
 
             }else  if(this.state.orderDetailsArr[i].status==5){
                 this.setState({
                     proccedArr: [...this.state.proccedArr, this.state.orderDetailsArr[i].status_name]
                   })
-                  console.log('procced res',this.state.orderDetailsArr[i].status_name)
 
                 }
                 
 
     }
-    console.log('canceldArr state',this.state.canceldArr)
-    console.log('proccedArr state',this.state.proccedArr)
+
 
     })
   
   
-        console.log('cancelproduct id ',res)
         if(type=0){
            this.setState({caceld:true})
  
@@ -500,7 +447,7 @@ DeleteProduct(orders_products_id,index,type){
 
         // this.props.navigation.navigate('Home')
        }
-       console.log(' afteeeer delet preesed ',this.state.orderDetailsArr)
+      
   
   })
 
@@ -512,91 +459,77 @@ statusSort(statusVal) {
 client.post(`app/oldorders?customers_id=${this.state.userID}&status=${statusVal}`
         
 ).then((res) => {
-    console.log('all orders',res.data.data)
-    console.log('all orders in index'+ res.data.data[this.props.navigation.state.params.index ].data+'is',)
+
 
    this.setState({orderDetailsArr:res.data.data[this.props.navigation.state.params.index].data})
-   console.log('all orders in orderDetailsArr',this.state.orderDetailsArr)
+ 
 
 for(let i=0;i<=this.state.orderDetailsArr.length;i++){
-  // if(res.data.data[this.props.navigation.state.params.index ].data[i].status==4 || res.data.data[this.props.navigation.state.params.index ].data[i].status==5 ){
-  //     this.setState({proccedCancelinallOrder:true})
-  // }else{
-  //     this.setState({proccedCancelinallOrder:false})
-  // }
-  console.log('iiiiiiii',this.state.orderDetailsArr[i].status)
+
 
 
   if(this.state.orderDetailsArr[i].status==4){
       this.setState({
           canceldArr: [...this.state.canceldArr, this.state.orderDetailsArr[i].status_name]
         })
-        console.log('canceldArr res',this.state.orderDetailsArr[i].status_name)
+
 
       }else  if(this.state.orderDetailsArr[i].status==5){
           this.setState({
               proccedArr: [...this.state.proccedArr, this.state.orderDetailsArr[i].status_name]
             })
-            console.log('procced res',this.state.orderDetailsArr[i].status_name)
+         
 
           }
           
 
 }
-console.log('canceldArr state',this.state.canceldArr)
-console.log('proccedArr state',this.state.proccedArr)
+
 
 })
 }
   
 DeleteOrder(orders_id,type){ 
     let newItem = this.state.orderDetailsArr;
-    console.log(' ondelet preesed ')
+
 
     client.post(`/app/proceedorder?orders_id=${orders_id}&type=${type}`
         
     ).then((res) => {
-        console.log('cancelproduct id ',res)
+   
        if(res.data.status==200){
         client.post(`app/getorders?customers_id=${this.state.userID}`
         
         ).then((res) => {
-            console.log('all orders',res.data.data)
-          console.log('all orders in index'+ res.data.data[this.props.navigation.state.params.index ].data+'is',)
+       
 
          this.setState({orderDetailsArr:res.data.data[this.props.navigation.state.params.index].data})
-         console.log('all orders in orderDetailsArr',this.state.orderDetailsArr)
+       
 
     for(let i=0;i<=this.state.orderDetailsArr.length;i++){
-        // if(res.data.data[this.props.navigation.state.params.index ].data[i].status==4 || res.data.data[this.props.navigation.state.params.index ].data[i].status==5 ){
-        //     this.setState({proccedCancelinallOrder:true})
-        // }else{
-        //     this.setState({proccedCancelinallOrder:false})
-        // }
-console.log('iiiiiiii',this.state.orderDetailsArr[i])
+
         if(this.state.orderDetailsArr[i].status==4){
             this.setState({
                 canceldArr: [...this.state.canceldArr, this.state.orderDetailsArr[i].status_name]
               })
-              console.log('canceldArr res',this.state.orderDetailsArr[i].status_name)
+        
 
             }else  if(this.state.orderDetailsArr[i].status==5){
                 this.setState({
                     proccedArr: [...this.state.proccedArr, this.state.orderDetailsArr[i].status_name]
                   })
-                  console.log('procced res',this.state.orderDetailsArr[i].status_name)
+                
 
                 }
                 
 
     }
-    console.log('canceldArr state',this.state.canceldArr)
-    console.log('proccedArr state',this.state.proccedArr)
+
 
     })
   
   
-        console.log('cancelproduct id ',res)
+ 
         if(type=0){
            this.setState({caceld:true})
  
@@ -605,12 +538,9 @@ console.log('iiiiiiii',this.state.orderDetailsArr[i])
 
         }
        
-        // newItem.splice(index, 1)
-        // this.setState({ orderDetailsArr: newItem })
-
-        // this.props.navigation.navigate('Home')
+    
        }
-       console.log(' afteeeer delet preesed ',this.state.orderDetailsArr)
+     
   
   })
 

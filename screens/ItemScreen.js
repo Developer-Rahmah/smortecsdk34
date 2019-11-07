@@ -25,7 +25,7 @@ import {  Icon, Content,Header,
   Left,
   Body,
   Right,
-  Container,StyleProvider,Picker,Card, } from "native-base";
+  Container,StyleProvider,Card,Picker } from "native-base";
   import getTheme from '../native-base-theme/components';
   import variables from '../native-base-theme/variables/variables';
   import { Localization } from 'expo-localization';
@@ -47,6 +47,7 @@ import {  Icon, Content,Header,
   let finaltestS=0.0;
   const en = {
     select:'- Select -',
+    
       home: 'Home',
       wishlist: 'Favorite',
       settings:'Settings',
@@ -57,7 +58,7 @@ import {  Icon, Content,Header,
      callNow:'CALL NOW',
      buyNow:'BUY NOW',
      addedSuccessfully:'Added Successfully',
-     qty:'QTY :',
+     qty:'Qty :',
      bonus:'Bonus : ',
      profitMargin:'Profit Value : ',
      cost:'Cost : ',
@@ -86,14 +87,21 @@ import {  Icon, Content,Header,
      to:' to ',
 
      done:'Done',
-     Unit : 'Unit : ', 
-     type : 'Type : ', 
-     tax : 'Tax : ',  
-     Referencenumber:' Reference Number : ',
-     DrugStore:'Drug Store : ',
-     SubAgent:'Sub Agent : ',
+     Unit : 'Unit: ', 
+     type : 'Type: ', 
+     tax : 'Tax: ',  
+     Referencenumber:' Reference Number: ',
+     DrugStore:'Drug Store: ',
+     SubAgent:'Sub Agent: ',
      bonusavailable:' Bonus ',
-     categotyname:'Category Name : '
+     categotyname:'Category Name: ',
+     instock:"Stock: ",
+     available:"Available",
+     notavailable:"Not Available",
+     availablebonuses:"Available Bonuses",
+     selectbonus:"Select Bonus: ",
+     greaterthan:'greater than '
+
 
      
  
@@ -103,6 +111,10 @@ import {  Icon, Content,Header,
      
   };
   const ar = {
+    greaterthan:' أكثر من ',
+
+    availablebonuses:"البوانص المتاحة",
+
     select:'- اختر -',
 
     checkOut:'الدفع',
@@ -146,13 +158,19 @@ import {  Icon, Content,Header,
     to:' الى ' ,
     done:'تم',
 
-    Unit: 'الوحدة : ', 
-    type: 'النوع : ', 
-    tax: 'ضريبة المبيعات : ',  
-    Referencenumber:' الرقم المرجعي :  ',
-    DrugStore:' مستودع الادوية :  ',
-     SubAgent:' الوكيل :  ',
-     categotyname:'اسم القسم :'
+    Unit: 'الوحدة: ', 
+    type: 'النوع: ', 
+    tax: 'ضريبة المبيعات: ',  
+    Referencenumber:' الرقم المرجعي:  ',
+    DrugStore:' مستودع الادوية:  ',
+     SubAgent:' الموزع:  ',
+     categotyname:'اسم القسم :',
+     instock:"المخزن: ",
+     available:"متوفر",
+     notavailable:"غير متوفر",
+     selectbonus:"اختر بونص: "
+
+
 
 
 
@@ -300,8 +318,7 @@ let lang;
       this.setState({  status:200  })
 
     }
-   console.log('likkkkkkkkke')
-    console.log('wishlistarrrr:',this.state.wishListArr)
+ 
 
 const { navigation } = this.props;
 client.post(`/app/getallproducts?type=wishlist&customers_id=${this.state.userID}&language_id=${lang}`).then((res) => {
@@ -314,7 +331,6 @@ wishListArr: res.data.product_data,
 
   })
 }
-console.log('wishlistarrrr:',this.state.wishListArr)
 
 })
   client.post(`/app/getallproducts?type=wishlist&customers_id=${this.state.userID}&language_id=${lang}`).then((res) => {
@@ -359,7 +375,6 @@ goBack() {
   
 const { navigation } = this.props;
 this.setState({wishListArr:[]})
-    console.log('wishlistarrrr:',this.state.wishListArr)
 client.post(`/app/getallproducts?type=wishlist&customers_id=${this.state.userID}&language_id=${lang}`).then((res) => {
          
          
@@ -396,13 +411,11 @@ wishListArr: res.data.product_data,
 }
 
 onValueChangeGramsCustom(value) {
-  console.log('value selecteeeeeed',value)
   this.setState({
       selectedGramsCustom: value,
 
   });
   if(value=='bounses'){
-    console.log('value selecteeeeeed',value)
 
     this.setBounsModalVisibleRef(true)
   }
@@ -414,19 +427,18 @@ onValueChangeGramsCustom(value) {
 
 
 onValueChangeGrams(value) {
-  console.log('value selecteeeeeed',value)
   this.setState({
       selectedGrams: value,
 
   });
   if(value=='bounses'){
-    console.log('value selecteeeeeed',value)
 
     this.setBounsModalVisibleRef(true)
   }
-  
   this.setState({finalPrice:(parseFloat(value+1)*this.state.singleItem.products_price),price:(parseFloat(this.state.singleItem.products_price))})
-  
+  if(this.state.custmizeBonusNum>0){
+    this.setState({custmizeBonusNum:0})
+  }
 }
  
   
@@ -477,9 +489,7 @@ this.setState({
 });
 
 client.post(`/app/likeproduct?liked_products_id=${itemId}&liked_customers_id=${this.state.userID}`).then((res) => {
-  console.log('wishlist',res)
-  console.log('wishlist user id',this.state.userID)
-    console.log('wishlist item id',itemId)
+
 
   
 })
@@ -496,7 +506,6 @@ else{
   
   
  
-    console.log('wishlist array',this.state.wish)
 
    
     
@@ -507,7 +516,6 @@ else{
 
   });
 client.post(`/app/unlikeproduct?liked_products_id=${itemId}&liked_customers_id=${this.state.userID}`).then((res) => {
-  console.log('wishlist',res)
 
 })
 
@@ -515,7 +523,6 @@ client.post(`/app/unlikeproduct?liked_products_id=${itemId}&liked_customers_id=$
     
 }
   addToWishList(){
-    console.log('rah prooops',this.state.singleItem)
     let item={
           name : this.state.singleItem.products_name,
           
@@ -527,6 +534,7 @@ client.post(`/app/unlikeproduct?liked_products_id=${itemId}&liked_customers_id=$
     this.setState({ search });
   };
   _retrieveData = async () => {
+    console.log("hereeeeeee")
     try {
       const value = await AsyncStorage.getItem('userID');
       const phonevalue = await AsyncStorage.getItem("userPhone");
@@ -550,7 +558,6 @@ client.post(`/app/unlikeproduct?liked_products_id=${itemId}&liked_customers_id=$
           userEmail:userEmail,
           lastName:lastName,
           pharmcyNmae:pharmcyNmae})
-        console.log('user item in itemscreen',value);
         client.post(`/app/getallproducts?type=wishlist&customers_id=${value}&language_id=${lang}`).then((res) => {
          
          
@@ -573,7 +580,6 @@ client.post(`/app/unlikeproduct?liked_products_id=${itemId}&liked_customers_id=$
           this.setState({btnColor:'gray',txtColr:'#8FCFEB',btnDisabled:true,checkDisplay:'flex'})
 
     }
-          console.log('wishlist array',this.state.wish)
 
          
         
@@ -586,34 +592,28 @@ client.post(`/app/unlikeproduct?liked_products_id=${itemId}&liked_customers_id=$
        let ppp;
         if(res.data.product_data[0].new_price !=null && res.data.product_data[0].new_price !=''){
           ppp= parseFloat(res.data.product_data[0].new_price)
-          console.log('new price',ppp)
         }else{
           ppp=parseFloat(res.data.product_data[0].cost_price)
-          console.log('coost price',ppp)
         }
     
         if(res.data.product_data[0].tax_description=='4%'){
           testF= 0.04*parseFloat(ppp*this.state.count);
           finaltestF=0.04*parseFloat(this.state.count)+ppp;
           this.setState({finaltestF:finaltestF})
-          console.log('price 4 tax' ,finaltestF)
         }
   else  if(res.data.product_data[0].tax_description=='8%'){
     testE= 0.08*parseFloat(ppp*this.state.count);
     finaltestE=0.08*parseFloat(this.state.count)+ppp;
     this.setState({finaltestE:finaltestE})
-    console.log('price 8 tax' ,finaltestE)
     
   }else  if(res.data.product_data[0].tax_description=='16%'){
     testS= 0.16*parseFloat(ppp*this.state.count);
     finaltestS=0.16*parseFloat(this.state.count)+ppp;
     this.setState({finaltestS:finaltestS})
-    console.log('price 16 tax' ,finaltestS)
     
   }
   
   this.setState({totalAfterTax:this.state. finaltestF+this.state.fianltestE+this.state.finaltestS})
-        console.log('reesssall imageeeees',res.data.product_data)
   
         this.setState({ imagesArr: []})
 
@@ -621,10 +621,8 @@ client.post(`/app/unlikeproduct?liked_products_id=${itemId}&liked_customers_id=$
         if(res.data.product_data[0].images.length>0){
                 for (let i = 0; i < res.data.product_data[0].images[0].length; i++) {
                   this.setState({ imagesArr: [...this.state.imagesArr, res.data.product_data[0].images[0][i].image]})
-                  console.log('image neww ',res.data.product_data[0].images[0][i].image)
         
                  }
-                 console.log('single item data all imageeeees',this.state.imagesArr)
         
               }    
            
@@ -633,14 +631,12 @@ client.post(`/app/unlikeproduct?liked_products_id=${itemId}&liked_customers_id=$
   
   
         if(this.state.selectedGrams==1){
-          console.log('selected gram',this.state.selectedGrams)
-          console.log('singleiteeeem gram',res.data.product_data[0].products_price)
+   
   
           this.setState({finalPrice:parseFloat(2*res.data.product_data[0].products_price)})
     
         }
         for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
   if(this.props.Order[i].products_id==res.data.product_data[0].products_id){
   
   
@@ -654,7 +650,6 @@ client.post(`/app/unlikeproduct?liked_products_id=${itemId}&liked_customers_id=$
     else   {
       this.setState({isRedeem:false})
     }} 
-  console.log('yyyyyes')
   
           
           this.setState({
@@ -670,71 +665,16 @@ client.post(`/app/unlikeproduct?liked_products_id=${itemId}&liked_customers_id=$
           profitMarginRatioState:parseFloat(res.data.product_data[0].profit_margin_percent).toFixed(3),
           bounsArr:res.data.product_data[0].bounces
         })
-     
+        
       })
-  
-      
+      console.log("0000",res.data.product_data)
+
+   
   
       let interest =[];
-      //client.post(`/tags?product_id=${itemId}`).then((res) => {
-    //     console.log('taaags', res.data.data)
-        
-    //       console.log("final taaags array2222",this.state.tagsArr)
-  
-    //     for (let i=0;i<res.data.data.length;i++){
-    //       console.log("final retail array",res.data.data[i])
-         
-    //       this.setState({
-    //         tagsArr: [...this.state.tagsArr, res.data.data[i]]
-    //       })
-    //       console.log("final retail array with setstate",this.state.tagsArr)
-  
-    //     }
-    //     console.log("final retail array with setstate22",this.state.tagsArr)
-    //     for (let i=0;i<this.state.tagsArr.length;i++){
-    //       console.log("final final array",this.state.tagsArr)
-          
-    //       this.setState({
-    //         finalTagsArr: [...this.state.finalTagsArr, this.state.tagsArr[i][0]]
-    //       })
-    //       console.log("final finallllll retail array with setstate",this.state.finalTagsArr)
-  
-    //     }
-      
-  
-    //   })
-    //   client.post(`/shapes?product_id=${itemId}`
-      
-    //   ).then((res) => {
-    //     console.log('shappes',res.data.data)
-    //   if(res.data.data.length>0){
-    //   for (let i=0;i<res.data.data.length;i++){
-    //     console.log("final shapes array",res.data.data[i])
-       
-    //     this.setState({
-    //       shapesArr: [...this.state.shapesArr, res.data.data[i]]
-    //     })
-    //     console.log("final shapes with setstate",this.state.shapesArr)
-  
-    //   }
-    //   console.log("final shapes array with setstate22",this.state.shapesArr)
-    //   for (let i=0;i<this.state.shapesArr.length;i++){
-    //     console.log("final final array",this.state.shapesArr)
-        
-    //     this.setState({
-    //       finalShapesArr: [...this.state.finalShapesArr, this.state.shapesArr[i][0]]
-    //     })
-    //     console.log("final finallllll shapes array with setstate",this.state.finalShapesArr)
-  
-    //   }
-    // }else{
-    //   console.log('no shapes',this.state.shapesArr)
-    //   this.setState({finalShapesArr:null})
-    // }
-    //   })
+     
     } catch (error) {
       // Error retrieving data
-      console.log('getstorageitemerrrror',error);
     }
     
   };
@@ -747,7 +687,6 @@ onOrderNOwPressed(){
     if(this.state.count>=this.state.bounsArr[i].qty_from){
       test=this.state.bounsArr[i].bounces;
       this.setState({bounsNum:this.state.bounsArr[i].bounces})
-      console.log('bouuuuns number is:',this.state.bounsNum)
     }
   }
 }
@@ -761,30 +700,23 @@ let finaltaxE=0.0;
 let finaltaxS=0.0;
   if(this.state.singleItem.new_price !=null && this.state.singleItem.new_price !=''){
     finalPri= parseFloat(this.state.singleItem.new_price)
-    console.log('new price',finalPri)
   }else{
     finalPri=parseFloat(this.state.singleItem.cost_price)
-    console.log('coost price',finalPri)
   }
 
   if(this.state.singleItem.tax_description=='4%'){
     finaltaxF= 0.04*parseFloat(this.state.count);
-    console.log('price 4 tax' ,finaltaxS)
   }
 else  if(this.state.singleItem.tax_description=='8%'){
   finaltaxE= 0.08*parseFloat(this.state.count);
-  console.log('price 8 tax' ,finaltaxS)
 
 }else  if(this.state.singleItem.tax_description=='16%'){
   finaltaxS= 0.16*parseFloat(this.state.count);
-  console.log('price 16 tax' ,finaltaxS)
 
 }
-  console.log('in onOrderNOwPressed')
   this.setState({popUpModal:false})
   let itemId = this.props.navigation.state.params.itemId
   client.post(`/app/addtoorder?customers_id=${this.state.userID}&language_1d=${lang}&customers_telephone=${this.state.phone}&products[]&products[0][products_id]=${itemId}&products[0][customers_basket_quantity]=${this.state.count}&products[0][bounces]=${test}&type=${this.state.type}&shipping_date=${this.state.chosenDate}&total=${finalPri*this.state.count}&tax=${((parseFloat(finaltaxF)+parseFloat(finaltaxE)+parseFloat(finaltaxS)).toFixed(3))}`).then((res) => {
-console.log(res)   
 if(res.data.status==200){
   this.setState({fetching_from_server:true})
 
@@ -855,70 +787,62 @@ onPlusPressed(qty){
   if(this.state.singleItem.new_price !=null && this.state.singleItem.new_price !=''){
     ppp= parseFloat(this.state.singleItem.new_price)
     
-    console.log('new price',ppp)
   }else{
     ppp=parseFloat(this.state.singleItem.cost_price)
-    console.log('coost price',ppp)
   }
 
   if(this.state.singleItem.tax_description=='4%'){
     testF= 0.04*parseFloat(ppp*qty);
     finaltestF=0.04*parseFloat(qty)+ppp*qty;
     this.setState({finaltestF:finaltestF})
-    console.log('price 4 tax' ,finaltestF)
   }
 else  if(this.state.singleItem.tax_description=='8%'){
   testE+= 0.08*parseFloat(ppp*qty);
   finaltestE=0.08*parseFloat(qty)+ppp*qty;
 this.setState({finaltestE:finaltestE})
-console.log('price 8 tax' ,finaltestE)
 
 }else  if(this.state.singleItem.tax_description=='16%'){
   testS= 0.16*parseFloat(ppp*qty);
   finaltestS=0.16*parseFloat(qty)+ppp*qty;
 this.setState({finaltestS:finaltestS})
-console.log('price 16 tax' ,finaltestS)
 
 }
-  // for(let i=0;i<=this.state.bounsArr.length;i++){
-   
-  //   if(this.state.bounsArr[i]!=undefined){
-  //   if(qty>=this.state.bounsArr[i].qty-1){
-  //     this.setState({bounsNum:this.state.bounsArr[i].bounces})
-  //     console.log('bouuuuns number is:',this.state.bounsNum)
-  //   }
-  // }
-
-//}
+ 
 
 let test=0;
-  for(let i=0;i<=this.state.bounsArr.length;i++){
-   
+console.log("this.state.bounsArr",this.state.bounsArr)
+console.log("this.state.count",qty)
+console.log("this.state.custmizeBonusNum",this.state.custmizeBonusNum)
+  for(var i=0;i<=this.state.bounsArr.length;i++){
+    console.log("this.state.bounsArr[i]",this.state.bounsArr[i])
     if(this.state.bounsArr[i]!=undefined){
-    if(this.state.count>=this.state.bounsArr[i].qty_from){
+
+    if(qty>=this.state.bounsArr[i].qty_from){
       if(this.state.bounsArr[i].type=='percent'){
         test=this.state.bounsArr[i].bounces;
-test=(this.state.bounsArr[i].bounces)/100*this.state.count
+test=(this.state.bounsArr[i].bounces)/100*qty
       }else{
               test=this.state.bounsArr[i].bounces;
 
       }
+
+      console.log("test55",test)
+      // console.log("this.state.bounsArr[i].bounces)/100*this.state.count",(this.state.bounsArr[i].bounces)/100*qty)
+      console.log("this.state.bounsArr[i].bounces",this.state.bounsArr[i].bounces)
+
+
       this.setState({bounsNum:this.state.bounsArr[i].bounces})
-      console.log('bouuuuns number is:',this.state.bounsNum)
     }
+   
+ 
   }
 }
-if(this.state.custmizeBonusNum>0){
-  test=this.state.custmizeBonusNum
-}
+// if(this.state.custmizeBonusNum>0){
+//   test=this.state.custmizeBonusNum
+// }
 
-// let totalcost=ppp*(qty+test);
-// let totalSell=this.state.singleItem.products_price*(qty+test)
-// this.setState({profitMarginState:totalSell-totalcost})
-// let margin=(qty+test)*(ppp)
-// this.setState({profitMarginRatioState:((totalSell-totalcost)/margin).toFixed(2)})
+this.setState({custmizeBonusNum:0})
 
-// data.profit_margin_ratio=(data.profit_margin/margin).toFixed(2)
 this.setState({totalAfterTax:this.state. finaltestF+this.state.fianltestE+this.state.finaltestS})
 
 }
@@ -937,15 +861,12 @@ onMainusPressed(qty){
   let ppp;
   if(this.state.singleItem.new_price !=null && this.state.singleItem.new_price !=''){
     ppp= parseFloat(this.state.singleItem.new_price)
-    console.log('new price',ppp)
   }else{
     ppp=parseFloat(this.state.singleItem.cost_price)
-    console.log('coost price',ppp)
   }
 
   if(this.state.singleItem.tax_description=='4%'){
     testF= 0.04*parseFloat(ppp*(qty-1));
-    console.log('price 4 tax' ,finaltestF)
     finaltestF=0.04*parseFloat(this.state.count)+ppp;
     this.setState({finaltestF:finaltestF})
   }
@@ -953,18 +874,18 @@ else  if(this.state.singleItem.tax_description=='8%'){
 testE= 0.08*parseFloat(ppp*(qty-1));
 finaltestE=0.08*parseFloat(this.state.count)+ppp;
 this.setState({finaltestE:finaltestE})
-console.log('price 8 tax' ,finaltestE)
 
 }else  if(this.state.singleItem.tax_description=='16%'){
 testS= 0.16*parseFloat(ppp*(qty-1));
 finaltestS=0.16*parseFloat(this.state.count)+ppp;
 this.setState({finaltestS:finaltestS})
-console.log('price 16 tax' ,finaltestS)
 
 }
   
   this.setState({totalAfterTax:this.state. finaltestF+this.state.fianltestE+this.state.finaltestS})
-
+  if(this.state.count!=1){
+  this.setState({custmizeBonusNum:0})
+  }
 }
 onConfiremPressed(date){
   
@@ -974,17 +895,20 @@ this.latterBookingPressed();
 
 
 async addToOrder(){
+
+
+  var strongRegex = new RegExp("^(?=.*[A-Z])(?=.*)");
+  if(strongRegex.test(this.state.count) === false){
+
   if(this.state.count!=""&&this.state.count!=null&&this.state.count!='null'&&this.state.count!=undefined){
    
     this.setState({count:this.state.count})
 
    
-    console.log('newwww count ',this.state.count)
 
   }
   else{
     this.setState({count:1})
-    console.log('newwww count in else ',this.state.count)
 
   }
   this.setState({btnColor:'gray',txtColr:'#8FCFEB',btnDisabled:true,checkDisplay:'flex'})
@@ -994,44 +918,33 @@ async addToOrder(){
     for(let i=0;i<=this.state.bounsArr.length;i++){
   
       if(this.state.bounsArr[i]!=undefined){ 
-        console.log('test array=:',this.state.bounsArr[i])
   
-           console.log('test=:',this.state.bounsArr[i].type)
   if(this.state.count==''||this.state.count==""){
       if(1>=this.state.bounsArr[i].qty_from){
         if(this.state.bounsArr[i].type=='percent'){
-          console.log('test= in percent:',this.state.bounsArr[i].type)
-          console.log('test=:',this.state.bounsArr[i].bounces)
+
   
           test=this.state.bounsArr[i].bounces;
   test=(this.state.bounsArr[i].bounces)/100
         }else{
                 test=this.state.bounsArr[i].bounces;
-                console.log('test type=:',this.state.bounsArr[i].type)
   
-                console.log('test= in pice:',this.state.bounsArr[i].bounces)
   
         }
         this.setState({bounsNum:this.state.bounsArr[i].bounces})
-        console.log('bouuuuns number is:',this.state.bounsNum)
       }
     }else{
       if(this.state.count>=this.state.bounsArr[i].qty_from){
         if(this.state.bounsArr[i].type=='percent'){
-          console.log('test= in percent:',this.state.bounsArr[i].type)
-          console.log('test=:',this.state.bounsArr[i].bounces)
   
           test=this.state.bounsArr[i].bounces;
   test=(this.state.bounsArr[i].bounces)/100*this.state.count
         }else{
                 test=this.state.bounsArr[i].bounces;
-                console.log('test type=:',this.state.bounsArr[i].type)
   
-                console.log('test= in pice:',this.state.bounsArr[i].bounces)
   
         }
         this.setState({bounsNum:this.state.bounsArr[i].bounces})
-        console.log('bouuuuns number is:',this.state.bounsNum)
       }
     }
     }
@@ -1069,20 +982,23 @@ async addToOrder(){
       
      
   
-      console.log('teeest is:',test);
-      console.log('bounsnum is:',this.state.bounsNum)
-      console.log('bounsnum in staaate is:',this.state.custmizeBonusNum)
   let profitmarginratio=0;
   let profitmargion=0;
   if(this.state.count==''||this.state.count==""){
 
-      let totalSell=this.state.singleItem.products_price*(1+parseInt(test))
+      let totalSell=parseFloat(this.state.singleItem.products_price)*(1+parseInt(test))
       profitmargion= totalSell-(ppp*1)
       let margin=ppp*(1+parseInt(test)) 
            profitmarginratio=(parseFloat(profitmargion / margin)*100).toFixed(3)
 
   }else{
-    let totalSell=this.state.singleItem.products_price*(this.state.count+parseInt(test))
+    console.log("this.state.count5",this.state.count)
+    console.log("this.state.singleItem",this.state.singleItem)
+    console.log("test",test)
+console.log("ppp",ppp)
+console.log("parseFloat(this.state.singleItem.products_price)",(parseInt(this.state.count)+parseInt(test)))
+    let totalSell=parseFloat(this.state.singleItem.products_price)*(parseInt(this.state.count)+parseInt(test))
+    console.log("totalsell",totalSell)
     profitmargion= totalSell-(ppp*this.state.count)
     let margin=ppp*(this.state.count+parseInt(test)) 
          profitmarginratio=(parseFloat(profitmargion / margin)*100).toFixed(3)
@@ -1095,24 +1011,19 @@ async addToOrder(){
   else{
     test1=1
   }
-      console.log('this.state.singleItem.publicPrice is:',this.state.singleItem.products_price);
-      console.log('this.state.counte is:',this.state.count);
-      console.log('ttest is:',parseInt(test));
-      console.log('ppp is:',ppp*this.state.count);
-  console.log("f",ppp*test1)
-      console.log('profitmargion is:',profitmargion);
-      console.log('profitmargion ratiooo is:',profitmarginratio);
+
   
 
     let item={
       drug_store:this.state.singleItem.drug_store,
+      sub_agent:this.state.singleItem.sub_agent,
       products_id:this.state.singleItem.products_id,
       products_name : this.state.singleItem.products_name,
       
       final_price:  ppp,
       price: this.state.singleItem.new_price !=null &&this.state.singleItem.new_price !=''?parseFloat(this.state.singleItem.new_price): parseFloat(this.state.singleItem.cost_price),
       
-      customers_basket_quantity: this.state.count!=""&&this.state.count!=''?this.state.count:1,
+      customers_basket_quantity: this.state.count!=""&&this.state.count!=''?parseInt(this.state.count):1,
       image: BaseURL + '/' + this.state.singleItem.products_image,
       bounsArr:this.state.bounsArr,
       test:parseInt(test),
@@ -1134,10 +1045,15 @@ async addToOrder(){
     }
     this.props.addItemToOrder(item)
     showMessage({
-      message: i18n.t('addedSuccessfully'),
+      message: I18nManager.isRTL?"تمت اضافة العنصر بنجاح":"Added Successfully",
       type: "success",
     });
-  
+  }else{
+    showMessage({
+      message: "num only",
+      type: "danger",
+    });
+  }
     
   }
   
@@ -1354,7 +1270,6 @@ static navigationOptions = ({ navigation }) => {
 
 get pagination () {
   const { imagesArr, activeSlide } = this.state;
-  console.log("activeSlide",activeSlide)
   return (
       <Pagination
       style={{backgroundColor: 'transparent',         
@@ -1409,42 +1324,97 @@ secondBG() {
 
     });
 }
+submit(){
+//   let newText = '';
+//   let numbers = '0123456789';
+
+//   for (var i=0; i < this.state.count.length; i++) {
+//       if(numbers.indexOf(this.state.count[i]) > -1 ) {
+//           newText = newText + this.state.count[i];
+//       }
+//       else {
+//           // your call back function
+//           // alert("please enter numbers only");
+//           // newText=0
+//           // this.setState({ count: 0 })
+//       }
+//   }
+//   if(!(newText.includes(0))||!(newText.includes(1))||!(newText.includes(2))||!(newText.includes(3))||!(newText.includes(4))||!(newText.includes(5))||!(newText.includes(6))||!(newText.includes(7))||!(newText.includes(8))||!(newText.includes(9))){
+// // newText=0
+//   }
+//   this.setState({ count: newText });
+
+
+// var strongRegex = new RegExp("^(?=.*[A-Z])(?=.*)");
+// if(strongRegex.test(String(this.state.count)) === true){
+//   alert("please enter numbers only");
+// }
+// if (/^\d+$/.test(this.state.count)) {
+//   this.setState({
+//     count: this.state.count
+//   });
+// }
+if(this.state.count!=""&&this.state.count!=null&&this.state.count!='null'&&this.state.count!=undefined){
+   
+  this.setState({count:this.state.count})
+
+ 
+
+}
+else{
+  this.setState({count:1})
+
+}
+
+}
 updateInput= (text) =>{
   testF=0.0;
   testE=0.0;
   testS=0.0;
   
   if(text.length>0){
+//     var chars=text
+//     for(let i=0;i<=text.length;i++){
+//       if(text[i] !=1||text[i] !=2||text[i] !=3||text[i] !=4||text[i] !=5||text[i] !=6||text[i] !=7||text[i] !=8||text[i] !=9||text[i] !=0)
+// text[i]=""    }
     this.setState({count:parseInt(text)})
     let ppp;
     if(this.state.singleItem.new_price !=null && this.state.singleItem.new_price !=''){
       ppp= parseFloat(this.state.singleItem.new_price)
-      console.log('new price',ppp)
     }else{
       ppp=parseFloat(this.state.singleItem.cost_price)
-      console.log('coost price',ppp)
     }
   
     if(this.state.singleItem.tax_description=='4%'){
       testF= 0.04*parseFloat(ppp*parseInt(text));
       finaltestF=0.04*parseFloat(this.state.count)+ppp;
       this.setState({finaltestF:finaltestF})
-      console.log('price 4 tax' ,finaltestF)
     }
   else  if(this.state.singleItem.tax_description=='8%'){
   testE= 0.08*parseFloat(ppp*parseInt(text));
   finaltestE=0.08*parseFloat(this.state.count)+ppp;
   this.setState({finaltestE:finaltestE})
-  console.log('price 8 tax' ,finaltestE)
   
   }else  if(this.state.singleItem.tax_description=='16%'){
   testS= 0.16*parseFloat(ppp*parseInt(text));
   finaltestS=0.16*parseFloat(this.state.count)+ppp;
   this.setState({finaltestS:finaltestS})
-  console.log('price 16 tax' ,finaltestS)
   
   }
+  let newText = '';
+  let numbers = '0123456789';
 
+  for (var i=0; i < text.length; i++) {
+      if(numbers.indexOf(text[i]) > -1 ) {
+          newText = newText + text[i];
+      }
+      else {
+          // your call back function
+          // alert("please enter numbers only");
+          // newText=0
+      }
+  }
+  this.setState({ count: newText });
   }else{
     this.setState({text:1})
     if(text.length>0){
@@ -1452,35 +1422,32 @@ updateInput= (text) =>{
       let ppp;
       if(this.state.singleItem.new_price !=null && this.state.singleItem.new_price !=''){
         ppp= parseFloat(this.state.singleItem.new_price)
-        console.log('new price',ppp)
       }else{
         ppp=parseFloat(this.state.singleItem.cost_price)
-        console.log('coost price',ppp)
       }
     
       if(this.state.singleItem.tax_description=='4%'){
         testF= 0.04*parseFloat(ppp);
         finaltestF=0.04*parseFloat(this.state.count)+ppp;
         this.setState({finaltestF:finaltestF})
-        console.log('price 4 tax' ,finaltestF)
       }
     else  if(this.state.singleItem.tax_description=='8%'){
     testE= 0.08*parseFloat(ppp);
     finaltestE=0.08*parseFloat(this.state.count)+ppp;
     this.setState({finaltestE:finaltestE})
-    console.log('price 8 tax' ,finaltestE)
     
     }else  if(this.state.singleItem.tax_description=='16%'){
     testS= 0.16*parseFloat(ppp);
     finaltestS=0.16*parseFloat(this.state.count)+ppp;
     this.setState({finaltestS:finaltestS})
-    console.log('price 16 tax' ,finaltestS)
     
     }}
   }
 
   this.setState({totalAfterTax:this.state. finaltestF+this.state.fianltestE+this.state.finaltestS})
 
+  this.setState({custmizeBonusNum:0})
+  
 }
 thirdBG() {
   this.setState({
@@ -1499,7 +1466,6 @@ thirdBG() {
  
 }
 onSecondPressed() {
-    console.log('signupPreesd')
     this.secondBG();
 
 }
@@ -1565,6 +1531,17 @@ return (<Picker.Item label={item.shape} value={index} key={index} style={{fontSi
 
 
 buyNow(){
+  if(this.state.count!=""&&this.state.count!=null&&this.state.count!='null'&&this.state.count!=undefined){
+   
+    this.setState({count:this.state.count})
+
+   
+
+  }
+  else{
+    this.setState({count:1})
+
+  }
   let ppp;
   let tax4=0.0;
   let tax8=0.0;
@@ -1574,10 +1551,8 @@ buyNow(){
   if(this.state.singleItem.new_price !=null && this.state.singleItem.new_price !=''){
     ppp= parseFloat(this.state.singleItem.new_price)
     
-    console.log('new price',ppp)
   }else{
     ppp=parseFloat(this.state.singleItem.cost_price)
-    console.log('coost price',ppp)
   }
 
 
@@ -1589,7 +1564,6 @@ buyNow(){
     if(this.state.count>=this.state.bounsArr[i].qty_from){
       test=this.state.bounsArr[i].bounces;
       this.setState({bounsNum:this.state.bounsArr[i].bounces})
-      console.log('bouuuuns number is:',this.state.bounsNum)
     }
   }
 }
@@ -1604,23 +1578,18 @@ let finaltaxS=0.0;
 let publicTax=0.0
   if(this.state.singleItem.new_price !=null && this.state.singleItem.new_price !=''){
     finalPri= parseFloat(this.state.singleItem.new_price)
-    console.log('new price',finalPri)
   }else{
     finalPri=parseFloat(this.state.singleItem.cost_price)
-    console.log('coost price',finalPri)
   }
 
   if(this.state.singleItem.tax_description=='4%'){
     finaltaxF= 0.04*parseFloat(this.state.count);
-    console.log('price 4 tax' ,finaltaxF)
   }
 else  if(this.state.singleItem.tax_description=='8%'){
   finaltaxE= 0.08*parseFloat(this.state.count);
-  console.log('price 8 tax' ,finaltaxE)
 
 }else  if(this.state.singleItem.tax_description=='16%'){
   finaltaxS= 0.16*parseFloat(this.state.count);
-  console.log('price 16 tax' ,finaltaxS)
 
 }
 
@@ -1636,7 +1605,6 @@ else  if(this.state.singleItem.tax_description=='8%'){
   count:this.state.count,
   bonus:test,
 finalTaxesTotal:(parseFloat(finaltaxF)+parseFloat(finaltaxE)+parseFloat(finaltaxS)).toFixed(3)});
-    console.log('price 4 tax' ,finaltestF)
   }
 else  if(this.state.singleItem.tax_description=='8%'){
 
@@ -1651,7 +1619,6 @@ count:this.state.count,
 itemId : this.props.navigation.state.params.itemId,
 bonus:test,
 finalTaxesTotal:(parseFloat(finaltaxF)+parseFloat(finaltaxE)+parseFloat(finaltaxS)).toFixed(3)});
-console.log('price 8 tax' ,finaltestE)
 
 }else  if(this.state.singleItem.tax_description=='16%'){
   tax16= (0.16*parseFloat(ppp*this.state.count))+(ppp*this.state.count);
@@ -1664,7 +1631,6 @@ itemId : this.props.navigation.state.params.itemId,
 bonus:test,
 finalTaxesTotal:(parseFloat(finaltaxF)+parseFloat(finaltaxE)+parseFloat(finaltaxS)).toFixed(3)});
 
-console.log('price 16 tax' ,finaltestS)
 
 }
 else {
@@ -1678,7 +1644,6 @@ itemId : this.props.navigation.state.params.itemId,
 bonus:test,
 finalTaxesTotal:(parseFloat(publicTax)+parseFloat(finaltaxF)+parseFloat(finaltaxE)+parseFloat(finaltaxS)).toFixed(3)});
 
-console.log('price 16 tax' ,finaltestS)
 
 }
 
@@ -1753,46 +1718,84 @@ onThirdPressed(){
 }
 
   render() {
-
-  console.log("tetstttttutuw9217291216196",this.state.imagesArr)
-   
-    console.log('price 16 tax in render' ,this.state.finaltestS)
-    console.log('price 8 tax in render' ,this.state.finaltestE)
-    console.log('price 4 tax in render' ,this.state.finaltestF)
+    console.log("0000",this.state.singleItem)
+    if(this.state.singleItem!=null){
+    console.log("this.state.singleItem.products_description",this.state.singleItem.products_description.length)
+    }
+    if(this.state.singleItem!=null){
+    console.log("this.state.singleItem.products_name.length",this.state.singleItem.products_name.length)
+    }
     let test=0;
     for(let i=0;i<=this.state.bounsArr.length;i++){
   
       if(this.state.bounsArr[i]!=undefined){ 
-        console.log('test array=:',this.state.bounsArr[i])
-  
-           console.log('test=:',this.state.bounsArr[i].type)
+    
   
       if(this.state.count>=this.state.bounsArr[i].qty_from){
         if(this.state.bounsArr[i].type=='percent'){
-          console.log('test= in percent:',this.state.bounsArr[i].type)
-          console.log('test=:',this.state.bounsArr[i].bounces)
+
   
           test=this.state.bounsArr[i].bounces;
-  test=(this.state.bounsArr[i].bounces)/100*this.state.count
+  test=parseInt((this.state.bounsArr[i].bounces)/100*this.state.count)
+
         }else{
-                test=this.state.bounsArr[i].bounces;
-                console.log('test type=:',this.state.bounsArr[i].type)
-  
-                console.log('test= in pice:',this.state.bounsArr[i].bounces)
+                test=parseInt(this.state.bounsArr[i].bounces);
+         
   
         }
-        // this.setState({bounsNum:this.state.bounsArr[i].bounces})
-        console.log('bouuuuns number is:',this.state.bounsNum)
+        console.log("test77",test)
       } 
        if(this.state.count>this.state.bounsArr[i].qty_to){
-      console.log('  customers_basket_quantity iiiiis ',this.state.count);
-      console.log('  this.props.Order[data].bounsArr[this.props.Order[data].bounsArr.length-1].qty_to ',this.state.bounsArr[i].qty_to);
-  
-      test=0 
+    if(this.state.bounsArr[i].greater_than!=0){
+      if(this.state.bounsArr[this.state.bounsArr.length-1].type=='percent'){
+      parseInt((this.state.bounsArr[this.state.bounsArr.length-1].bounces)/100*this.state.count)
+      }else{
+        test=parseInt(this.state.bounsArr[this.state.bounsArr.length-1].bounces)
+
+      }
+    }else{
+            test=0 
+
     }
+    }
+    console.log("test9999",test)
     }
   
   }
+//   for(let i=0;i<=this.state.bounsArr.length;i++){
+  
+//     if(this.state.bounsArr[i]!=undefined){ 
+//       console.log('test array=:',this.state.bounsArr[i])
+
+//          console.log('test=:',this.state.bounsArr[i].type)
+
+//     if(this.state.count>=this.state.bounsArr[i].qty_from){
+//       if(this.state.bounsArr[i].type=='percent'){
+//         console.log('test= in percent:',this.state.bounsArr[i].type)
+//         console.log('test=:',this.state.bounsArr[i].bounces)
+
+//         test=this.state.bounsArr[i].bounces;
+// test=parseInt((this.state.bounsArr[i].bounces)/100*this.state.count)
+
+//       }else{
+//               test=parseInt(this.state.bounsArr[i].bounces);
+//               console.log('test type=:',this.state.bounsArr[i].type)
+
+//               console.log('test= in pice:',this.state.bounsArr[i].bounces)
+
+//       }
+//       // this.setState({bounsNum:this.state.bounsArr[i].bounces})
+//       console.log('bouuuuns number is:',this.state.bounsNum)
+//     } 
+//      if(this.state.count>this.state.bounsArr[i].qty_to){
+//     console.log('  customers_basket_quantity iiiiis ',this.state.count);
+//     console.log('  this.props.Order[data].bounsArr[this.props.Order[data].bounsArr.length-1].qty_to ',this.state.bounsArr[i].qty_to);
+
+//     test=0 
+//   }
+//   }
+
+// }
   if(this.state.custmizeBonusNum>0){
     test=this.state.custmizeBonusNum
   }
@@ -1800,10 +1803,8 @@ onThirdPressed(){
 
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
-    console.log('test:' + this.state.myLang);
 
     i18n.locale = this.state.myLang;
-    console.log('singleitem',this.state.singleItem)
    
     const images = [
      "https://www.myjewishlearning.com/wp-content/uploads/2009/06/shutterstock_99946823-1342x900.jpg"
@@ -1834,9 +1835,7 @@ onThirdPressed(){
       }  />
             </Button>
             <View style={{width:15}}/>
-            <TouchableOpacity onPress={()=>{ this.props.navigation.navigate('SearchScreen')}}>
-                  <Icon name="search" style={{ color:'white',}}/>
-                  </TouchableOpacity> 
+           
         </Left>
         <Body style={styles.header}>
               <Title style={[styles.header,{fontSize:25,width:Dimensions.get('window').width/1.5,fontFamily:'Acens',marginLeft:0}]}>
@@ -1868,11 +1867,11 @@ onThirdPressed(){
 
 
 <Carousel
-               onSnapToItem={(index) =>{console.log("indexxxxxxxxxx",index), this.setState({ activeSlide: index }) }}
+               onSnapToItem={(index) =>{console.log("indexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",index), this.setState({ activeSlide: index }) }}
 
                   loop={true}
                   loopClonesPerSide={1}
-                  autoplay={false}
+                  autoplay={true}
                   autoplayDelay={1000}
                   autoplayInterval={3000}
               ref={(c) => { this._carousel = c; }}
@@ -1889,8 +1888,9 @@ onThirdPressed(){
        <View style={{height:15}}/>
 
           <View style={{flexDirection:'row',justifyContent:'space-between',width:Dimensions.get('window').width,paddingStart:10,marginTop:-10}}>
-          <Text style={[styles.productTitleDesc,{marginTop:0,fontFamily:'newFont'}]}>{this.state.singleItem.products_name}</Text>          
-          
+          <Text style={[styles.productTitleDesc,{marginTop:0,fontFamily:'newFont',textAlign:"left"}]}>{this.state.singleItem.products_name}</Text>          
+
+          {/* <View></View> */}
           <TouchableOpacity 
             style={{marginTop: 50}}
 onPress={() => this.handelLikeButton()} 
@@ -1904,14 +1904,14 @@ onPress={() => this.handelLikeButton()}
           </View>
 
                    
-<View style={{flexDirection:'row',paddingStart:10,marginTop:-50}}>
-<Text style={[styles.productPrice,{fontSize:12,fontFamily:'newFont'}]}>{i18n.t('Referencenumber')}</Text>
+<View style={{flexDirection:'row',paddingStart:10,marginTop:this.state.singleItem.products_name.length>35?-10:-40}}>
+<Text style={[styles.productPrice,{fontSize:12,fontFamily:'newFont',color:'#8FCFEB'}]}>{i18n.t('Referencenumber')}</Text>
              
 <Text style={[styles.productPrice,{fontSize:12}]}>{this.state.singleItem.reference_number}</Text>   
 
 </View>
 <View style={{flexDirection:'row',paddingStart:12}}>
-<Text style={[styles.productPrice,{fontSize:12,fontFamily:'newFont'}]}>{i18n.t('categotyname')}</Text>
+<Text style={[styles.productPrice,{fontSize:12,fontFamily:'newFont',color:'#8FCFEB'}]}>{i18n.t('categotyname')}</Text>
 
 <Text style={[styles.productPrice,{fontSize:12}]}>{this.state.singleItem.categories[0].categories_name}</Text>
 
@@ -1920,7 +1920,7 @@ onPress={() => this.handelLikeButton()}
 {this.state.singleItem.drug_store !=''&&this.state.singleItem.drug_store !=null?(
   <View style={{flexDirection:'row',paddingStart:12}}>
   
-  <Text style={[styles.productPrice,{fontSize:12,fontFamily:'newFont'}]}>{i18n.t('DrugStore')} </Text>
+  <Text style={[styles.productPrice,{fontSize:12,fontFamily:'newFont',color:'#8FCFEB'}]}>{i18n.t('DrugStore')} </Text>
              
                 <Text style={[styles.productPrice,{fontSize:12}]}>{this.state.singleItem.drug_store} </Text>
               
@@ -1931,14 +1931,24 @@ onPress={() => this.handelLikeButton()}
 
 <View style={{flexDirection:'row',paddingStart:10}}>
   
-<Text style={[styles.productPrice,{fontSize:12,fontFamily:'newFont',}]}>{i18n.t('SubAgent')} </Text>
+<Text style={[styles.productPrice,{fontSize:12,fontFamily:'newFont',color:'#8FCFEB'}]}>{i18n.t('SubAgent')} </Text>
            
               <Text style={[styles.productPrice,{fontSize:12}]}>{this.state.singleItem.sub_agent} </Text>
             
              
 </View>
 }
+  <View style={{flexDirection:'row',paddingStart:12}}>
+  
+  <Text style={[styles.productPrice,{fontSize:12,fontFamily:'newFont',color:'#8FCFEB'}]}>{i18n.t('instock')} </Text>
+            {this.state.singleItem.in_stock==1? 
+  <Text style={[styles.productPrice,{fontSize:12}]}>{i18n.t('available')} </Text>
+   :
+   <Text style={[styles.productPrice,{fontSize:12}]}>{i18n.t('notavailable')}</Text>
 
+            }           
+               
+</View>
           <View style={{width:'100%',height:Dimensions.get('window').height/4.7,justifyContent:'center',flexDirection:'column',alignItems:'center'}}>
           <View style={{justifyContent:'space-between',flexDirection:'row',width:'95%',alignItems:'center'}}>
           <TouchableOpacity 
@@ -2075,11 +2085,24 @@ color: "#8FCFEB"}}>
           </View>
           <View style={{height:20}}/>
           <View style={styles.separater} />
-          <View style={{flexDirection:'column',width:Dimensions.get('window').width,paddingStart:10,paddingEnd:10,justifyContent:'flex-start',alignItems:'flex-start'}}> 
+          <View style={{height:2}}/>
+          {/* <View style={{flexDirection:'column',width:Dimensions.get('window').width,paddingStart:10,paddingEnd:10,justifyContent:'flex-start',alignItems:'flex-start',flex:1}}> 
           
-          <Text style={styles.productTitleDesc}>{i18n.t('description')}</Text>
-            <Text style={[styles.descBodyStyle,{textAlign: I18nManager.isRTL? 'left':'left', alignSelf: 'stretch',flex:1}]}>{this.state.singleItem.products_description}</Text>
-            <View style={{height:3}}/>
+          <Text style={[styles.productTitleDesc,{flex:1}]}>{i18n.t('description')}</Text>
+            <Text style={[styles.descBodyStyle,{textAlign:I18nManager.isRTL?"left":"left",flex:1}]}>{this.state.singleItem.products_description}</Text>
+              </View>
+              <View style={styles.separater} />
+          <View style={{height:2}}/> */}
+          <View >
+              <View style={{flexDirection:'column',width:Dimensions.get('window').width,justifyContent:'flex-start',paddingStart:10,paddingEnd:10,alignItems:'flex-start',minHeight:this.state.singleItem.products_description.length>200?180:this.state.singleItem.products_description.length>300?220:this.state.singleItem.products_description.length<200?130:null}}>
+          
+          <Text style={[styles.productTitleDesc]}>{i18n.t('description')}</Text>
+            <Text style={{textAlign:I18nManager.isRTL?"left":"left",fontFamily: "newFont",
+    fontSize: 13,flex:1,
+
+    color: "#777777"}}>{this.state.singleItem.products_description}
+    </Text>
+              </View>
               </View>
           <View style={styles.descContainer}>
             
@@ -2087,47 +2110,60 @@ color: "#8FCFEB"}}>
           <View style={styles.separater} />
 
 
-          <View style={{width:'100%',height:Dimensions.get('window').height/7,justifyContent:'center',flexDirection:'row',alignItems:'center'}}>
+          <View style={{width:'100%',height:Dimensions.get('window').height/10,justifyContent:'center',flexDirection:'row',alignItems:'center'}}>
           <View style={{justifyContent:'space-between',flexDirection:'row',width:'95%',alignItems:'center'}}>
           
           <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',paddingStart:3}}>
-          <Text style={[styles.productPrice,{fontSize:12}]} >{i18n.t('qty')}</Text>
-          <View style={{width:5}}/>
-          <View style={{width:Dimensions.get('window').width/3.2,flexDirection:'row',borderWidth:1,borderColor:'#E8E8E8',justifyContent:'space-between',borderRadius:3,marginBottom:3}}>
+          <Text style={[styles.productPrice,{fontSize:16,color:'#8FCFEB'}]} >{i18n.t('qty')}</Text>
+          <View style={{width:150}}/>
+          <View style={{width:Dimensions.get('window').width/2.3,flexDirection:'row',borderWidth:1,borderColor:'#E8E8E8',justifyContent:'space-between',borderRadius:3,marginBottom:3}}>
                   
                   <TouchableOpacity 
                                        onPress={()=>{this.onMainusPressed(this.state.count)}}
-                                    style={{width:35,height:35,backgroundColor:'white',justifyContent:'center',alignItems:'center',borderEndColor:'#E8E8E8',borderEndWidth:1}}><Text style={{color:'#8FCFEB',fontSize:20}}>-</Text></TouchableOpacity>
+                                    style={{width:45,height:40,backgroundColor:'white',justifyContent:'center',alignItems:'center',borderEndColor:'#E8E8E8',borderEndWidth:1}}><Text style={{color:'#8FCFEB',fontSize:20}}>-</Text></TouchableOpacity>
                   
                                   
                                    
                                   <View style={{justifyContent:'center',alignItems:'center',}}> 
-                                   <TextInput onFocus= {() => this.setState({count : ''})} returnKeyType='done' keyboardType='numeric' onChangeText={val =>this.updateInput(val) }style={{textAlign:'center'}}>{this.state.count}</TextInput>
+                                   <TextInput   onSubmitEditing={this.submit.bind(this)}
+ onFocus= {() => this.setState({count : ''})} returnKeyType='done' keyboardType={'phone-pad'} onChangeText={val =>this.updateInput(val) }style={{textAlign:'center'}}>{this.state.count}</TextInput>
                                    </View>
-                                   <TouchableOpacity style={{width:35,height:35,backgroundColor:'white',justifyContent:'center',alignItems:'center',borderStartColor:'#E8E8E8',borderStartWidth:1}}
+                                   <TouchableOpacity style={{width:45,height:40,backgroundColor:'white',justifyContent:'center',alignItems:'center',borderStartColor:'#E8E8E8',borderStartWidth:1}}
                                    onPress={()=>{this.onPlusPressed((this.state.count))}}
                                     ><Text style={{color:'#8FCFEB',fontSize:20}}>+</Text></TouchableOpacity>
                                   
                                     
           </View></View> 
-          <View style={{width:3}}/>
+
+          </View>
+         
+</View>  
+<View style={styles.separater} />
+
+{/* **************************************************************************************************************** */}
+
+
+<View style={{width:'100%',height:Dimensions.get('window').height/10,justifyContent:'center',flexDirection:'row',alignItems:'center'}}>
+          <View style={{justifyContent:'space-between',flexDirection:'row',width:'95%',alignItems:'center'}}>
+          
+     
 
                    {this.state.bounsArr.length>0?
                    (
 
           <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',paddingStart:3}}>
-          <Text style={[styles.productPrice,{fontSize:12}]}>{i18n.t('bonus')}</Text>
+          <Text style={[styles.productPrice,{fontSize:12}]}>{i18n.t('selectbonus')}</Text>
           <View style={{width:3}}/>
 
       <View style={{flexDirection:'row',alignItems:'center',width:Dimensions.get('window').width/2.5,backgroundColor:'#E8E8E8',height:39}}>
       <View style={{height:35,width:Dimensions.get('window').width/2.7,justifyContent:'flex-start',alignItems:'center',backgroundColor:'#E8E8E8',borderRadius:3,marginBottom:3}}>
               
 
-
+{this.state.bounsArr[this.state.bounsArr.length-1].greater_than==0?(
 <Picker
-mode="dialog"
+// mode="dialog"
 
-iosIcon={<Icon name="md-arrow-dropdown" style={iosPickerIconStyle} />}
+// iosIcon={<Icon name="md-arrow-dropdown" style={iosPickerIconStyle} />}
 style={{width:Dimensions.get('window').width/2.7,height:35, backgroundColor:'#E8E8E8',}}
 selectedValue={this.state.selectedGrams}
 onValueChange={this.onValueChangeGrams.bind(this)}
@@ -2147,18 +2183,77 @@ itemTextStyle={{fontSize: 12,
     }}
     
 >
+<Picker.Item label={i18n.t('select')} value={0} /> 
+
 {this.state.bounsArr.map((item, index) => {
-  return (<Picker.Item label={item.type=='percent'? item.bounces+'% '+i18n.t('per') +item.qty_from+i18n.t('to')+item.qty_to:item.bounces+i18n.t('per')+ item.qty_from+i18n.t('to')+item.qty_to}  value={index} key={index} style={{fontSize: 13,
+  return (<Picker.Item label={item.type=='percent'? item.bounces+'% '+i18n.t('per') +item.qty_from+i18n.t('to')+item.qty_to:item.bounces+i18n.t('per')+ item.qty_from+i18n.t('to')+item.qty_to}  value={index+1} key={index+1} style={{fontSize: 13,
     // fontWeight: "normal",
 fontStyle: "normal", width:100,
-fontFamily: "numFont",color: '#8FCFEB'}}/>) 
+fontFamily: "numFont",color: '#8FCFEB'}}/>
 
-})}
+
+) 
+
+
+
+}
+
+
+)}
 
 <Picker.Item label={i18n.t('customizeYourBonus')} value='bounses' /> 
 
 </Picker>
-     
+):
+
+<Picker
+// mode="dialog"
+
+// iosIcon={<Icon name="md-arrow-dropdown" style={iosPickerIconStyle} />}
+style={{width:Dimensions.get('window').width/2.7,height:35, backgroundColor:'#E8E8E8',}}
+selectedValue={this.state.selectedGrams}
+onValueChange={this.onValueChangeGrams.bind(this)}
+itemTextStyle={itemTextStyleICheckoutPicker}
+textStyle={textStyleInCheckoutPicker}
+itemTextStyle={{fontSize: 12,
+  // fontWeight: "normal",
+  fontStyle: "normal", 
+  fontFamily: "numFont",color: '#8FCFEB',}}
+  textStyle={{fontSize: 12,
+    // fontWeight: "normal",
+    fontStyle: "normal", 
+    fontFamily: "numFont",color: '#8FCFEB',width:Dimensions.get('window').width/3}}
+    iosHeader={(i18n.t('bonusavailable'))}
+    headerStyle={{ backgroundColor: "#8FCFEB" 
+    
+    }}
+    
+>
+<Picker.Item label={i18n.t('select')} value={0} /> 
+
+{this.state.bounsArr.map((item, index) => {
+  return (<Picker.Item label={item.type=='percent'? item.bounces+'% '+i18n.t('per') +item.qty_from+i18n.t('to')+item.qty_to:item.bounces+i18n.t('per')+ item.qty_from+i18n.t('to')+item.qty_to}  value={index+1} key={index+1} style={{fontSize: 13,
+    // fontWeight: "normal",
+fontStyle: "normal", width:100,
+fontFamily: "numFont",color: '#8FCFEB'}}/>
+
+
+) 
+
+
+
+}
+
+
+)}
+<Picker.Item label={this.state.bounsArr[this.state.bounsArr.length-1].type=='percent'? this.state.bounsArr[this.state.bounsArr.length-1].bounces+'% '+i18n.t('greaterthan') +this.state.bounsArr[this.state.bounsArr.length-1].qty_to:this.state.bounsArr[this.state.bounsArr.length-1].bounces+i18n.t('greaterthan')+ this.state.bounsArr[this.state.bounsArr.length-1].qty_to}  value={this.state.bounsArr.length+1} key={this.state.bounsArr.length+1} style={{fontSize: 13,
+    // fontWeight: "normal",
+fontStyle: "normal", width:100,
+fontFamily: "numFont",color: '#8FCFEB'}}/>
+<Picker.Item label={i18n.t('customizeYourBonus')} value='bounses' /> 
+
+</Picker>
+}
     </View>
     {   Platform.OS=='android'?
     (
@@ -2184,6 +2279,7 @@ fontFamily: "numFont",color: '#8FCFEB'}}/>)
       <View style={{flexDirection:'row',alignItems:'center',width:Dimensions.get('window').width/2.5,backgroundColor:'#E8E8E8',height:39}}>
       <View style={{height:35,width:Dimensions.get('window').width/2.7,justifyContent:'flex-start',alignItems:'center',backgroundColor:'#E8E8E8',borderRadius:3,marginBottom:3}}>
               
+      {/* <Picker.Item label={i18n.t('customizeYourBonus')} value='choose' />  */}
 
 
 <Picker
@@ -2209,7 +2305,8 @@ itemTextStyle={{fontSize: 12,
     }}
     
 >
-<Picker.Item label={i18n.t('select')} value={1} /> 
+  
+<Picker.Item label={i18n.t('availablebonuses')} value={1} /> 
 
 
 <Picker.Item label={i18n.t('customizeYourBonus')} value='bounses' /> 
@@ -2234,26 +2331,32 @@ itemTextStyle={{fontSize: 12,
          
           </View> 
     }
-          </View>
-         
-</View>  
-{this.state.custmizeBonusNum>0?(
+    {this.state.custmizeBonusNum>0?(
 <View style={{flexDirection:'row',alignItems:'center',paddingStart:3}}>
   <View style={{width:3,marginEnd:5}}/>
 <Text style={[styles.productPrice,{fontSize:12}]}>{i18n.t('bonus')}</Text>
 
-<Text style={{paddingStart:5}}>{this.state.custmizeBonusNum}</Text>
+{/* <Text style={{paddingStart:5}}>{this.state.custmizeBonusNum}</Text> */}
+<View style={{backgroundColor:'#E8E8E8',width:45,height:40,justifyContent:"center",alignItems:"center"}}>
+<Text>{parseInt(this.state.custmizeBonusNum)}</Text>
+</View>
 </View>
 ):
 
 <View style={{flexDirection:'row',alignItems:'center',paddingStart:3}}>
   <View style={{width:3,marginEnd:5}}/>
 <Text style={[styles.productPrice,{fontSize:12}]}>{i18n.t('bonus')}</Text>
-
-<Text style={{paddingStart:5}}>{parseInt(test)}</Text>
+<View style={{backgroundColor:'#E8E8E8',width:45,height:40,justifyContent:"center",alignItems:"center"}}>
+<Text>{parseInt(test)}</Text>
+</View>
 </View>
 
 }
+
+
+          </View>
+         
+</View>  
 
 <View style={styles.separater} />
 
@@ -2262,7 +2365,7 @@ itemTextStyle={{fontSize: 12,
           
           
            
-          
+          {this.state.singleItem.in_stock!=0?
           <TouchableOpacity 
           onPress={() => {
             this.buyNow()
@@ -2286,7 +2389,28 @@ color: "#8FCFEB"}}>{i18n.t('buyNow')}</Text>
 
 </TouchableOpacity> 
 
+:
+<TouchableOpacity 
+disabled={true}
+style={{width:'48%',height:45,backgroundColor:'gray',justifyContent:'center',alignItems:'center',borderRadius:5,
+shadowOffset: {
+width: 0,
+height: 2,
+},
+shadowOpacity: 0.25,
+shadowRadius: 3.84,
 
+elevation: 5,}}>
+<Text style={{fontFamily: 'Acens',
+fontSize: 13,
+fontWeight: "normal",
+fontStyle: "normal",
+letterSpacing: 0,
+color: "#8FCFEB"}}>{i18n.t('buyNow')}</Text>
+
+</TouchableOpacity> 
+}
+          {this.state.singleItem.in_stock!=0?
 
 <TouchableOpacity 
   onPress={()=>{
@@ -2322,6 +2446,38 @@ letterSpacing: 0,
 color: (this.state.testArr.includes(this.state.singleItem.products_id )||(this.state.btnDisabled)?'#8FCFEB':'white')}}>{(this.state.testArr.includes(this.state.singleItem.products_id)||(this.state.btnDisabled))?i18n.t('inCart'):i18n.t('addToCart')}</Text>
 
 </TouchableOpacity>
+:
+<TouchableOpacity 
+
+ disabled={true}
+
+style={{flexDirection:'row', width:'48%',height:45,
+justifyContent:'center',alignItems:'center',borderRadius:5,
+backgroundColor:'gray',
+
+shadowOffset: {
+  width: 0,
+  height: 2,
+},
+shadowOpacity: 0.25,
+shadowRadius: 3.84,
+
+elevation: 5, }}>
+
+  <View  style={{flexDirection:'row',display: (this.state.testArr.includes(this.state.singleItem.products_id)||(this.state.btnDisabled))?'flex':'none'}}>
+<Icon name='ios-checkmark-circle'  color='#8FCFEB' height={10} width={10} style={{color:'#8FCFEB',}} />
+<View style={{width:5}}/>
+</View>
+     
+<Text style={{fontFamily: 'Acens',
+fontSize: 13,
+fontWeight: "normal",
+fontStyle: "normal",
+letterSpacing: 0,
+color: (this.state.testArr.includes(this.state.singleItem.products_id )||(this.state.btnDisabled)?'#8FCFEB':'white')}}>{(this.state.testArr.includes(this.state.singleItem.products_id)||(this.state.btnDisabled))?i18n.t('inCart'):i18n.t('addToCart')}</Text>
+
+</TouchableOpacity>
+}
          </View>
          </View>
               </View>

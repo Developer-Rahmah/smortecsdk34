@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Images, Fonts, Metrics, Colors } from '../Themes';
+import { Metrics, Colors } from '../Themes';
 
 import { StyleSheet,View,TouchableOpacity ,TextInput,Dimensions,Platform,Image,Modal,AsyncStorage,FlatList,ScrollView,I18nManager,ActivityIndicator} from 'react-native'
 import {
@@ -58,7 +58,9 @@ const en = {
     canceled:'Canceled',
     proceed:'Proceed',
     filterOrders:'Filter Orders',
-    shippingDate:'Shipping Date'
+    shippingDate:'Sending Date',
+    vieworderdetails:'VIEW ORDER DETAILS'
+
 
    
     
@@ -84,7 +86,9 @@ const ar = {
  canceled:'تم الالغاء',
  proceed:'قيد التحضير',
  filterOrders:'فلترة الطلبات',
- shippingDate:'تاريخ الشحن'
+ shippingDate:'تاريخ الارسال',
+ vieworderdetails:'عرض تفاصيل الطلب'
+
 
 
 
@@ -199,7 +203,6 @@ this.setModalVisible(false)
     };
 
     _retrieveData = async () => {
-        console.log('all states',this.state)
         try {
           const value = await AsyncStorage.getItem('userID');
           const namevalue =  await AsyncStorage.getItem("userName"); 
@@ -208,7 +211,6 @@ this.setModalVisible(false)
           const userEmail = await AsyncStorage.getItem("userEmail");
           const userCity = await AsyncStorage.getItem('userCity');
           const userAddress = await AsyncStorage.getItem('userAddress');
-          console.log('new data',userCity,',',userAddress)
           const myLang = await AsyncStorage.getItem('myLang');
       
       
@@ -219,11 +221,7 @@ this.setModalVisible(false)
           }
           if (value !== null) {
             // We have data!!
-            console.log('userid:',value);
-            console.log('namevalue:',namevalue);
-            console.log('phonevalue:',phonevalue);
-            console.log('passwvalue:',passwvalue);
-            console.log('userEmail:',userEmail);
+       
 
       this.setState({
         userID:value,
@@ -240,7 +238,6 @@ this.setModalVisible(false)
       client.post(`/app/oldorders?customers_id=${value}&language_id=${lang}`
         
       ).then((res) => {
-          console.log('my orders',res.data.data)
           if(res.data.status==200){
     
             this.setState({status:200})
@@ -256,7 +253,6 @@ if(res.data.data.length>0){
    
    data: res.data.data
  })
- console.log('my orders daaataaa stttttttaaate',this.state.data)
 }
 
 }      
@@ -301,7 +297,6 @@ if(res.data.data.length>0){
         client.post(`/app/oldorders?customers_id=${this.state.userID}&language_id=${lang}&status=${statusVal}`
         
         ).then((res) => {
-          console.log('my orders',res.data.data)
           if(res.data.status==200){
     
             this.setState({status:200})
@@ -317,7 +312,6 @@ if(res.data.data.length>0){
    
    data: res.data.data
   })
-  console.log('my orders daaataaa stttttttaaate',this.state.data)
   }
   
   }      
@@ -336,7 +330,6 @@ if(res.data.data.length>0){
         })
         .then(res => res.json())
         .then((apiResponse)=>{ 
-            console.log("api response", apiResponse) 
             return {
                 type: "REGISTER_USER",
                 api_response: apiResponse.data
@@ -372,99 +365,35 @@ setSortModalVisible(visible) {
         //  products[${i}][customers_basket_quantity]=${this.state.products[i].customers_basket_quantity}`
 a.push(`products[${i}][products_id]=${this.state.products[i].products_id}&products[${i}][products_price]=${this.state.products[i].final_price}&products[${i}][customers_basket_quantity]=${this.state.products[i].customers_basket_quantity}`)
     }
-//}
-    console.log('cheeeeckout array',a)
-    console.log('str arr',a.toString())
+
     let b=a.toString()
     b.replace(",","&")
-    console.log('str after replacing',b.split(",").join("&"))
-    console.log('all params','userid',this.state.userID,
-    'username',this.state.username,
-    'phone',this.state.phone,
-    'address',this.state.userAddress,
-   'city', this.state.userCity,
-   'finalprice',this.props.navigation.state.params.finalPrice,
-   'array',b.split(",").join("&"))
-console.log('final final request',`/addtoorder?customers_id=${this.state.userID}&delivery_firstname=${this.state.username}&customers_telephone=${this.state.phone}
-&delivery_street_address=${this.state.userAddress}&delivery_city=${this.state.userCity}&total=${this.props.navigation.state.params.finalPrice}&products[]&
-&payment_method=cod&language_id=${lang}&${b.split(",").join("&")}`)
-    // client.post(`/addtoorder?customers_id=${this.state.userID}&delivery_firstname=${this.state.username}&customers_telephone=${this.state.phone}
-    //     &delivery_street_address=${this.state.userAddress}&delivery_city=${this.state.userCity}&total=${this.props.navigation.state.params.finalPrice}&products[]&
-    // &payment_method=cod&language_id=1&${b.split(",").join("&")}`)
+
         client.post(`/addtoorder?customers_id=${this.state.userID}&delivery_firstname=${this.state.username}&customers_telephone=${this.state.phone}&delivery_city=${this.state.userCity}&total=${this.props.navigation.state.params.finalPrice}&payment_method=cod&language_id=${lang}& ${b.split(",").join("&")}&products[&city_id=1&billing_street_address=${this.state.userAddress}`)
         .then((res) => {
-            console.log('shipning address',res)
              if(res.data.message==='Order has been placed successfully.'){
-                 console.log('order arr before removing',this.props.Order)
                  this.props.clearCart();
-                 console.log('order arr afteeer removing',this.props)
 
                 this.props.navigation.navigate('OrderAddedSuccesfully')  
             }
 
   })
-// } else if(this.state.city.length==0){
-//     if(this.state.address.length>0){
-//      this.setState({addressBottomColor:'#c1c0c9'})
 
-//     }
-// this.setState({cityBottomColor:'red'})
-// }else if(this.state.address.length==0){
-//  if(this.state.city.length>0){
-//      this.setState({cityBottomColor:'#c1c0c9'})
-
-//     }
-//  this.setState({addressBottomColor:'red'})
-//     }
 
     }
     render() {
+        console.log("this.state.data in previous",this.state.data)
+
         i18n.fallbacks = true;
         i18n.translations = { ar, en };
-        //i18n.locale =null;
-        console.log('test:' + this.state.myLang);
+  
     
         i18n.locale = this.state.myLang;
-        console.log("hereee",this.props)
-        // console.log('order array final',this.state.products[1].products_id)
+ 
         return (
            
         <Content style={{	backgroundColor: '#f3f3f3'}}>
-          {/* <View style={{
-            backgroundColor: '#f3f3f3',
-            height: 47,marginBottom:-15,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginTop: -6
-          }}>
-
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', width: '50%', alignItems: 'center' }}>
-              <TouchableOpacity
-              style={{flexDirection: 'row', justifyContent: 'flex-start', width: '50%', alignItems: 'center'}}
-              onPress={() => {
-                this.setSortModalVisible(!this.state.setSortModalVisible);
-            }}
-               
-              >
-                <Image
-                  source={require('../assets/images/bluefilter.png')}
-                  style={{ width: 20, height: 20, marginStart: 15, marginEnd: 13 }}
-                />
-             
-              
-                <Text style={{
-                  fontFamily: "Acens",
-                  fontSize: 15,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  lineHeight: 17,
-                  letterSpacing: 0,
-                  color: "#787878"
-                }}>{i18n.t('filter')}</Text>
-              </TouchableOpacity>
-            </View>
-
-</View> */}
+   
 				        <View style={{height:15,backgroundColor: '#f3f3f3'}}/>
                         {this.state.status==200 ?(
           this.state.data.length > 0 ? (
@@ -472,11 +401,10 @@ console.log('final final request',`/addtoorder?customers_id=${this.state.userID}
                 	this.state.data.map((item, index) => {
                     var date1 = new Date(item.shipping_date);
 date1=(date1.getMonth() + 1) + '/' + date1.getDate() + '/' +  date1.getFullYear();
-console.log("date111",date1)
 						return (
-							<TouchableOpacity
+							<View
                             
-                            onPress={()=>{ this.props.navigate(item.orders_id,item.data[0].products_name,item.data,index,date1)}}
+                            // onPress={()=>{ this.props.navigate(item.orders_id,item.data[0].products_name,item.data,index,date1)}}
 								style={
 									item.orders_id === 1
 										? [MyOrdersStyles.rowBg, { marginTop: 50}]
@@ -496,7 +424,7 @@ console.log("date111",date1)
                 <View style={MyOrdersStyles.rowListDivider} />
                 <View style={MyOrdersStyles.rowField}>
 									<Text style={{color: "#959595",
-		fontSize: Fonts.moderateScale(15),
+		fontSize: 15,
 		fontFamily: "newFont",
 		width: Metrics.WIDTH * 0.25,
 		textAlign: 'left'}}>{i18n.t('shippingDate')}</Text>
@@ -529,7 +457,7 @@ console.log("date111",date1)
                                         {I18nManager.isRTL?item.orders_status_ar :item.orders_status}
 									</Text>
 								</View>
-                {item.stores.map((item, index) => {
+                {/* {item.stores.map((item, index) => {
                           return (
                             <View>
                 <View style={MyOrdersStyles.rowListDivider} />
@@ -539,8 +467,29 @@ console.log("date111",date1)
 									<Text style={[MyOrdersStyles.fieldDescriptionTxt,{width:"30%"}]}>{item.number_of_items}</Text>
 								</View>
                 </View>
-                          )})}
-							</TouchableOpacity>
+                          )})} */}
+                                          <View style={MyOrdersStyles.rowListDivider} />
+
+                                    <TouchableOpacity
+                            
+                            onPress={()=>{ this.props.navigate(item.orders_id,item.data[0].products_name,item.data,index,date1)}}>
+                <View style={MyOrdersStyles.rowField}>
+
+                <View
+                                    
+                                    style={{width:'100%',height:45,backgroundColor:'#8FCFEB',justifyContent:'center',alignItems:'center'}}> 
+                                   <Text style={{fontSize: 15,
+ fontWeight: "normal",
+ fontStyle: "normal",
+ fontFamily:'newFont',
+ lineHeight: 19,
+ letterSpacing: 0.1,
+ textAlign: "center",
+ color: "#ffffff",}} >{i18n.t('vieworderdetails')}</Text>
+                                   </View>
+                                   </View>
+                                   </TouchableOpacity>
+							</View>
                         );
                         
                     })

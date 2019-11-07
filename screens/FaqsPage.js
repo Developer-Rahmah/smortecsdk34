@@ -113,7 +113,6 @@ this.setModalVisible(false)
 
 
         client.post(`/app/getallpages?language_id=${lang}`).then((res) => {
-            console.log('didmount response ',res.data. pages_data[0].description)
 
      this.setState({privacyTxt:res.data. pages_data[6].description, title:I18nManager.isRTL?'الأسئلة الأكثر شيوعاً':'FAQs'})
 
@@ -121,7 +120,6 @@ this.setModalVisible(false)
         })
         } catch (error) {
           // Error retrieving data
-          console.log('getstorageitemerrrror',error);
         }
         
       };
@@ -133,7 +131,6 @@ this.setModalVisible(false)
               
           
             }
-       console.log('didmount')
        
        
        

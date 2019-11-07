@@ -1,5 +1,5 @@
 import { Platform, StyleSheet, Dimensions } from 'react-native';
-import {  Fonts,Metrics, Colors } from '../Themes/';
+import { Metrics, Colors } from '../Themes/';
 
 const MyOrdersStyles = StyleSheet.create({
 
@@ -44,9 +44,9 @@ const MyOrdersStyles = StyleSheet.create({
 
 	textTitle: {
     color: Colors.snow,
-    fontSize: Fonts.moderateScale(20),
+    fontSize: 20,
     alignSelf: 'center',
-		fontFamily: Fonts.type.newFontNeueLight,
+		fontFamily: "newFont",
   },
 
 	right: {
@@ -73,8 +73,8 @@ const MyOrdersStyles = StyleSheet.create({
 	},
 
 	alertTxt: {
-		fontSize: Fonts.moderateScale(8),
-		fontFamily: Fonts.type.sfuiDisplayMedium,
+		fontSize: 8,
+		fontFamily: "newFont",
 		color: Colors.snow,
 	},
 
@@ -132,7 +132,7 @@ const MyOrdersStyles = StyleSheet.create({
 
 	fieldLabelTxt: {
 		color: "#959595",
-		fontSize: Fonts.moderateScale(15),
+		fontSize: 15,
 		fontFamily: "newFont",
 		width: Metrics.WIDTH * 0.25,
 		textAlign: 'left'
@@ -140,8 +140,8 @@ const MyOrdersStyles = StyleSheet.create({
 
 	fieldDescriptionTxt: {
 		color: "#111111",
-		fontSize: Fonts.moderateScale(15),
-		fontFamily: Fonts.type.newFontNeueLight,
+		fontSize: 15,
+		fontFamily: "newFont",
 		width: Metrics.WIDTH * 0.55,
 		marginLeft: Metrics.WIDTH * 0.03,
 		textAlign: 'right',

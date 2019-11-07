@@ -45,14 +45,5 @@ export const getSearch=(searchValue)=>{
         
 }
 
-// export const getItem = (product_id) =>  {
-//     console.log("product_id",product_id)
-//     const response = client.post('/getallproducts',{
-//         'language_id':1,
-//         'page_number':0,
-//         'categories_id':product_id
-//     });
-//     const data = response;
-//     return data;
-// }
+
 

@@ -94,7 +94,6 @@ export default class ProfileScreen extends Component {
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
     //i18n.locale =null;
-    console.log('test:' + this.state.myLang);
 
     i18n.locale = this.state.myLang;
 

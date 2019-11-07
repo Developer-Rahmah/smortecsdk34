@@ -29,7 +29,6 @@ export default class LoginScreen extends Component {
         hideConfirmPassword:true,
     };
     onChange(value) {
-        console.log("Captcha value:", value);
     }
     managePasswordVisibility = () => {
         this.setState({ hidePassword: !this.state.hidePassword });

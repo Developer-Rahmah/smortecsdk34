@@ -135,7 +135,7 @@ this.setModalVisible(false)
         
 
             client.post(`/app/getallpages?language_id=${lang}`).then((res) => {
-                console.log('didmount response ',res.data. pages_data[0].description)
+            
     if(this.props.navigation.state.params.param=='privacy-policy'){
          this.setState({privacyTxt:res.data. pages_data[0].description,title: I18nManager.isRTL?'سياسة الخصوصية':'PRIVACY POLICY'})
     }else{
@@ -163,7 +163,6 @@ this.setModalVisible(false)
           
             }
             
-       console.log('didmount')
        
        
       }

@@ -31,12 +31,7 @@ export const SubAgentCardItem = ({...props}) => {
     let item = props.item;
     let Order=props.Order;
     let wish=props.wish;
-    console.log('ordersin add tocart',Order)
-    console.log('test includes',Order.includes(item.products_id));
-    console.log('wishin add tocart',wish)
 
-    // console.log(Order.filter(Order, { products_id: 2 }));
-    // console.log('teeeeeest',Order.find(x => x.products_id === 2))
     
 
     return (

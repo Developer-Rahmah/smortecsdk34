@@ -150,26 +150,7 @@ class WishListScreen extends React.Component {
     }
     
   }
-  // async componentWillMount() {
-  //   // if (I18nManager.isRTL)
-  //   // {
-  //   //   lang=4;
-  //   // }
-  //   // else{
-  //   //   lang=1;
-  //   // }
-  //       // this._retrieveData()
-  //       // if(this.props.Order.length>0){
-          
-      
-  //       // }
-        
-  //   this._retrieveData()
-  //   // console.log('order of idssssssss',this.props.Order[i].products_id)
 
-  //   //  this.props.getCategoryItem()
-   
-  // }
   static navigationOptions = {
     header:null
   //   left: ( <Icon name={'chevron-left'} onPress={ () => { goBack() } }  /> ),  
@@ -208,11 +189,11 @@ _retrieveData = async () => {
       }else{
         lang=1;
       }      // We have data!!
-      console.log('userid:',value);
+
       this.setState({ fetching_from_server_topseller: true }, () => {
 
       client.post(`/app/getallproducts?type=wishlist&customers_id=${value}&language_id=${lang}`).then((res) => {
-        console.log('wishlist array',res.data)
+    
         if(res.data.status==200){
           this.setState({status:200})
         }else{
@@ -225,9 +206,9 @@ _retrieveData = async () => {
             wish: [...this.state.wish, (res.data.product_data[i]).products_id], 
           })
         }
-        console.log('wish arrrray',this.state.wishListArr)
+ 
         for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
+   
   
           // this.setState({ testArr: this.props.Order[i].products_id})
           this.setState({
@@ -244,17 +225,11 @@ _retrieveData = async () => {
       }
       }
       )})
-      // console.log('namevalue:',namevalue);
-      // console.log('phonevalue:',phonevalue);
-      // console.log('passwvalue:',passwvalue);
-      // console.log('userEmail:',userEmail);
+
 
 this.setState({
   userID:value
-  // userNmae:namevalue,
-  // userPhone:phonevalue,
-  // userPassword:passwvalue,
-  // userEmail:userEmail
+
 })
 
     }
@@ -264,20 +239,7 @@ this.setState({
   }
   
 };
-// _retrieveData = async () => {
-//   try {
-//     const value = await AsyncStorage.getItem('userID');
-//     if (value !== null) {
-//       // We have data!!
-//       this.setState({userID:value})
-//       console.log('user item in itemscreen',value);
-//     }
-//   } catch (error) {
-//     // Error retrieving data
-//     console.log('getstorageitemerrrror',error);
-//   }
-  
-// };
+
 componentWillUnmount() {
   this._isMounted = false;
 }
@@ -303,6 +265,10 @@ componentDidMount(){
 
 
 handelAddToOrder(item){
+  i18n.fallbacks = true;
+  i18n.translations = { ar, en };
+
+  i18n.locale = this.state.myLang;
   this.setState({testArr: this.state.testArr.concat(item.products_id)});
   let test=0;
   for(let i=0;i<=item.bounce.length;i++){
@@ -363,6 +329,8 @@ let profitmargion=0;
 
   let itemss={
     drug_store:item.drug_store,
+    sub_agent:item.sub_agent,
+
     products_id:item.products_id,
     products_name : item.products_name,
     
@@ -389,7 +357,7 @@ let profitmargion=0;
     bounsNum:this.state.bounsNum,
     testTaxF: item.tax_description*parseFloat(item.products_price),
   }    
-console.log('itemss iiis',itemss)
+
 
   this.props.addItemToOrder(itemss)
   showMessage({
@@ -404,7 +372,7 @@ likedPress(products_id){
   // if(this.state.wish.includes() !=undefined){
 if(this.state.wish.includes(products_id)){
 client.post(`/app/unlikeproduct?liked_products_id=${products_id}&liked_customers_id=${this.state.userID}`).then((res) => {
-console.log('wishlist',res)
+
 // this.setState({wish:[]})
 if(res.data.status==200){
   Alert.alert(
@@ -419,7 +387,7 @@ if(res.data.status==200){
 // this.setState({wish:[]})
 
 client.post(`/app/getallproducts?type=wishlist&customers_id=${this.state.userID}&language_id=${lang}`).then((res) => {
-  console.log('wishlist array',res.data)
+
   if(res.data.status==200){
     this.setState({status:200})
   }else{
@@ -431,9 +399,9 @@ client.post(`/app/getallproducts?type=wishlist&customers_id=${this.state.userID}
       wish: [...this.state.wish, (res.data.product_data[i]).products_id], 
     })
   }
-  console.log('wish arrrray',this.state.wishListArr)
+
   for (let i=0;i<this.props.Order.length;i++){
-    console.log('order of idssssssss',this.props.Order[i].products_id)
+
 
     // this.setState({ testArr: this.props.Order[i].products_id})
     this.setState({
@@ -455,9 +423,7 @@ client.post(`/app/getallproducts?type=wishlist&customers_id=${this.state.userID}
 }else{
 
 client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_id=${this.state.userID}`).then((res) => {
-console.log('wishlist',res)
-console.log('wishlist user id',this.state.userID)
-  console.log('wishlist item id',products_id)
+
   if(res.data.status==200){
     Alert.alert(
       `${i18n.t('removedFromWishList')}`,
@@ -479,297 +445,23 @@ console.log('wishlist user id',this.state.userID)
 }
 }
   render() {
-
+    var testArrTest=this.state.testArr
+    for (let i=0;i<this.props.Order.length;i++){
+      // this.setState({
+      //     //   testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
+      
+            
+      //     // })
+          testArrTest=[...testArrTest, (this.props.Order[i]).products_id]
+        }
+        console.log("testArrTest22",testArrTest)
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
-    //i18n.locale =null;
-    console.log('testwishlist:' + this.state.myLang);
+
 
     i18n.locale = this.state.myLang;
     const  Items  = this.state.wishListArr;
-    // if (!Items.length) {
-    //   return (
-    //     <View style={{width:Dimensions.get('window').width,height:Dimensions.get('window').height,justifyContent:'center',alignItems:'center'}}>
-     
-    //   <ActivityIndicator  size="large" color="#8FCFEB" />
-    //   </View>
-    //   )
-    //   }
-//     if (!Items.length) {
-//         return (
 
-//       <StyleProvider style={getTheme(variables)}>
-//       <Container>
-//       <Header style={{height:99}}>
-      
-//       <Left>
-//       <TouchableOpacity onPress={()=>{ this.props.navigation.navigate('SearchScreen')}}>
-//                 <Icon name="search" style={{ color:'white',}}/>
-//                 </TouchableOpacity> 
-//       </Left>
-//       <Body style={styles.header}>
-//             <Title style={[styles.header,{fontSize:25,width:Dimensions.get('window').width/2,fontFamily:'Acens',marginLeft:0}]}>{i18n.t('wishListTitle')}</Title>
-//           </Body>
-//           <Right style={{width:50,justifyContent:'flex-end',marginRight:-70}} >
-//             <Body> 
-//             <TouchableOpacity 
-//    onPress={() =>
-//     this.props.navigation.navigate('OrderScreen')
-
-// }
-//   style={{flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-// {this.returnBadg()}
-//   <Icon style={{color:'white',}} name={
-//       Platform.OS === 'ios'
-//         ? `md-cart`
-//         : 'md-cart'
-//     }/>
-//          {/* <Text style={{ fontFamily: "newFont",
-// fontSize: 10,
-// fontWeight: "normal",
-// fontStyle: "normal",
-// letterSpacing: 0,
-// color: "#c1c0c9"}}>Cart</Text> */}
-// </TouchableOpacity>
-             
-// </Body>
-//           </Right>
-//       </Header> 
-       
-//         <Content style={{flexDirection:'column'}}>
-       
-      
-//         <View style={{justifyContent:'center',alignItems:'center',width:'100%'}}>
-//           <Text style={{fontFamily: "Acens",
-//   fontSize: 15,marginTop:100,
-//   fontWeight: "normal",
-//   fontStyle: "normal",
-//   letterSpacing: 0,
-//   textAlign: "left",
-//   color: "#777777"}} >{i18n.t('noRecordFound')}</Text>
-//         </View>
-//         </Content>
-//         <Modal
-//                       animationType="slide"
-//                       transparent={true}
-//                       visible={this.state.popUpModal}
-//                       onRequestClose={() => {
-//                           this.setModalVisible(false);
-//                       }}>
-//                       <View style={{ marginTop: Dimensions.get('window').height/1.5, marginEnd: 20, marginStart: 20, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                          
-//                       <View style={{
-//   justifyContent: 'center',
-//   alignItems: 'center',}}>
-
-// <View >
-//       <View style={{ shadowColor: "black",
-//   shadowOpacity: 0.8,
-//   shadowRadius: 2,
-//   shadowOffset: {
-//     height: 1,
-//     width: 0
-//   }
-// , width: Dimensions.get('window').width,justifyContent:'space-between',alignItems:'center',paddingEnd:15,paddingStart:15,
-//   height: 200,flexDirection:'row',
-//   backgroundColor: '#8FCFEB',
-  
-//   }} >
-  
-//   <View style={{ width: Dimensions.get('window').width/6,flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-   
-//       </View>
-//       <View style={{width: Dimensions.get('window').width/6, flexDirection:'column',justifyContent:'center',alignItems:'center'}}
-     
-//       >
-
-  
-    
-//     </View>
-     
-//       <View style={{width: Dimensions.get('window').width/4,
-//   height: 200,
-//   backgroundColor: '#8FCFEB',
-//   borderTopEndRadius:80,borderTopStartRadius:80,justifyContent:'center',alignItems:'center',marginBottom:80,flexDirection:'column'
-  
-//   }} >
-//   <View style={{marginTop:-90}}>
-//    <TouchableOpacity
-   
-//    onPress={() => {
-//     this.setModalVisible(!this.state.popUpModal);
-// }}
-//    style={{ borderRadius:35,height:30,width:30,borderColor:'#8FCFEB',borderWidth:5,backgroundColor:'#8FCFEB',justifyContent:'center',alignItems:'flex-end',}}>
-//            <Icon style={{color:'white',height:30}} name={
-//       Platform.OS === 'ios'
-//         ? `md-close`
-//         : 'md-close'
-//     }/>
-//           </TouchableOpacity >
-//           </View>
-//           <View >
-// <Text style={{fontFamily: "Acens",
-// fontSize: 19,marginTop:10,
-// fontWeight: "normal",
-// fontStyle: "normal",
-// lineHeight: 27,
-// letterSpacing: 0,
-// textAlign: "left",
-// color: "#ffffff"}}>{i18n.t('callNow')}</Text>
-// </View>
-//   </View>
-//   <TouchableOpacity onPress={this.call} style={{flexDirection:'row',width:170,marginLeft:-120,borderWidth:1,borderColor:'white',height:40,justifyContent:'center',alignItems:'center',alignItems:'center',marginTop:0}}>
-// <Icon style={{color:'white',}} name={
-//       Platform.OS === 'ios'
-//         ? `md-call`
-//         : 'md-call'
-//     }/>
-// <Text style={{fontFamily: "newFont",
-// fontSize: 19,
-// fontWeight: "500",
-// fontStyle: "normal",
-// lineHeight: 21,
-// letterSpacing: 0.11,
-// textAlign: "left",
-// color: "#ffffff"}}>{this.state.phonCall}</Text>
-// </TouchableOpacity>
-//   <View 
- 
-//   style={{width: Dimensions.get('window').width/6,flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-
- 
-// </View>
-// <View 
-
-
-// style={{width: Dimensions.get('window').width/6,flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-
- 
-//     </View>
-     
-// </View>
-
-//     </View>   
-//   </View>
-
-//                       </View>
-
-//                   </Modal>
-//         <View style={{
-//   justifyContent: 'center',
-//   alignItems: 'center',}}>
-
-// <View >
-//       <View style={{ width: Dimensions.get('window').width,justifyContent:'space-between',alignItems:'center',paddingEnd:15,paddingStart:15,
-//   height: 60,flexDirection:'row',
-//   backgroundColor: 'white',borderTopColor:'gray',borderTopWidth:0.3
-  
-//   }} >
-//   <TouchableOpacity
-//   onPress={() =>
-//     this.props.navigation.navigate('Home')
-
-// }
-//   style={{ width: Dimensions.get('window').width/6,flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-//    <Icon style={{color:'#c1c0c9',}} name={
-//       Platform.OS === 'ios'
-//         ? `md-home`
-//         : 'md-home'
-//     }/> 
-//     <Text style={{ fontFamily: "newFont",
-// fontSize: 10,
-// fontWeight: "normal",
-// fontStyle: "normal",
-// letterSpacing: 0,
-// color: "#c1c0c9"}}>{i18n.t('home')}</Text>
-//       </TouchableOpacity>
-//       <TouchableOpacity style={{width: Dimensions.get('window').width/6, flexDirection:'column',justifyContent:'center',alignItems:'center'}}
-       
-//       >
-
-//   <Icon style={{color:'#8FCFEB',}} name={
-//       Platform.OS === 'ios'
-//         ? `md-heart`
-//         : 'md-heart'
-//     }/>
-//      <Text style={{ fontFamily: "newFont",
-// fontSize: 10,
-// fontWeight: "normal",
-// fontStyle: "normal",
-// letterSpacing: 0,
-// color: "#8FCFEB"}}>{i18n.t('wishlist')}</Text>
-//     </TouchableOpacity>
-     
-//       <View style={{width: Dimensions.get('window').width/4,
-//   height: 130,
-//   backgroundColor: 'white',
-//   borderTopEndRadius:80,borderTopStartRadius:80,justifyContent:'center',alignItems:'center'
-  
-//   }} >
-//    <TouchableOpacity
-//    onPress={() => {
-//     this.setModalVisible(!this.state.popUpModal);
-// }}
-//    style={{ borderRadius:35,height:70,width:70,borderColor:'#8FCFEB',borderWidth:5,backgroundColor:'white',justifyContent:'center',alignItems:'center',marginTop:-35}}>
-//           <Image style={{width:50,height:50,resizeMode:'contain'}} source={require('../assets/images/logo.png')}/></TouchableOpacity>
-
-
-//   </View>
-//   <TouchableOpacity 
-//    onPress={() =>
-//     this.props.navigation.navigate('SettingsScreen')
-
-// }
-//   style={{width: Dimensions.get('window').width/6,flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-
-//   <Icon style={{color:'#c1c0c9',}}  name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}/>
-//          <Text style={{ fontFamily: "newFont",
-// fontSize: 10,
-// fontWeight: "normal",
-// fontStyle: "normal",
-// letterSpacing: 0,
-// color: "#c1c0c9"}}>{i18n.t('settings')}</Text>
-// </TouchableOpacity>
-// <TouchableOpacity 
-// //  onPress={()=>{this._callShowDirections() }}
-// // onPress={
-
-// // Platform.select({
-// //     ios: () => {
-// //         Linking.openURL('http://maps.apple.com/maps?daddr=32.004734,%2035.861525');
-// //     },
-// //     android: () => {
-// //         Linking.openURL('http://maps.google.com/maps?daddr=32.004734,%2035.861525');
-// //     }
-// // })}
-// onPress={() =>
-// this.props.navigation.navigate('MapViewScreen')
-
-// }
-// style={{width: Dimensions.get('window').width/6,flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-
-//  <Icon style={{color:'#c1c0c9',}} name={
-//       Platform.OS === 'ios'
-//         ? `md-pin`
-//         : 'md-pin'
-//     }/>
-//     <Text style={{ fontFamily: "newFont",
-// fontSize: 10,
-// fontWeight: "normal",
-// fontStyle: "normal",
-// letterSpacing: 0,
-// color: "#c1c0c9"}}>{i18n.t('whereToBuy')}</Text>
-//     </TouchableOpacity>
-     
-// </View>
-
-//     </View>   
-//   </View>
-//       </Container>
-//     </StyleProvider>
-//       )
-
-//     }
 if(this.state.fetching_from_server){
 
 }
@@ -833,7 +525,9 @@ if(this.state.fetching_from_server){
           Items.length > 0 ? (
                  
               <FlatGrid
-                itemDimension={130}
+                // itemDimension={130}
+                itemDimension={Dimensions.get('window').width>420?200:130}
+
                 items={Items}
                 style={styles.gridView}
                 renderItem={({ item, index }) => (
@@ -862,8 +556,9 @@ if(this.state.fetching_from_server){
                    </TouchableOpacity> 
                    <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
              
-              <Text   numberOfLines={1}
+              <Text   numberOfLines={2}
               style={{  fontSize: 13,
+                textAlign:I18nManager.isRTL?"left":null,
                 fontWeight: "normal",
                 fontStyle: "normal",
                 letterSpacing: 0,
@@ -938,10 +633,10 @@ if(this.state.fetching_from_server){
 
                               //  this.Navigate (item.products_id,item.products_name)
                                }}
-                               disabled={ this.state.testArr.includes(item.products_id)? true:false}
+                               disabled={ testArrTest.includes(item.products_id)||item.in_stock==0? true:false}
 
                              // disabled={ Order.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
+                             style={{height:30,backgroundColor:testArrTest.includes(item.products_id)||item.in_stock==0?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
                              block 
                             //onPress={()=>{
                              
@@ -956,7 +651,7 @@ if(this.state.fetching_from_server){
                  fontStyle: "normal",
                  letterSpacing: 0,
                  color: "#ffffff"
-               }}>{I18nManager.isRTL?'أضف الى السلة':'Add to Cart'}</Text>      
+               }}>{I18nManager.isRTL?testArrTest.includes(item.products_id)?'تمت الاضافه الى السلة':'أضف الى السلة':testArrTest.includes(item.products_id)?'Added to Cart':'Add to Cart'}</Text>      
                    </Button>
                          </Body>
                            </View>
@@ -1167,259 +862,3 @@ const styles = StyleSheet.create({
 
 
 
-// import React from 'react';
-// import { ScrollView, StyleSheet,View , ActivityIndicator,Dimensions,Platform,TouchableOpacity,Image,ImageBackground} from 'react-native';
-// import {
-//   Container,
-//   Header,
-//   Title,
-//   Content,
-//   Button,
-//   Icon,
-//   List,
-//   ListItem,
-//   Text,
-//   Thumbnail,
-//   Left,
-//   Body,
-//   Right,
-//   StyleProvider
-// } from "native-base";
-// import Counter from "react-native-counters";
-// import {connect} from "react-redux";
-// import getTheme from '../native-base-theme/components';
-// import variables from '../native-base-theme/variables/variables';
-// import { FlatGrid } from 'react-native-super-grid';
-
-// import NumericInput from 'react-native-numeric-input'
-
-// import { getWishListAction } from '../actions/WishListActions';
-
-// class WishListScreen extends React.Component {
-//   static navigationOptions = {
-//     title: null,
-//   };
-//   constructor(props){
-//     super(props)
-//     this.state = {
-//       Price: 100,
-//       count:1,
-//       value: 1,
-
-//       val: 1,
-//       minColor: 'white',
-//       isModalVisible: false
-//     }
-// }
-// componentDidMount() {
-//   console.log('didmountcatitem',this.props.getWishListAction())
-//   this.props.getWishListAction()
-// }
-// setItem = (item) =>
-//     this.setState({ item })
-//   onChange(number) {
-//     let price = 100;
-//     price = parseFloat(price);
-//     this.setState({
-//       Price : price * number,
-//       count: number
-//     })
-//   }
-//   _toggleModal = () =>
-//   this.setState({ isModalVisible: !this.state.isModalVisible });
-  
-//   static navigationOptions = {
-//    header:null
-// };
-//   render() {
-//     console.log('wishlissssst',this.props)
-//     const  Items = this.props.wishList;
-//     if(!Items.length){
-//       return ( <ActivityIndicator style={styles.loader} size="large" color="#8FCFEB" /> )
-//     } 
-//     return (
-//       <StyleProvider style={getTheme(variables)}>
-//       <Container>
-     
-//     <Content>
-//     <View style={{ flex: 1 }}>
-//     {this.state.isModalVisible &&
-//       <AddToCartModal
-//         _toggleModal={this._toggleModal}
-//         isModalVisible ={this.state.isModalVisible}
-//         item={this.state.item}
-//       /> 
-//       }
-//     <FlatGrid
-//         itemDimension={130}
-//         items={Items}
-//         style={styles.gridView}
-//         renderItem={({ item, index }) => (
-//           <ItemCard
-//           navigate={this.Navigate}
-//           _toggleModal ={this._toggleModal}
-//           setItem={this.setItem}
-//           index ={index}
-//           item= {item}
-//           />
-//           )}
-//       />
-//       </View>
-//       </Content>
-     
-    
-  
-//         <View style={{
-//     justifyContent: 'center',
-//     alignItems: 'center',}}>
- 
-//  <View >
-//         <View style={{ shadowColor: "black",
-//     shadowOpacity: 0.8,
-//     shadowRadius: 2,
-//     shadowOffset: {
-//       height: 1,
-//       width: 0
-//     }
-//   , width: Dimensions.get('window').width,justifyContent:'space-between',alignItems:'center',paddingEnd:15,paddingStart:15,
-//     height: 80,flexDirection:'row',
-//     backgroundColor: 'white',
-    
-//     }} >
-//     <TouchableOpacity 
-//      onPress={() =>
-//       this.props.navigation.navigate('Home')
-
-//   }
-//     style={{ width: Dimensions.get('window').width/6,flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-//      <Icon style={{color:'#c1c0c9',}} name={
-//         Platform.OS === 'ios'
-//           ? `md-home`
-//           : 'md-home'
-//       }/> 
-//       <Text style={{ fontFamily: "newFont",
-//   fontSize: 10,
-//   fontWeight: "normal",
-//   fontStyle: "normal",
-//   letterSpacing: 0,
-//   color: "#c1c0c9"}}>Home</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity
-//          onPress={() =>
-//           this.props.navigation.navigate('WishListScreen')
-
-//       }
-//         style={{width: Dimensions.get('window').width/6, flexDirection:'column',justifyContent:'center',alignItems:'center'}}
-        
-//         >
-
-//     <Icon style={{color:'#c1c0c9',}} name={
-//         Platform.OS === 'ios'
-//           ? `md-heart`
-//           : 'md-heart'
-//       }/>
-//        <Text style={{ fontFamily: "newFont",
-//   fontSize: 10,
-//   fontWeight: "normal",
-//   fontStyle: "normal",
-//   letterSpacing: 0,
-//   color: "#c1c0c9"}}>Wishlist</Text>
-//       </TouchableOpacity>
-//        <View style={{flexDirection:'row'}}>
-      
-//         <View style={{width: Dimensions.get('window').width/4,
-//     height: 130,
-//     backgroundColor: 'white',
-//     borderTopEndRadius:80,borderTopStartRadius:80,justifyContent:'center',alignItems:'center'
-    
-//     }} >
-//      <View style={{ borderRadius:35,height:70,width:70,borderColor:'#8FCFEB',borderWidth:5,backgroundColor:'white',justifyContent:'center',alignItems:'center'}}>
-//             <Image style={{width:50,height:50,resizeMode:'contain'}} source={require('../assets/images/logo.png')}/></View>
-
-// </View>
-//     </View>
-//     <View style={{width: Dimensions.get('window').width/6,flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-
-//     <Icon style={{color:'#8FCFEB',}} name={
-//         Platform.OS === 'ios'
-//           ? `md-cart`
-//           : 'md-cart'
-//       }/>
-//            <Text style={{ fontFamily: "newFont",
-//   fontSize: 10,
-//   fontWeight: "normal",
-//   fontStyle: "normal",
-//   letterSpacing: 0,
-//   color: "#8FCFEB"}}>Cart</Text>
-// </View>
-// <View style={{width: Dimensions.get('window').width/6,flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-
-//    <Icon style={{color:'#c1c0c9',}} name={
-//         Platform.OS === 'ios'
-//           ? `md-pin`
-//           : 'md-pin'
-//       }/>
-//       <Text style={{ fontFamily: "newFont",
-//   fontSize: 10,
-//   fontWeight: "normal",
-//   fontStyle: "normal",
-//   letterSpacing: 0,
-//   color: "#c1c0c9"}}>Where to Buy</Text>
-//       </View>
-       
-// </View>
-
-//       </View>   
-//     </View>
-//       </Container>
-//       </StyleProvider>
-//     );
-//   }
-// }
-
-
-
-
-// const mapStateToActions = {
-//   getWishListAction: getWishListAction
-// }
-
-// const mapStateToProps= state => ({
-//   wishList: state.WishListReducer.wishList
-// });
-// export default connect(mapStateToProps, mapStateToActions)(WishListScreen)
-
-// const styles = StyleSheet.create({
-//   image : {
-//     borderWidth: 1,
-//     borderRadius: 2,
-//     borderColor: '#ddd',
-//     borderBottomWidth: 0,
-//     shadowColor: '#000',
-//     shadowOffset: { width: 0, height: 2 },
-//     shadowOpacity: 0.8,
-//     shadowRadius: 2,
-//     elevation: 1,
-//     marginLeft: 5,
-//     marginRight: 5,
-//     marginTop: 10,
-//   },
-//   counterWraper:{
-//     borderWidth: 1,
-//     borderColor: '#8FCFEB',
-//   },
-//   itemORGPrice:{
-//     fontSize: 20,
-//     color: 'black',
-//     fontWeight: 'bold'
-//   },
-//   itemOriginal: {
-//     fontFamily: "Acens",
-//     fontSize: 17,
-//     fontWeight: "normal",
-//     fontStyle: "normal",
-//     letterSpacing: 0,
-//     textAlign: "left",
-//     color: "#8FCFEB"
-//   }
-// });

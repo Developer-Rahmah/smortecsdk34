@@ -86,38 +86,7 @@ export default class RestPasswordFinal extends Component {
         }
     }
 
-    // _retrieveData = async () => {
-    //     try {
-    //       const value = await AsyncStorage.getItem('userID');
-    //       const namevalue =  await AsyncStorage.getItem("userName"); 
-    //       const phonevalue = await AsyncStorage.getItem("userPhone");
-    //       const passwvalue = await AsyncStorage.getItem("userPassword");
-    //       const myLang = await AsyncStorage.getItem("myLang")
-    //       if(myLang !== null){
-    //         this.setState({ myLang: myLang });
 
-    //         I18nManager.forceRTL(myLang === "ar");
-    
-    //         this.setState({ isRTL: myLang === "ar" });
-    
-    //         i18n.locale = this.state.myLang;
-          
-    //       }
-  
-    //       if (value !== null) {
-    //         // We have data!!
-    //         console.log('userid:',value);
-    //         console.log('namevalue:',namevalue);
-    //         console.log('phonevalue:',phonevalue);
-    //         console.log('passwvalue:',passwvalue);
-
-    //          this.props.navigation.navigate('Home')
-    //       }
-    //     } catch (error) {
-    //       // Error retrieving data
-    //       console.log('getstorageitemerrrror',error);
-    //     }
-    //   };
     _retrieveData = async () => {
         try {
           const value = await AsyncStorage.getItem('userEmail');
@@ -125,7 +94,6 @@ export default class RestPasswordFinal extends Component {
             // We have data!!
             this.setState({userEmail:value})
           
-            console.log('useremaiiiiiiiiil',this.state.userEmail);
 
            
           }
@@ -137,16 +105,7 @@ export default class RestPasswordFinal extends Component {
       };
     async componentWillMount() {
         this._retrieveData()
-    //     if(this.state.myLang=="ar"){
-    //         I18nManager.forceRTL(true);
-
-           
-    
-    //         i18n.locale = this.state.myLang;
-    //     }
-    //    this._retrieveData()
-    //     this.setState({ loading: false });
-    //     console.log('willmountaaaa=' + this.state.isRTL)
+  
     
     }
     async  componentDidMount() {
@@ -202,7 +161,7 @@ export default class RestPasswordFinal extends Component {
         })
     }
     onSignupPreesd() {
-        console.log('signupPreesd')
+    
         this.signupBG();
         this.props.navigation.navigate('ProfileScreen')
 
@@ -226,12 +185,12 @@ if( this.state.checked==false ){
 else
 {
         client.post(`app/changepassword?user_name=${this.props.navigation.state.params.userName}&password=${this.state.password}`).then((res) => {
-            console.log('data user signup',res)
+           
 if(res.data.message==='Password Changed Successfully.'){
     this._storeData(this.props.navigation.state.params.email
         )
 this.props.navigation.navigate('LoginScreen')
-    console.log('suceess saved')
+
     
 
 
@@ -288,8 +247,7 @@ this.setState({confirmPasswordBottomLine:'red'})
     render() {
         i18n.fallbacks = true;
         i18n.translations = { ar, en };
-        //i18n.locale =null;
-        console.log('test:' + this.state.myLang);
+    
 
         i18n.locale = this.state.myLang;
 

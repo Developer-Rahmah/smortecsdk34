@@ -100,23 +100,22 @@ this.setModalVisible(false)
     };
 
     componentDidMount() {
-        // if (I18nManager.isRTL)
-        // {
-        //   lang=4;
-        // }
-        // else{
-        //   lang=1;
-        // }
+        if (I18nManager.isRTL)
+        {
+          lang=4;
+        }
+        else{
+          lang=1;
+        }
             // this._retrieveData()
             if(this.props.Order.length>0){
               
           
             }
-       console.log('didmount')
+            console.log("langggg",lang)
         client.post(`/app/getallpages?language_id=${lang}`).then((res) => {
-            console.log('didmount response ',res.data. pages_data[0].description)
-
-     this.setState({privacyTxt:res.data. pages_data[2].description, title:I18nManager.isRTL?'من نحن':'ABOUT US'})
+console.log("7777",res)
+     this.setState({privacyTxt:res.data.pages_data[2].description, title:I18nManager.isRTL?'من نحن':'ABOUT US'})
 
       
         })

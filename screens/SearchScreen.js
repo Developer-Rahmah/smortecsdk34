@@ -111,7 +111,7 @@ const { mainSettingContainer, settingsContainer, rowContainerInSetting, imageCon
 
           
             client.post(`/app/getallproducts?language_id=${lang}`).then((res) => {
-                console.log('searcharr',res.data.product_data)
+              
               this.setState({
                 data: res.data.product_data,
                 loading:false,
@@ -138,7 +138,7 @@ const { mainSettingContainer, settingsContainer, rowContainerInSetting, imageCon
           lang=1;
         }
         client.post(`/app/getallproducts?language_id=${lang}&nameFilter=${text}`).then((res) => {
-            console.log('searcharr',res.data.product_data)
+        
         
          if(res.data.product_data.length>0){
              this.setState({
@@ -282,7 +282,7 @@ const { mainSettingContainer, settingsContainer, rowContainerInSetting, imageCon
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
     //i18n.locale =null;
-    console.log('test:' + this.state.myLang);
+  
 
     i18n.locale = this.state.myLang;
     if (this.state.loading) {

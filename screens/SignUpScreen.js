@@ -179,7 +179,6 @@ export default class SignUpScreen extends Component {
 
 
            
-            console.log(' IN REG API')
 
 
        
@@ -621,51 +620,9 @@ export default class SignUpScreen extends Component {
                 this.setState({emailBottomLine:'red'}) 
             }
                
-    //            if(this.state.password.length>0){
-    //                let b=0;
-    //                let d=0;
-    //             for(let i=0;i<this.state.password.length;i++)
-    //             {
-    //                 if('A' <= this.state.password[i] && this.state.password[i] <= 'Z') // check if you have an uppercase
-    //                     b++;
-    //                     if('0' <= this.state.password[i] && this.state.password[i] <= '9') // check if you have a numeric
-    //         d++;
-    // if(b>0&&d>0){
-    //     console.log('bb',b)
-    //     console.log('dd',d)
-
-    //     this.setState({passwordBottomLine:'#F5F5F5'})
-    // }else if(b<=0||d<=0){
-    //     // showMessage({
-    //     //     message: 'Password should be contain at least one capital letter and numbers ',
-    //     //     type: "danger",
-    //     //   });
-    //       this.setState({passwordBottomLine:'red'})
-    // }
-                        
-              //  }
+  
               if(this.state.password.length>0){
-//                 let b=0;
-//                 let d=0;
-//              for(let i=0;i<this.state.password.length;i++)
-//              {
-//                  if('A' <= this.state.password[i] && this.state.password[i] <= 'Z') // check if you have an uppercase
-//                      b++;
-//                      if('0' <= this.state.password[i] && this.state.password[i] <= '9') // check if you have a numeric
-//          d++;
-//  if(b>0&&d>0){
-//      console.log('bb',b)
-//      console.log('dd',d)
 
-//      this.setState({passwordBottomLine:'#F5F5F5'})
-//  }else if(b<=0||d<=0){
-//      showMessage({
-//          message: 'Password should be contain at least one capital letter and numbers ',
-//          type: "danger",
-//        });
-//        this.setState({passwordBottomLine:'red'})
-//  }
-// }  
 var strongRegex = new RegExp("^(?=.*[A-Z])(?=.*[0-9])");
 if(strongRegex.test(this.state.password) === false&&this.state.password.length<6){
     showMessage({
@@ -715,23 +672,12 @@ else{
     this.setState({pharmacyNmaeBottomLine:'#F5F5F5'})
     this.setState({phoneBottomLine:'#F5F5F5'})
 this.setState({userNamePBottomLine:'#F5F5F5'})
-      console.log('reg apiiiii',`/app/processregistration?customers_firstname=${this.state.firstNmae}&customers_lastname=${this.state.lastNmae}&email=${this.state.email}&password=${this.state.confirmPass}&customers_telephone=+962${this.state.phone}&pharmacy_name=${this.state.pharmcyNmae}&user_name=${this.state.userNameP}`)
 
     client.post(`/app/processregistration?customers_firstname=${this.state.firstNmae}&customers_lastname=${this.state.lastNmae}&email=${this.state.email}&password=${this.state.confirmPass}&customers_telephone=+962${this.state.phone}&pharmacy_name=${this.state.pharmcyNmae}&user_name=${this.state.userNameP}`).then((res
     
     
     ) => {
-        // client.post(`/app/processregistration`,{
-        //     customers_firstname:this.state.firstNmae,
-        //     customers_lastname:this.state.lastNmae,
-        //     email:this.state.email,
-        //     password:this.state.confirmPass,
-        //     ustomers_telephone:'+962'+this.state.phone,
-        //     pharmacy_name:this.state.pharmcyNmae,
-        //     user_name:this.state.userNameP,
-         
-        //   }).then(function(res) {
-        console.log('data user signup',res)
+ 
 if(res.data.message==='Thank you for registration our support team will contact you soon'){
 this._storeData(this.state.email
     )
@@ -742,7 +688,6 @@ this._storeData(this.state.email
       });
     
 this.props.navigation.navigate("LoginScreen") 
-console.log('suceess saved')
 
 
 

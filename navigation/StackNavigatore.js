@@ -265,18 +265,4 @@ export const ScreenNavigator = createStackNavigator({
   }
 
   
-//   {  headerMode: 'none'}
   )
-//   _retrieveData = async () => {
-//     try {
-//       const value = await AsyncStorage.getItem('userID');
-//       if (value !== null) {
-//         // We have data!!
-//         console.log('getstorageitem',value);
-//          this.props.navigation.navigate('Home')
-//       }
-//     } catch (error) {
-//       // Error retrieving data
-//       console.log('getstorageitemerrrror',error);
-//     }
-//   };

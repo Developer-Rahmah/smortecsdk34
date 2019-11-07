@@ -3,7 +3,11 @@ import {Provider} from 'react-redux'
 import { Asset } from 'expo-asset';
 
 import { Platform, StatusBar, StyleSheet, View,Dimensions,Image,Text ,AsyncStorage,I18nManager} from 'react-native';
-import { AppLoading, Font, Icon,SplashScreen,Permissions, Notifications,Constants } from 'expo';
+import { AppLoading, Icon,SplashScreen, Notifications } from 'expo';
+import Constants  from 'expo-constants';
+
+import * as Font from 'expo-font'
+import * as Permissions from 'expo-permissions'
 import AppNavigator from './navigation/AppNavigator';
 import AppNavigatorSplash from './navigation/AppNavigatorSplash';
 import {createStore, applyMiddleware, compose} from 'redux';
@@ -132,10 +136,6 @@ _retrieveData = async () => {
       const token = await AsyncStorage.getItem("deviceToken");
       const platform = await AsyncStorage.getItem("devicePlatform");
 
-      console.log('my device token iiiis',token);
-      console.log('my device platfooorm iiiis',platform);
-
-      console.log('tokeeen:'+token)
       if(Platform.OS === 'ios') {
           console.log(" ios") 
        } else {
@@ -148,21 +148,7 @@ _retrieveData = async () => {
     const myLang = await AsyncStorage.getItem("myLang")
     const switchOn= await AsyncStorage.getItem("switchOn");
     const myArray = await AsyncStorage.getItem('orderArr');
-//     if(switchOn !==null){
-// this.setState({switchOn:switchOn})
-//     }
-    
 
-      // if(myLang !== null){
-      //   this.setState({ myLang: myLang });
-  
-      //   I18nManager.forceRTL(myLang === "ar");
-  
-      //   this.setState({ isRTL: myLang === "ar" });
-  
-      //   i18n.locale = this.state.myLang;
-      
-      // }
       if(myLang ==="ar"){
         if(I18nManager.isRTL != true){
           await AsyncStorage.setItem("myLang", "ar");
@@ -183,41 +169,10 @@ _retrieveData = async () => {
       }
     }
 
-      // I18nManager.forceRTL(myLang === "ar");
-    //   if(I18nManager.isRTL){
-    //     I18nManager.allowRTL(!(myLang === "ar"))
-
-    //   }else{
-    //     I18nManager.forceRTL(myLang === "ar");
-    //   }
-    //   this.setState({ isRTL: myLang === "ar" });
-    //   console.log('is arabic in iiif', I18nManager.isRTL)
-
-    //   i18n.locale = myLang;
-    //   console.log('mmmmmmy laaaaaang iiiis ', i18n.locale)
-
-    // }else{
-    //   await AsyncStorage.setItem("myLang", "en");
-    //   // I18nManager.forceRTL(false);
-    //   I18nManager.allowRTL(false)
-    //   this.setState({ myLang: "en" });
-
-    //         i18n.locale = "en";
-
-    //   console.log('is arabic in else', I18nManager.isRTL)
-
-    // }
+  
 
     if (value !== null) {
-      console.log('my device token iiiis',token);
-      console.log('my device platfooorm iiiis',platform);
-
-      // We have data!!
-      console.log('userid:',value);
-      console.log('namevalue:',namevalue);
-      console.log('phonevalue:',phonevalue);
-      console.log('passwvalue:',passwvalue);
-      console.log('ordeeer async arr newww',JSON.parse(myArray));
+ 
 this.setState({userID:value})
       //  this.props.navigation.navigate('Home')
     }
@@ -229,15 +184,7 @@ this.setState({userID:value})
     // Error retrieving data
     console.log('getstorageitemerrrror',error);
   }
-  // try {
-  //     const myArray = await AsyncStorage.getItem('orderArr');
-  //     if (myArray !== null) {
-  //       // We have data!!
-  //       console.log('ordeeer async arr',JSON.parse(myArray));
-  //     }
-  //   } catch (error) {
-  //     // Error retrieving data
-  //   }
+
 };
 
 
@@ -255,8 +202,7 @@ this.setState({userID:value})
     this.setState({ isReady: true });
   }
   render() {
-    console.log('userid iiiis in render rahhhhhmah:',this.state.userID);
-
+console.log("platform.os",Platform.OS)
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
       return (
         <AppLoading
@@ -266,58 +212,42 @@ this.setState({userID:value})
         />
       );
     } 
-    if (!this.state.isReady) {
+  //   if (!this.state.isReady) {
 
 
-      return (
-          <View style={{ height: Dimensions.get('window').height, width: Dimensions.get('window').width,backgroundColor:'white' }}>
+  //     return (
+  //         <View style={{ height: Dimensions.get('window').height, width: Dimensions.get('window').width,backgroundColor:'white' }}>
 
-              <View style={{ height: Dimensions.get('window').height, width: Dimensions.get('window').width, justifyContent: 'center', alignItems: 'center', }}
-                  >
-                  <View style={{ height: Dimensions.get('window').height / 5,flexDirection:'column' }}>
-                  </View>
-                  <Image
-                        source={require('./assets/images/logo.png')}
-                        style={{
-                            resizeMode:'contain'
-                            // width: Dimensions.get('window').width/1.5,
-                            // height: Dimensions.get('window').width/2.5, paddingTop: 2,
+  //             <View style={{ height: Dimensions.get('window').height, width: Dimensions.get('window').width, justifyContent: 'center', alignItems: 'center', }}
+  //                 >
+  //                 <View style={{ height: Dimensions.get('window').height / 5,flexDirection:'column' }}>
+  //                 </View>
+  //                 <Image
+  //                       source={require('./assets/images/logo.png')}
+  //                       style={{
+  //                           resizeMode:'contain'
+  //                           // width: Dimensions.get('window').width/1.5,
+  //                           // height: Dimensions.get('window').width/2.5, paddingTop: 2,
                             
-                        }}
-                                            onLoad={this._cacheResourcesAsync}
+  //                       }}
+  //                                           onLoad={this._cacheResourcesAsync}
 
-                    />
-                      <View style={{ height: Dimensions.get('window').height / 2.5 ,flexDirection:'column'}}/>
-                      <Text style={{fontFamily:'smortecFont',color:'gray',textAlign:'center'}} >©SMORTEC 2019</Text> 
-                    {/* <Image
+  //                   />
+  //                     <View style={{ height: Dimensions.get('window').height / 2.5 ,flexDirection:'column'}}/>
+  //                     <Text style={{fontFamily:'smortecFont',color:'gray',textAlign:'center'}} >©SMORTEC 2019</Text> 
+             
 
-                  {/* <Image
-                      source={require('./assets/images/smorteclogo.png')}
-                      style={{
-                          width: Dimensions.get('window').width/1.5,
-                          height: Dimensions.get('window').width/2.5, paddingTop: 2,
-                          // resizeMode: 'contain'
-                      }}
-                      onLoad={this._cacheResourcesAsync}
-                  />
-                  <View style={{ height: Dimensions.get('window').height / 2.5 ,flexDirection:'column'}}>
-<Text style={{fontSize:30,fontFamily:'Acens',color:'#8FCFEB',textAlign:'center'}}>SMORTEC</Text>
-<Text style={{fontSize:30,fontFamily:'Acens',color:'gray',textAlign:'center'}}>We are the future</Text>
+  //             </View>
 
-                  </View>
-                  <Text style={{fontFamily:'Acens',color:'gray',textAlign:'center'}} >©SMORTEC 2019</Text> */}
-
-              </View>
-
-          </View>
-      );
-   }
+  //         </View>
+  //     );
+  //  }
 
     if(this.state.userID =='test'){
        return (
         <Provider store={store}>
         <View style={styles.container}>
-          <AppNavigatorSplash />
+          {/* <AppNavigatorSplash /> */}
           <FlashMessage position="top" style={{justifyContent:'center',alignItems:'center'}} animated={true} />
 
         </View>

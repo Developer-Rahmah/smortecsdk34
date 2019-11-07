@@ -86,7 +86,7 @@ const en = {
  profitMarginRatio:'Profit Margin Ratio: ',
  jod:'JOD',
  agent:'Others',
- verify: 'Verify',
+ verify: 'CONFIRM ORDER',
  cancel:'Cancel',
  latterBooking:'Later Booking',
  urgent:'Urgent',
@@ -123,7 +123,11 @@ approved:"Approved",
 notApproved:"Not Approved",
 qty:'QTY : ',
 bonus:'Bonus : ',
-cartReview:"Cart Review"
+cartReview:"ORDER REVIEW",
+SubAgent:'Sub Agent: ',
+tax:"Tax : "
+
+
 
 
  
@@ -156,7 +160,7 @@ public:'سعر البيع : ',
 profitMarginRatio:'نسبة هامش الربح: ',
 jod:'دينار',
 agent:'أخرى',
-verify: 'تأكيد',
+verify: 'تأكيد الطلب',
 
 cancel:'الغاء',
 latterBooking:'حجز لاحق',
@@ -192,7 +196,9 @@ DrugStore:'مستودع الادوية',
  notApproved:"غير موافق عليه",
  qty:'الكمية : ',
  bonus:'بونص : ',
- cartReview:"عرض السلة"
+ cartReview:"عرض الطلب",
+ SubAgent:'الوكيل: ',
+ tax:"الضريبه : "
 
  
 
@@ -230,7 +236,7 @@ class ReviewScreen extends Component {
     this.state = {
       approvedArr:[],
       notApprovedArr:[],
-      fetching_from_server:false,
+      fetching_from_server:true,
       count:this.props.navigation.state.params.count,
       singleItem:this.props.navigation.state.params.singleItem,
      
@@ -391,126 +397,15 @@ class ReviewScreen extends Component {
   }
 
   addUnApprovedProducts=(arr)=>{
-    console.log("arr",arr)
 for(let i=0;i<=arr.length;i++){
-    console.log("arr[i]",arr[i])
-    // let test=0;
-    //   for(let i=0;i<=this.state.bounsArr.length;i++){
-    
-    //     if(this.state.bounsArr[i]!=undefined){ 
-    //       console.log('test array=:',this.state.bounsArr[i])
-    
-    //          console.log('test=:',this.state.bounsArr[i].type)
-    // if(this.state.count==''||this.state.count==""){
-    //     if(1>=this.state.bounsArr[i].qty_from){
-    //       if(this.state.bounsArr[i].type=='percent'){
-    //         console.log('test= in percent:',this.state.bounsArr[i].type)
-    //         console.log('test=:',this.state.bounsArr[i].bounces)
-    
-    //         test=this.state.bounsArr[i].bounces;
-    // test=(this.state.bounsArr[i].bounces)/100
-    //       }else{
-    //               test=this.state.bounsArr[i].bounces;
-    //               console.log('test type=:',this.state.bounsArr[i].type)
-    
-    //               console.log('test= in pice:',this.state.bounsArr[i].bounces)
-    
-    //       }
-    //       this.setState({bounsNum:this.state.bounsArr[i].bounces})
-    //       console.log('bouuuuns number is:',this.state.bounsNum)
-    //     }
-    //   }else{
-    //     if(this.state.count>=this.state.bounsArr[i].qty_from){
-    //       if(this.state.bounsArr[i].type=='percent'){
-    //         console.log('test= in percent:',this.state.bounsArr[i].type)
-    //         console.log('test=:',this.state.bounsArr[i].bounces)
-    
-    //         test=this.state.bounsArr[i].bounces;
-    // test=(this.state.bounsArr[i].bounces)/100*this.state.count
-    //       }else{
-    //               test=this.state.bounsArr[i].bounces;
-    //               console.log('test type=:',this.state.bounsArr[i].type)
-    
-    //               console.log('test= in pice:',this.state.bounsArr[i].bounces)
-    
-    //       }
-    //       this.setState({bounsNum:this.state.bounsArr[i].bounces})
-    //       console.log('bouuuuns number is:',this.state.bounsNum)
-    //     }
-    //   }
-    //   }
-    // }
-    // if(this.state.custmizeBonusNum>0){
-    //   test=this.state.custmizeBonusNum
-    // }
-      
-    //   let{ isModalVisible} = this.props;
-    //   let BaseURL = 'https://smortec.com';
-    //   let testTaxF=0;
-    //   let testTaxS=0;
-    //   let testTaxE=0;
-    //   let ppp=0;
-    //   if(this.state.singleItem.tax_description=='4%'){
-    
-      
-    //    testTaxF= 0.04*parseFloat(this.state.singleItem.products_price);
-    // }else  if(this.state.singleItem.tax_description=='8%'){
-    
-      
-    //    testTaxE= 0.08*parseFloat(this.state.singleItem.products_price);
-    // } else  if(this.state.singleItem.tax_description=='16%'){
-    
-      
-    //    testTaxS= 0.16*parseFloat(this.state.singleItem.products_price);
-    // }
-    //     if(this.state.singleItem.new_price !=null && this.state.singleItem.new_price !=''){
-    //       ppp= parseFloat(this.state.singleItem.new_price)
-          
-    //     }else{
-    //       ppp=parseFloat(this.state.singleItem.cost_price)
-    //     }
-    
-        
-       
-    
-    //     console.log('teeest is:',test);
-    //     console.log('bounsnum is:',this.state.bounsNum)
-    //     console.log('bounsnum in staaate is:',this.state.custmizeBonusNum)
-    // let profitmarginratio=0;
-    // let profitmargion=0;
-    // if(this.state.count==''||this.state.count==""){
-  
-    //     let totalSell=this.state.singleItem.products_price*(1+parseInt(test))
-    //     profitmargion= totalSell-(ppp*1)
-    //     let margin=ppp*(1+parseInt(test)) 
-    //          profitmarginratio=(parseFloat(profitmargion / margin)*100).toFixed(3)
-  
-    // }else{
-    //   let totalSell=this.state.singleItem.products_price*(this.state.count+parseInt(test))
-    //   profitmargion= totalSell-(ppp*this.state.count)
-    //   let margin=ppp*(this.state.count+parseInt(test)) 
-    //        profitmarginratio=(parseFloat(profitmargion / margin)*100).toFixed(3)
-  
-    // }
-    // let test1=1
-    // if(this.state.count!=""&&this.state.count!=''){
-    //   test1=this.state.count
-    // }
-    // else{
-    //   test1=1
-    // }
-    //     console.log('this.state.singleItem.publicPrice is:',this.state.singleItem.products_price);
-    //     console.log('this.state.counte is:',this.state.count);
-    //     console.log('ttest is:',parseInt(test));
-    //     console.log('ppp is:',ppp*this.state.count);
-    // console.log("f",ppp*test1)
-    //     console.log('profitmargion is:',profitmargion);
-    //     console.log('profitmargion ratiooo is:',profitmarginratio);
+ 
     
   if(arr[i]!=undefined)
   {
       let item={
         drug_store:arr[i].drug_store,
+        sub_agent:arr[i].sub_agent,
+
         products_id:arr[i].products_id,
         products_name : arr[i].products_name,
         
@@ -567,11 +462,9 @@ for(let i=0;i<=arr.length;i++){
           lang=1;
         }
     
-    console.log("jshskhdksdhshdskhhsdhsdhshdshkd",a3)
-    console.log("jshskhdksdhshdskhhsdhsdhshdshkdkhdhdkdkjdkdkdkjdkdjdkjdkjdjkdddddddda333333",a3Agent)
-    console.log("mmmmy ddddate",this.props.navigation.state.params.chosenDate)
+  
 
-     this.setState({fetching_from_server:true})
+     this.setState({fetching_from_server:false})
     if(this.props.navigation.state.params.screen=='item'){
 
     let test=0;
@@ -610,15 +503,15 @@ for(let i=0;i<=arr.length;i++){
   }
     this.setState({popUpModal:false})
 
-console.log("1111111")
+
     let itemId = this.props.navigation.state.params.itemId
     client.post(`/app/addtoorder?customers_id=${this.state.userID}&customers_telephone=${this.state.phone}&products[]&products[0][products_id]=${itemId}&products[0][customers_basket_quantity]=${this.props.navigation.state.params.count}&products[0][bounces]=${this.props.navigation.state.params.bonus}&type=${this.props.navigation.state.params.type1}&shipping_date=${this.props.navigation.state.params.chosenDate}&language_1d=${lang}&total=${finalPri*this.props.navigation.state.params.count}&tax=${((parseFloat(finaltaxF)+parseFloat(finaltaxE)+parseFloat(finaltaxS)).toFixed(3))}`).then((res) => {
   if(res.data.status==200){
-    this.setState({fetching_from_server:true})
+    this.setState({fetching_from_server:false})
   
-  
+ 
       if(res.data.status==200) {
-    this.props.navigation.navigate("OrderAddedSuccesfully",{fromCart:'item'});
+    this.props.navigation.navigate("OrderAddedSuccesfully",{fromCart:'item',order_id:res.data.data});
   
     showMessage({
 
@@ -638,14 +531,7 @@ console.log("1111111")
     })
   }else{
 
-    console.log("this.state.userID",this.state.userID)
-    console.log("this.state.type",this.state.type)
-    console.log("lang",lang)
-    console.log("this.state.chosenDate",this.state.chosenDate)
-    console.log("this.props.navigation.state.params.tota",this.props.navigation.state.params.tota)
-    console.log("this.props.navigation.state.params.taxes",this.props.navigation.state.params.taxes)
-    console.log("this.state.phone",this.state.phone)
-    console.log("this.props.navigation.state.params.orderArr",this.props.navigation.state.params.orderArr)
+  
 aApproved=[]
 let allArr=[]
 for (let i = 0; i < a3.length; i++) {
@@ -679,51 +565,21 @@ for(var k=0;k<allArrAll.length;k++){
 }`
 );
 }
-console.log("allArr",allArr)
+
 let bApproved = aApproved.toString();
 bApproved.replace(",", "&");
-// aApprovedAgent=[]
-// let allArrAgent=[]
-// for (let i = 0; i < a3Agent.length; i++) {
 
-//   for (let j = 0; j < a3Agent[i].products.length; j++) {
-
-// allArrAgent.push(a3Agent[i].products[j])
-
-//   }
-// }
-
-// for(var k=0;k<allArrAgent.length;k++){
-//     aApprovedAgent.push(
-//  `products[${k}][products_id]=${
-//   allArrAgent[k].products_id
-//  }&products[${k}][customers_basket_quantity]=${
-//   allArrAgent[k].qty
-//  }
-//  &products[${k}][bounces]=${
-//   allArrAgent[k].qtybounces
-// }`
-// );
-// }
-// console.log("allArrAgent",allArrAgent)
-// let bApprovedAgent = aApprovedAgent.toString();
-// bApprovedAgent.replace(",", "&");
 let arrApp=bApproved
 
    .split(",")
    .join("&")
-  //  let arrAppAgent=bApprovedAgent
-  //  .split(",")
-  //  .join("&")
-// let ArrAppFinal=arrApp.concat(arrAppAgent)
-   console.log("arrApp99999999999999999999999999999999999999999",arrApp)
-//    console.log("arrApp10000000000000000000000000000000000000000",arrAppAgent)
-// console.log("ArrApp55555555555555555555555",ArrAppFinal)
+
     client.post(`/app/addtoorder?customers_id=${this.state.userID}&type=${this.props.navigation.state.params.type1}&language_1d=${lang}&shipping_date=${this.props.navigation.state.params.chosenDate}&total=${this.props.navigation.state.params.tota}&tax=${this.props.navigation.state.params.taxes}&customers_telephone=${this.state.phone}&${arrApp}&products[}`
     )
     .then(res => {
+   
       if(res.data.status==200){
-        this.setState({fetching_from_server:true})
+        this.setState({fetching_from_server:false})
       
       if(res.data.status==200) {
         aUnApproved=[]
@@ -745,14 +601,12 @@ for (let i = 0; i < a2.length; i++) {
   }
 
 
-console.log("allArrUnApproved",allArrUnApproved)
-console.log("allArrUnApprovedAgent",allArrUnApprovedAgent)
+
 var allArrUnApprovedAll=allArrUnApproved.concat(allArrUnApprovedAgent)
-console.log("allArrUnApprovedAll",allArrUnApprovedAll)
        this.props.clearCart();
 this.addUnApprovedProducts(allArrUnApprovedAll)
    
-       this.props.navigation.navigate("OrderAddedSuccesfully",{fromCart:'cart'});
+       this.props.navigation.navigate("OrderAddedSuccesfully",{fromCart:'cart',order_id:res.data.data});
            showMessage({
          message: res.data.message,
          type: "success",
@@ -933,18 +787,15 @@ a=[];
     }
   }
   // We have data!!
-  console.log(' proooops ordeeeeer cart async arr is',JSON.parse(myArray));
 }
 } 
 catch (error) {
 // Error retrieving data
-console.log(' proooops ordeeeeer cart async arr is error',error)
 }
    // }
     // b = []
     let b = a.toString();
     b.replace(",", "&");
-    console.log("33333333")
    client
       .post(
         `/addtoorder?customers_id=${this.state.userID}&language_1d=${lang}&shipping_cost=${this.props.navigation.state.params.zone_price}&
@@ -964,16 +815,15 @@ console.log(' proooops ordeeeeer cart async arr is error',error)
            
 
 
-          this.props.navigation.navigate("OrderAddedSuccesfully",{fromCart:'cart'});
+          this.props.navigation.navigate("OrderAddedSuccesfully",{fromCart:'cart',order_id:res.data.data});
         }
       });
 
     }
   };
   render() {
-    console.log("this.props.navigation.state.params.orderArr",this.props.navigation.state.params.orderArr)
-console.log("this.props.navigation.state.params.type1",this.props.navigation.state.params.type1)
-    console.log("this.props.navigation.state.params.result",this.props.navigation.state.params.result)   
+    console.log("I18nManager.isRTl",I18nManager.isRTL)
+console.log("this.props.navigation.state.params.type111111",this.props.navigation.state.params.type1)
     var a3=[]
     var a2=[] 
 for(var i=0;i<this.props.navigation.state.params.result.data.data.length;i++){
@@ -998,8 +848,7 @@ else if (this.props.navigation.state.params.result.data.agent[i].approved=="0"){
 }
 
 }
-console.log("a3",a3)
-console.log("a3agent",a3Agent)
+
 
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
@@ -1032,9 +881,10 @@ console.log("a3agent",a3Agent)
                   styles.header,
                   {
                     fontSize: 25,
-                    width: Dimensions.get("window").width / 2.15,
+                    width: Dimensions.get("window").width / 1.7,
                     fontFamily: "Acens",
-                    marginLeft: 0
+                    marginLeft: 0,
+                    marginStart:-25
                   }
                 ]}
               >
@@ -1088,13 +938,15 @@ console.log("a3agent",a3Agent)
 
                    <View style={{flexDirection:"row",width:"100%",justifyContent:"space-between"}}>
 
-                     {I18nManager.isRTl?
+                     {I18nManager.isRTL?
+
                      <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('drugStore')}{item.store.drugstore_name_ar}</Text>
                      :
                      <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('drugStore')}{item.store.drugstore_name}</Text>
 
                      }
-                                          <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('minimumOrder')}{item.store.minimum_order}</Text>
+                     
+                                          <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('minimumOrder')}{parseFloat(item.store.minimum_order).toFixed(3)}</Text>
 
                      </View>
 
@@ -1102,9 +954,9 @@ console.log("a3agent",a3Agent)
                      <View style={{flexDirection:"row",width:"100%",justifyContent:"space-between"}}>
                      {item.approved=="1"?
 
-                     <Text style={{fontFamily:"newFont",fontSize:12,color:"green"}}>{i18n.t('totalProduct')}{item.sum}</Text>
+                     <Text style={{fontFamily:"newFont",fontSize:12,color:"green"}}>{i18n.t('totalProduct')}{item.sum}{i18n.t('jod')}</Text>
 :
-<Text style={{fontFamily:"newFont",fontSize:12,color:"red"}}>{i18n.t('totalProduct')}{item.sum}</Text>
+<Text style={{fontFamily:"newFont",fontSize:12,color:"red"}}>{i18n.t('totalProduct')}{item.sum}{i18n.t('jod')}</Text>
 
                     }
                     <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('numberOfProducts')}{item.products.length}</Text>
@@ -1115,26 +967,36 @@ console.log("a3agent",a3Agent)
 
                   </View>
                     {item.products.map((item1, key1) => {
+                  
+                      var totalTax1=item1.cost_price*item1.qty*parseFloat(item1.tax_rate)
+                   
                       return (
-                        <View style={{backgroundColor:"#fff",width:"100%",height:100,borderWidth:1,borderColor:"#8FCFEB",paddingEnd:3,paddingStart:3}} key={key1}>
+                        <View style={{backgroundColor:"#fff",width:"100%",height:110,borderWidth:1,borderColor:"#8FCFEB",paddingEnd:3,paddingStart:3}} key={key1}>
                             <View style={{ height: 5 }} />
 
 <View style={{flexDirection:"row",width:"100%",justifyContent:"space-between"}}>
 <Image style={{borderRadius:30,width:60,height:60}} source={{uri: BaseURL +item1.products_image}}/>
-{I18nManager.isRTl?
+<View style={{width:'79%'}}>
+
+{I18nManager.isRTL?
 
 <Text style={{fontFamily:"newFont"}}>{item1.scientific_name_ar}</Text>
 :
 <Text style={{fontFamily:"newFont"}}>{item1.scientific_name}</Text>
 
 }
+</View>
   </View>
   <View style={{ height: 10 }} />
 
   <View style={{flexDirection:"row",width:"100%",justifyContent:"space-between"}}>
+{/* <Text>{(parseFloat(item1.cost_price)).toFixed(3)}{i18n.t('jod')}</Text> */}
 <Text>{(item1.cost_price*item1.qty).toFixed(3)}{i18n.t('jod')}</Text>
+
+<Text>{i18n.t('tax')}{(parseFloat(totalTax1)).toFixed(3)}</Text>
+
 <Text>{i18n.t('qty')}{item1.qty}</Text>
-<Text>{i18n.t('bonus')}{parseFloat(item1.qtybounces).toFixed(3)}</Text>
+<Text>{i18n.t('bonus')}{item1.qtybounces}</Text>
 
   </View>
                           </View>
@@ -1148,19 +1010,7 @@ console.log("a3agent",a3Agent)
 
 {this.props.navigation.state.params.result.data.agent.length>0?
 <View>
-   <Text
-       
-       style={{ 
-        marginTop:7,
-        marginBottom:3,
-          width:Dimensions.get('window').width/1.2,
-          alignItems:'center',
-          borderBottomColor:'#c1c0c9',
-          fontSize: 20,fontFamily: "newFont",
-    fontWeight: "normal",
-    fontStyle: "normal",
-    letterSpacing: 0,
-    color: "#777777"}} >{i18n.t('agent')}</Text>
+
      {this.props.navigation.state.params.result.data.agent.map((item, key) => {
      
      return (
@@ -1182,13 +1032,13 @@ console.log("a3agent",a3Agent)
 
         <View style={{flexDirection:"row",width:"100%",justifyContent:"space-between"}}>
 
-          {I18nManager.isRTl?
-          <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('drugStore')}{item.store.drugstore_name_ar}</Text>
+          {I18nManager.isRTL?
+          <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('SubAgent')}{item.store.manufacturers_name_ar}</Text>
           :
-          <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('drugStore')}{item.store.drugstore_name}</Text>
+          <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('SubAgent')}{item.store.manufacturers_name}</Text>
 
           }
-                               <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('minimumOrder')}{item.store.minimum_order}</Text>
+                               <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('minimumOrder')}{parseFloat(item.store.minimum_order).toFixed(3)}</Text>
 
           </View>
 
@@ -1196,9 +1046,9 @@ console.log("a3agent",a3Agent)
           <View style={{flexDirection:"row",width:"100%",justifyContent:"space-between"}}>
           {item.approved=="1"?
 
-          <Text style={{fontFamily:"newFont",fontSize:12,color:"green"}}>{i18n.t('totalProduct')}{item.sum}</Text>
+          <Text style={{fontFamily:"newFont",fontSize:12,color:"green"}}>{i18n.t('totalProduct')}{item.sum}{i18n.t('jod')}</Text>
 :
-<Text style={{fontFamily:"newFont",fontSize:12,color:"red"}}>{i18n.t('totalProduct')}{item.sum}</Text>
+<Text style={{fontFamily:"newFont",fontSize:12,color:"red"}}>{i18n.t('totalProduct')}{item.sum}{i18n.t('jod')}</Text>
 
          }
          <Text style={{fontFamily:"newFont",fontSize:12,color:"#fff"}}>{i18n.t('numberOfProducts')}{item.products.length}</Text>
@@ -1209,26 +1059,33 @@ console.log("a3agent",a3Agent)
 
        </View>
          {item.products.map((item1, key1) => {
+           console.log("item1111111",item1)
+                                var totalTax2=item1.cost_price*item1.qty*parseFloat(item1.tax_rate)
+
            return (
-             <View style={{backgroundColor:"#fff",width:"100%",height:100,borderWidth:1,borderColor:"#8FCFEB",paddingEnd:3,paddingStart:3}} key={key1}>
+             <View style={{backgroundColor:"#fff",width:"100%",height:110,borderWidth:1,borderColor:"#8FCFEB",paddingEnd:3,paddingStart:3}} key={key1}>
                  <View style={{ height: 5 }} />
 
 <View style={{flexDirection:"row",width:"100%",justifyContent:"space-between"}}>
 <Image style={{borderRadius:30,width:60,height:60}} source={{uri: BaseURL +item1.products_image}}/>
-{I18nManager.isRTl?
+<View style={{width:'79%'}}>
+{I18nManager.isRTL?
 
-<Text style={{fontFamily:"newFont"}}>{item1.scientific_name_ar}</Text>
+<Text style={{fontFamily:"newFont",textAlign:"left"}}>{item1.scientific_name_ar}</Text>
 :
-<Text style={{fontFamily:"newFont"}}>{item1.scientific_name}</Text>
+<Text style={{fontFamily:"newFont",textAlign:"left"}}>{item1.scientific_name}</Text>
 
 }
+</View>
 </View>
 <View style={{ height: 10 }} />
 
 <View style={{flexDirection:"row",width:"100%",justifyContent:"space-between"}}>
 <Text>{(item1.cost_price*item1.qty).toFixed(3)}{i18n.t('jod')}</Text>
+<Text>{i18n.t('tax')}{(parseFloat(totalTax2)).toFixed(3)}</Text>
+
 <Text>{i18n.t('qty')}{item1.qty}</Text>
-<Text>{i18n.t('bonus')}{parseFloat(item1.qtybounces).toFixed(3)}</Text>
+<Text>{i18n.t('bonus')}{item1.qtybounces}</Text>
 
 </View>
                </View>
@@ -1318,11 +1175,14 @@ color: 'gray'}}>{i18n.t('makePurchase')}</Text>
               <ActivityIndicator color="white" style={{ marginLeft: -25.5,}} />
             ) : null}
           </TouchableOpacity> */}
-          {a3.length>0||a3Agent.length>0?
+          {!this.state.fetching_from_server ?
+          a3.length>0||a3Agent.length>0?
                     <TouchableOpacity 
-                  onPress={()=>this.onOrderNOwPressed(a3,a2,a3Agent,a2Agent)}
+                    disabled={!this.state.fetching_from_server ?true:false}
 
-          style={{ width:Dimensions.get('window').width/1.15,height:44,backgroundColor:'#8FCFEB',flexDirection:'row',justifyContent:'center',alignItems:'center'
+                  // onPress={()=>this.onOrderNOwPressed(a3,a2,a3Agent,a2Agent)}
+
+          style={{ width:Dimensions.get('window').width/1.15,height:44,backgroundColor:!this.state.fetching_from_server ?'gray':'#8FCFEB',flexDirection:'row',justifyContent:'center',alignItems:'center'
  ,marginTop: 10 ,marginBottom:30,}} 
 //  onPress={() => this.props.navigation.navigate('GetCurrentLocation',{finalPrice:p})}
  >
@@ -1334,7 +1194,50 @@ color: 'gray'}}>{i18n.t('makePurchase')}</Text>
     letterSpacing: 0.1,
     textAlign: "center",
     color: "#ffffff"}}>{i18n.t('verify')}</Text>
+       {/* {this.state.fetching_from_server ? (
+              <ActivityIndicator color="white" style={{ marginLeft: -50.5,}} />
+            ) : null} */}
           </TouchableOpacity>
+:
+<TouchableOpacity 
+// onPress={()=>{this.onOrderNOwPressed()}}
+
+style={{ width:Dimensions.get('window').width/1.15,height:44,backgroundColor:'gray',flexDirection:'row',justifyContent:'center',alignItems:'center'
+,marginTop: 10 ,marginBottom:30,}} 
+//  onPress={() => this.props.navigation.navigate('GetCurrentLocation',{finalPrice:p})}
+>
+<Text style={{fontSize: 15,
+fontWeight: "normal",
+fontStyle: "normal",
+fontFamily:'Acens',
+lineHeight: 19,
+letterSpacing: 0.1,
+textAlign: "center",
+color: "#ffffff"}}>{i18n.t('verify')}</Text>
+</TouchableOpacity>
+:
+a3.length>0||a3Agent.length>0?
+<TouchableOpacity 
+disabled={!this.state.fetching_from_server ?true:false}
+
+onPress={()=>this.onOrderNOwPressed(a3,a2,a3Agent,a2Agent)}
+
+style={{ width:Dimensions.get('window').width/1.15,height:44,backgroundColor:!this.state.fetching_from_server ?'gray':'#8FCFEB',flexDirection:'row',justifyContent:'center',alignItems:'center'
+,marginTop: 10 ,marginBottom:30,}} 
+//  onPress={() => this.props.navigation.navigate('GetCurrentLocation',{finalPrice:p})}
+>
+<Text style={{fontSize: 15,
+fontWeight: "normal",
+fontStyle: "normal",
+fontFamily:'Acens',
+lineHeight: 19,
+letterSpacing: 0.1,
+textAlign: "center",
+color: "#ffffff"}}>{i18n.t('verify')}</Text>
+{/* {this.state.fetching_from_server ? (
+<ActivityIndicator color="white" style={{ marginLeft: -50.5,}} />
+) : null} */}
+</TouchableOpacity>
 :
 <TouchableOpacity 
 // onPress={()=>{this.onOrderNOwPressed()}}

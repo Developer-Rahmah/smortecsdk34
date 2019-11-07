@@ -29,7 +29,8 @@ const en = {
     orderHasBeenAdddedSucc: 'Order Sent!',
     backToHome:'BACK TO HOME',
     thankYou:'Thank You',
-    back:'Home Page'
+    back:'Home Page',
+    addordermessage:"Your order has been submitted successfully"
 
    
 };
@@ -38,7 +39,8 @@ const ar = {
     orderHasBeenAdddedSucc: 'تمت اضافة طلبك بنجاح',
     backToHome:'عودة الى الرئيسية',
     thankYou:'شكراً لك',
-    back:'الصفحة الرئيسية'
+    back:'الصفحة الرئيسية',
+    addordermessage:"تم ارسال طلبك بنجاح"
 
 
    
@@ -88,7 +90,6 @@ export default class OrderAddedSuccesfully extends Component {
             // We have data!!
             this.setState({userEmail:value})
           
-            console.log('useremaiiiiiiiiil',this.state.userEmail);
 
            
           }
@@ -114,11 +115,9 @@ export default class OrderAddedSuccesfully extends Component {
   
    
     render() {
-        
         i18n.fallbacks = true;
         i18n.translations = { ar, en };
         //i18n.locale =null;
-        console.log('test:' + this.state.myLang);
 
         i18n.locale = this.state.myLang;
 
@@ -139,23 +138,42 @@ export default class OrderAddedSuccesfully extends Component {
 
 <View style={{height:20}}/>
 <Image
-                source={require('../assets/images/smrtcdone.png')}
+                source={require('../assets/images/smortec2done.png')}
                 style={{width:70,height:70,resizeMode:'contain'}}
 
               />
                 <View style={{height:20}}/>
+                {I18nManager.isRTL?
+                    <View style={{justifyContent:"center",alignItems:"center"}}>
+
 <Text style={{ fontSize:23,
    fontFamily: "newFont",
    fontWeight: "bold",
    fontStyle: "normal",
-  color: "#888888"}}>{i18n.t('orderHasBeenAdddedSucc')}</Text>
-  <View style={{height:10}}/>
+  color: "#888888"}}>تم ارسال طلبك{this.props.navigation.state.params.order_id} بنجاح</Text>
+  
+  </View>
+  :
+  <View style={{justifyContent:"center",alignItems:"center"}}>
+<Text style={{ fontSize:23,
+   fontFamily: "newFont",
+   fontWeight: "bold",
+   fontStyle: "normal",
+  color: "#888888"}}>Your order {this.props.navigation.state.params.order_id} has been </Text>
+  <Text style={{ fontSize:23,
+    fontFamily: "newFont",
+    fontWeight: "bold",
+    fontStyle: "normal",
+   color: "#888888"}}> submitted successfully</Text>
+   </View>
+}
+  {/* <View style={{height:10}}/> */}
 
-<Text style={{ fontSize: 23,
+{/* <Text style={{ fontSize: 23,
      opacity: 0.73,
      fontFamily: "newFont",
      fontWeight: "normal",
-    color: "#888888"}}>{i18n.t('thankYou')}</Text>
+    color: "#888888"}}>{i18n.t('thankYou')}</Text> */}
   <View style={{height:Dimensions.get('window').height/5.5,marginTop:-40}}/>
 
                 {/* <View style={{justifyContent:'center',alignItems:'center'}}>

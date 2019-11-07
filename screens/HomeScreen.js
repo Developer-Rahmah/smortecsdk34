@@ -90,7 +90,7 @@ const ar = {
     readMore:'قراءة المزيد',
   SearchByName:'البحث عن طريق الاسم',
   hotOffers:'اخر العروض',
-  subAgent:'الوكلاء',
+  subAgent:'الموزعين',
   drugStores:'مستودعات الادوية',
   categories:'الاقسام',
   Notifications:'الاشعارات',
@@ -122,6 +122,10 @@ class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state={
+      customerinformation:[],
+      userID:'',
+      getCartData:[],
+      bounsNum:0,
       slider1ActiveSlide:1,
       notification: null,
       messageText: '',
@@ -172,10 +176,45 @@ class HomeScreen extends React.Component {
   handleNotification = (notification) => {
     this.setState({ notification });
   }
+  _cartDataUnSaved=async()=>{
+    console.log("6555567")
+           try {
+                    const myArray = await AsyncStorage.getItem('@MySuperStore:key');
+                    console.log('arrrrr is',myArray)
+                    if (myArray !== null) {
+              let fArr=JSON.parse(myArray);
+              console.log("fArr",fArr)
+                      for(let i=0;i<=fArr.length;i++){
+                        if(fArr[i] !==undefined && fArr[i] !==null){
+                        client.post(`/app/getallproducts?products_id=${fArr[i].products_id}&language_id=${lang}`).then((res) => {
+                        
+               fArr[i].products_name=res.data.product_data[0].products_name
+              //  console.log(' this.props.addItemToOrder (fArr[i])', this.props.addItemToOrder (fArr[i]))
+                        this.props.addItemToOrder (fArr[i])
+                         console.log('single product arr is',res.data)
+              
+                        console.log('each item in assssyyyync aaaar',(fArr[i]))
+                      
+                        
+                        })
+                          }
+                      }
+                      // We have data!!
+                      console.log('cart async arr is',JSON.parse(myArray));
+                    }
+                   } 
+                   catch (error) {
+                    // Error retrieving data
+                    console.log('cart async arr is error',error)
+                  }
+  }
   _retrieveData = async () => {
     try {
+      const value = await AsyncStorage.getItem('userID');
+
       const myLang = await AsyncStorage.getItem('myLang');
-  
+      this.setState({userID:value})
+      
       if(myLang !=null){
 
         if(myLang=='ar'){
@@ -183,25 +222,20 @@ class HomeScreen extends React.Component {
           // I18nManager.forceRTL(true);
           // I18nManager.allowRTL(true)
 
-          console.log('is arabic in arrr', I18nManager.isRTL)
 
         }else{
           // I18nManager.allowRTL(false)
           // I18nManager.forceRTL(false);
           lang=1;
 
-          console.log('is arabic in enn', I18nManager.isRTL)
 
         }
         // We have data!!
-        console.log('is arabic', I18nManager.isRTL)
 
-    
-    
+
 
   
         client.get('/app/getbanners').then((res)=>{
-          console.log('banner',res)
           if(res.data.status==200){
             this.setState({status:200,Banner:res.data.data})
          
@@ -211,43 +245,162 @@ class HomeScreen extends React.Component {
     
     
         })
-        
-    
-        try {
-          const myArray = await AsyncStorage.getItem('@MySuperStore:key');
-          console.log('arrrrr is',myArray)
 
-          if (myArray !== null) {
-    let fArr=JSON.parse(myArray);
-            for(let i=0;i<=fArr.length;i++){
-              if(fArr[i] !==undefined && fArr[i] !==null){
-              client.post(`/app/getallproducts?products_id=${fArr[i].products_id}&language_id=${lang}`).then((res) => {
+            client.post(`/app/getcart?customers_id=${value}`).then((res)=>{
+              console.log("res of get cart in homee",res)
+           
+                this.setState({getCartData:res.data.data})
+            //  for(var i=0;i<res.data.data.length;i++){
+             
+                if(res.data.data.length>0){
+                  let fArrCart=res.data.data;
+                  for(let i=0;i<=fArrCart.length;i++){
+                    if(fArrCart[i] !==undefined && fArrCart[i] !==null){
+                    client.post(`/app/getallproducts?products_id=${fArrCart[i].products_id}&language_id=${lang}`).then((res) => {
+                    console.log("res.data",res.data)
+                      // fArrCart[i]=res.data.product_data[0]
+        this.addToOrder(res.data.product_data[0],fArrCart[i].qty)
+                    // this.props.addItemToOrder (fArrCart[i])
+         
+                  
+                    
+                    })
+                      }
+                  }
+                  console.log("fArrCart",fArrCart)
+                }
+                else{
+                  this._cartDataUnSaved()
+
+              //     try {
+              //       const myArray = await AsyncStorage.getItem('@MySuperStore:key');
+              //       console.log('arrrrr is',myArray)
+              //       if (myArray !== null) {
+              // let fArr=JSON.parse(myArray);
+              // console.log("fArr",fArr)
+              //         for(let i=0;i<=fArr.length;i++){
+              //           if(fArr[i] !==undefined && fArr[i] !==null){
+              //           client.post(`/app/getallproducts?products_id=${fArr[i].products_id}&language_id=${lang}`).then((res) => {
+                        
+              //  fArr[i].products_name=res.data.product_data[0].products_name
+              // //  console.log(' this.props.addItemToOrder (fArr[i])', this.props.addItemToOrder (fArr[i]))
+              //           this.props.addItemToOrder (fArr[i])
+              //            console.log('single product arr is',res.data)
               
-     fArr[i].products_name=res.data.product_data[0].products_name
-    //  console.log(' this.props.addItemToOrder (fArr[i])', this.props.addItemToOrder (fArr[i]))
+              //           console.log('each item in assssyyyync aaaar',(fArr[i]))
+                      
+                        
+              //           })
+              //             }
+              //         }
+              //         // We have data!!
+              //         console.log('cart async arr is',JSON.parse(myArray));
+              //       }
+              //      } 
+              //      catch (error) {
+              //       // Error retrieving data
+              //       console.log('cart async arr is error',error)
+              //     }
+        //           console.log("hereeeee")
+        //         const myArray =  AsyncStorage.getItem('@MySuperStore:key');
+        // console.log("myArray",myArray)
+        //         if (myArray !== null) {
+        //   let fArr=JSON.parse(myArray);
+        //   console.log("fArr",fArr)
+        //           for(let i=0;i<=fArr.length;i++){
+        //             if(fArr[i] !==undefined && fArr[i] !==null){
+        //             client.post(`/app/getallproducts?products_id=${fArr[i].products_id}&language_id=${lang}`).then((res) => {
+                    
+        //    fArr[i].products_name=res.data.product_data[0].products_name
+        
+        //             this.props.addItemToOrder (fArr[i])
+         
+                  
+                    
+        //             })
+        //               }
+        //           }
+        //           console.log("fArr22",fArr)
+        
+        //           // We have data!!
+        //         }
+              }
+        
+              
+        
+        
+        
+            })
+      // setTimeout(()=> 
+      
+    //     try {
+    //       if(this.state.getCartData.length>0){
+    //         let fArrCart=JSON.parse(getCartData);
+    //         for(let i=0;i<=fArrCart.length;i++){
+    //           if(fArrCart[i] !==undefined && fArrCart[i] !==null){
+    //           client.post(`/app/getallproducts?products_id=${fArrCart[i].products_id}&language_id=${lang}`).then((res) => {
+    //           console.log("res.data",res.data)
+    //             fArrCart[i].products_name=res.data.product_data[0].products_name
 
-              this.props.addItemToOrder (fArr[i])
-               console.log('single product arr is',res.data)
-    
-              console.log('each item in assssyyyync aaaar',(fArr[i]))
+    //           this.props.addItemToOrder (fArrCart[i])
+   
             
               
-              })
-                }
-            }
-            // We have data!!
-            console.log('cart async arr is',JSON.parse(myArray));
-          }
-         } 
-         catch (error) {
-          // Error retrieving data
-          console.log('cart async arr is error',error)
-        }
+    //           })
+    //             }
+    //         }
+    //         console.log("fArrCart",fArrCart)
+    //       }
+    //       else{
+    //       const myArray = await AsyncStorage.getItem('@MySuperStore:key');
+
+    //       if (myArray !== null) {
+    // let fArr=JSON.parse(myArray);
+    //         for(let i=0;i<=fArr.length;i++){
+    //           if(fArr[i] !==undefined && fArr[i] !==null){
+    //           client.post(`/app/getallproducts?products_id=${fArr[i].products_id}&language_id=${lang}`).then((res) => {
+              
+    //  fArr[i].products_name=res.data.product_data[0].products_name
+
+    //           this.props.addItemToOrder (fArr[i])
+   
+            
+              
+    //           })
+    //             }
+    //         }
+    //         console.log("fArr22",fArr)
+
+    //         // We have data!!
+    //       }
+    //     }
+    // //       const myArray = await AsyncStorage.getItem('@MySuperStore:key');
+
+    // //       if (myArray !== null) {
+    // // let fArr=JSON.parse(myArray);
+    // //         for(let i=0;i<=fArr.length;i++){
+    // //           if(fArr[i] !==undefined && fArr[i] !==null){
+    // //           client.post(`/app/getallproducts?products_id=${fArr[i].products_id}&language_id=${lang}`).then((res) => {
+              
+    // //  fArr[i].products_name=res.data.product_data[0].products_name
+
+    // //           this.props.addItemToOrder (fArr[i])
+   
+            
+              
+    // //           })
+    // //             }
+    // //         }
+    // //         // We have data!!
+    // //       }
+    //      } 
+    //      catch (error) {
+    //       // Error retrieving data
+    //     }
     
     
     
         client.post(`app/allcategories?language_id=${lang}`).then((res) => {
-          console.log('wishlist array',res.data)
           if(res.data.status==200){
             this.setState({status:200})
           }else{
@@ -270,14 +423,12 @@ class HomeScreen extends React.Component {
       
           await AsyncStorage.setItem("myLang", "en");
           // I18nManager.forceRTL(false);
-          console.log('is arabic in else', I18nManager.isRTL)
   
         }
         } 
         
         catch (error) {
       // Error retrieving data
-      console.log('getstorageitemerrrror',error);
     }
     
   };
@@ -315,7 +466,6 @@ class HomeScreen extends React.Component {
   
     // POST the token to your backend server from where you can retrieve it to send push notifications.
     // this.setState({token:token}).bind(this);
-    console.log('tokeeen:'+token)
   
   
   
@@ -393,6 +543,23 @@ handleBackButton = () => {
 };
 
   async componentWillMount() {
+        const value = await AsyncStorage.getItem('userID');
+
+    client.post(`/app/customerinfo?customers_id=${value}`).then((res) => {
+                     this.setState({customerinformation:res.data.data})   
+console.log("response of getcusomersss",res)
+             if(res.data.data.length==0){
+               this.clearStorage2()
+             }
+             else{
+               if(res.data.data[0].isActive!=1){
+                this.clearStorage2()
+
+               }
+             }
+               
+               })
+
     // if (I18nManager.isRTL)
     // {
     //   lang=4;
@@ -400,16 +567,123 @@ handleBackButton = () => {
     // else{
     //   lang=1;
     // }
-    console.log('cat array', this.props.CategoriesData)
+//     const value = await AsyncStorage.getItem('userID');
+// this.setState({userID:value})
+// console.log("valueee",value)
+//     client.post(`/app/getcart?customers_id=${value}`).then((res)=>{
+//       console.log("res of get cart in homee",res)
+   
+//         this.setState({getCartData:res.data.data})
+//     //  for(var i=0;i<res.data.data.length;i++){
+     
+//         if(res.data.data.length>0){
+//           let fArrCart=res.data.data;
+//           for(let i=0;i<=fArrCart.length;i++){
+//             if(fArrCart[i] !==undefined && fArrCart[i] !==null){
+//             client.post(`/app/getallproducts?products_id=${fArrCart[i].products_id}&language_id=${lang}`).then((res) => {
+//             console.log("res.data",res.data)
+//               // fArrCart[i]=res.data.product_data[0]
+// this.addToOrder(res.data.product_data[0])
+//             // this.props.addItemToOrder (fArrCart[i])
+ 
+          
+            
+//             })
+//               }
+//           }
+//           console.log("fArrCart",fArrCart)
+//         }
+//         else{
+//           try {
+//             const myArray = await AsyncStorage.getItem('@MySuperStore:key');
+//             console.log('arrrrr is',myArray)
+//             if (myArray !== null) {
+//       let fArr=JSON.parse(myArray);
+//       console.log("fArr",fArr)
+//               for(let i=0;i<=fArr.length;i++){
+//                 if(fArr[i] !==undefined && fArr[i] !==null){
+//                 client.post(`/app/getallproducts?products_id=${fArr[i].products_id}&language_id=${lang}`).then((res) => {
+                
+//        fArr[i].products_name=res.data.product_data[0].products_name
+//       //  console.log(' this.props.addItemToOrder (fArr[i])', this.props.addItemToOrder (fArr[i]))
+//                 this.props.addItemToOrder (fArr[i])
+//                  console.log('single product arr is',res.data)
+      
+//                 console.log('each item in assssyyyync aaaar',(fArr[i]))
+              
+                
+//                 })
+//                   }
+//               }
+//               // We have data!!
+//               console.log('cart async arr is',JSON.parse(myArray));
+//             }
+//            } 
+//            catch (error) {
+//             // Error retrieving data
+//             console.log('cart async arr is error',error)
+//           }
+// //           console.log("hereeeee")
+// //         const myArray =  AsyncStorage.getItem('@MySuperStore:key');
+// // console.log("myArray",myArray)
+// //         if (myArray !== null) {
+// //   let fArr=JSON.parse(myArray);
+// //   console.log("fArr",fArr)
+// //           for(let i=0;i<=fArr.length;i++){
+// //             if(fArr[i] !==undefined && fArr[i] !==null){
+// //             client.post(`/app/getallproducts?products_id=${fArr[i].products_id}&language_id=${lang}`).then((res) => {
+            
+// //    fArr[i].products_name=res.data.product_data[0].products_name
 
+// //             this.props.addItemToOrder (fArr[i])
+ 
+          
+            
+// //             })
+// //               }
+// //           }
+// //           console.log("fArr22",fArr)
+
+// //           // We have data!!
+// //         }
+//       }
+//   //       const myArray = await AsyncStorage.getItem('@MySuperStore:key');
+
+//   //       if (myArray !== null) {
+//   // let fArr=JSON.parse(myArray);
+//   //         for(let i=0;i<=fArr.length;i++){
+//   //           if(fArr[i] !==undefined && fArr[i] !==null){
+//   //           client.post(`/app/getallproducts?products_id=${fArr[i].products_id}&language_id=${lang}`).then((res) => {
+            
+//   //  fArr[i].products_name=res.data.product_data[0].products_name
+
+//   //           this.props.addItemToOrder (fArr[i])
+ 
+          
+            
+//   //           })
+//   //             }
+//   //         }
+//   //         // We have data!!
+//   //       }
+    
+       
+//     //  }
+      
+      
+
+
+
+//     })
     this.props.getCategories();
+
   this._retrieveData()
 
+  // setTimeout(()=> this._retrieveData(),5000);
 
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
 
     this.setState({ loading: false });
-    console.log('willmountaaaa=' + this.state.isRTL)
     if (Platform.OS === 'android' && !Constants.isDevice) {
       this.setState({
         errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
@@ -458,7 +732,6 @@ _handleNotification = (notification) => {
 
   Navigate(itemId,image,name) {
     
-    console.log('catid',itemId)
     this.props.navigation.navigate('ItemListScreen', {
       itemId: itemId,
       image:image,
@@ -631,7 +904,25 @@ aboutUs(){
   this.setModalVisible(false)
   this.props.navigation.navigate('AboutUs')
 }
-
+  
+returnBadg()
+{
+  if(this.props.Order.length>0){
+return(
+  <View  style={{ width: 10, backgroundColor: 'white' ,height:10,borderRadius:5}}
+  >
+   
+</View>
+  )
+  }else{
+    return
+(
+  <View/>
+);
+    
+  }
+  
+}
 NavigateProductDetails(type,itemId,image) {
   if(type=='agent'){
     client.post(`/app/getallproducts?language_id=${lang}&agentId=${itemId}`).then((res) => {
@@ -732,32 +1023,204 @@ async clearStorage() {
   } catch (error) {
   }
   }
+  async clearStorage2() {
+  
+    try {
+      // this.props.clearCart();
+  
+    //  AsyncStorage.setItem('@MySuperStore:key',d)
+    // await AsyncStorage.removeItem('@MySuperStore:key')
+  
+    //  AsyncStorage.setItem('@MySuperStore:key', JSON.stringify((d)));
+    this.props.clearCart();
+  
+    await AsyncStorage.removeItem('userID')
+    await AsyncStorage.removeItem('firstName')
+    await AsyncStorage.removeItem('lastName')
+    await AsyncStorage.removeItem('userPhone')
+    await AsyncStorage.removeItem('pharmcyNmae')
+    await AsyncStorage.removeItem('userEmail')
+    await AsyncStorage.removeItem('userPassword')
+  
+  
+    this.props.navigation.navigate('LoginSignupScreen')
+    } catch (error) {
+    }
+    }
+  async addToOrder(singleItem,qty){
 
+console.log("singleItem11",singleItem)
+let test=0;
+for(let i=0;i<=singleItem.bounces.length;i++){
+
+  if(singleItem.bounces[i]!=undefined){ 
+
+if(qty==''||qty==""){
+  if(1>=singleItem.bounces[i].qty_from){
+    if(singleItem.bounces[i].type=='percent'){
+
+
+      test=singleItem.bounces[i].bounces;
+test=(singleItem.bounces[i].bounces)/100
+    }else{
+            test=singleItem.bounces[i].bounces;
+
+
+    }
+    this.setState({bounsNum:singleItem.bounces[i].bounces})
+  }
+}else{
+  if(parseInt(qty)>=singleItem.bounces[i].qty_from){
+    if(singleItem.bounces[i].type=='percent'){
+
+      test=singleItem.bounces[i].bounces;
+test=(singleItem.bounces[i].bounces)/100*parseInt(qty)
+    }else{
+            test=singleItem.bounces[i].bounces;
+
+
+    }
+    this.setState({bounsNum:singleItem.bounces[i].bounces})
+  }
+}
+}
+}
+// if(this.state.custmizeBonusNum>0){
+//   test=this.state.custmizeBonusNum
+// }
+
+let{ isModalVisible} = this.props;
+let BaseURL = 'https://smortec.com';
+let testTaxF=0;
+let testTaxS=0;
+let testTaxE=0;
+let ppp=0;
+if(singleItem.tax_description=='4%'){
+
+
+ testTaxF= 0.04*parseFloat(singleItem.products_price);
+}else  if(singleItem.tax_description=='8%'){
+
+
+ testTaxE= 0.08*parseFloat(singleItem.products_price);
+} else  if(singleItem.tax_description=='16%'){
+
+
+ testTaxS= 0.16*parseFloat(singleItem.products_price);
+}
+  if(singleItem.new_price !=null && singleItem.new_price !=''){
+    ppp= parseFloat(singleItem.new_price)
+    
+  }else{
+    ppp=parseFloat(singleItem.cost_price)
+  }
+
+  
+ 
+
+let profitmarginratio=0;
+let profitmargion=0;
+if(qty==''||qty==""){
+
+  let totalSell=parseFloat(singleItem.products_price)*(1+parseInt(test))
+  profitmargion= totalSell-(ppp*1)
+  let margin=ppp*(1+parseInt(test)) 
+       profitmarginratio=(parseFloat(profitmargion / margin)*100).toFixed(3)
+
+}else{
+console.log("test",test)
+console.log("ppp",ppp)
+console.log("parseFloat(this.state.singleItem.products_price)",(parseInt(qty)+parseInt(test)))
+let totalSell=parseFloat(singleItem.products_price)*(parseInt(qty)+parseInt(test))
+console.log("totalsell",totalSell)
+profitmargion= totalSell-(ppp*qty)
+let margin=ppp*(qty+parseInt(test)) 
+     profitmarginratio=(parseFloat(profitmargion / margin)*100).toFixed(3)
+
+}
+let test1=1
+if(qty!=""&&qty!=''){
+test1=parseInt(qty)
+}
+else{
+test1=1
+}
+var price=singleItem.new_price!=null?singleItem.new_price:singleItem.cost_price
+      let item={
+        drug_store:singleItem.drug_store,
+        sub_agent:singleItem.sub_agent,
+
+        products_id:singleItem.products_id,
+        products_name : singleItem.products_name,
+        
+        // final_price:parseFloat(price),
+
+        // price: parseFloat(price),
+        final_price:ppp,
+  
+        price: singleItem.new_price !=null &&singleItem.new_price !=''?parseFloat(new_price): parseFloat(singleItem.cost_price),
+        
+        customers_basket_quantity: parseInt(qty),
+        image: BaseURL + '/' + singleItem.products_image,
+        bounsArr:singleItem.bounces,
+        test:0,
+        isCustom:false,
+        unit:singleItem.units,
+        // tax:singleItem.tax_description,
+        // profit_margin: parseFloat(singleItem.profit_margin),
+        // profit_margin_ratio:(singleItem.profitmarginratio),
+        // testTaxF:0,
+        // testTaxE:0,
+        // testTaxS:0,
+        // f:price*1,
+        tax:singleItem.tax_description,
+        profit_margin: parseFloat(profitmargion),
+        profit_margin_ratio:(profitmarginratio),
+        testTaxF:testTaxF,
+        testTaxE:testTaxE,
+        testTaxS:testTaxS,
+        f:ppp*test1,
+        publicPrice:singleItem.products_price,
+        
+        redeem:0,
+        bounsNum:this.state.bounsNum,
+        testTaxF: singleItem.tax_description*parseFloat(singleItem.products_price),
+    
+      }
+      this.props.addItemToOrder(item)
+      showMessage({
+        message: i18n.t('addedSuccessfully'),
+        type: "success",
+      });
+    }
+      
+    
+    
 
   render() {
-    console.log('order  array',this.props.Order)
+//  if(this.state.customerinformation.length>0){
+//    if(this.state.customerinformation[0].isActive!=1){
+//      this.clearStorage2()
+//    }
+//  }
+    console.log("this.props.Order33333",this.props.Order)
     if(this.props.Order.length>0){
          try {
-          console.log('try order  array',this.props.Order)
 
       AsyncStorage.setItem('@MySuperStore:key', JSON.stringify((this.props.Order)));
-     console.log('  saving async arrray',JSON.stringify((this.props.Order)));
  
    } 
    catch (error) {
      // Error saving data
-     console.log('errror when saving async arrray',error)
    }
     }
  
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
-    console.log('test:' + this.state.myLang);
 
     i18n.locale = this.state.myLang;
     const images = this.state.Banner
-    console.log('images  rahmah', this.state.Banner )
-    console.log('home screen array',this.props.CategoriesData)
+
 
 
     return (
@@ -803,6 +1266,24 @@ onPress={() => {
               
               </View>
 </View> 
+<Right style={{width:50,justifyContent:'flex-end',marginRight:-10,marginTop:-50}} >
+              <Body> 
+              <TouchableOpacity 
+     onPress={() =>
+      this.props.navigation.navigate('OrderScreen')
+  }
+    style={{flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
+{this.returnBadg()}
+    <Icon style={{color:'white',}} name={
+        Platform.OS === 'ios'
+          ? `md-cart`
+          : 'md-cart'
+      }/>
+        
+</TouchableOpacity>
+               
+</Body>
+            </Right>
            
         </Header> 
 
@@ -848,7 +1329,7 @@ onPress={() => {
                         <TouchableOpacity
                             active={this.state.activePage === 1}
                             onPress={this.selectComponent(1)}
-                            style={{alignItems: 'center', marginTop: 10, borderColor: 'transparent', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderRightWidth: 0, borderLeftWidth: 0, borderBottomRightRadius: 0, borderTopRightRadius: 0, borderTopWidth: 0, borderBottomWidth: this.state.activePage === 1 ? 1 : 0,borderBottomColor: this.state.activePage === 1 ? '#8FCFEB' : 'transparent', }}
+                            style={{alignItems: 'center', marginTop: 10, borderColor: 'transparent', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderRightWidth: 0, borderLeftWidth: 0, borderBottomRightRadius: 0, borderTopRightRadius: 0, borderTopWidth: 0, borderBottomWidth: this.state.activePage === 1 ? 1 : 0,borderBottomColor: this.state.activePage === 1 ? '#8FCFEB' : 'transparent',height:20 }}
                         >
                             <View style={{ height: 30, flexDirection: 'column' }}>
 
@@ -873,7 +1354,7 @@ onPress={() => {
                         <TouchableOpacity
                             active={this.state.activePage === 2}
                             onPress={this.selectComponent(2)}
-                            style={{ marginTop: 10,  alignItems: 'center', backgroundColor: this.state.activePage === 2 ? 'transparent' : 'transparent', borderColor: '#f4f4f4', borderColor: 'transparent', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderRightWidth: 0, borderLeftWidth: 0, borderBottomRightRadius: 0, borderTopRightRadius: 0, borderTopWidth: 0, borderBottomWidth: 0 ,borderBottomWidth: this.state.activePage === 2 ? 1 : 0,borderBottomColor: this.state.activePage === 2 ? '#8FCFEB' : 'transparent', }}
+                            style={{ marginTop: 10,  alignItems: 'center', backgroundColor: this.state.activePage === 2 ? 'transparent' : 'transparent', borderColor: '#f4f4f4', borderColor: 'transparent', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderRightWidth: 0, borderLeftWidth: 0, borderBottomRightRadius: 0, borderTopRightRadius: 0, borderTopWidth: 0, borderBottomWidth: 0 ,borderBottomWidth: this.state.activePage === 2 ? 1 : 0,borderBottomColor: this.state.activePage === 2 ? '#8FCFEB' : 'transparent',height:20 }}
                         >
                             <View style={{ height: 30, flexDirection: 'column' }}>
 
@@ -894,7 +1375,7 @@ onPress={() => {
                         <TouchableOpacity
                             active={this.state.activePage === 3}
                             onPress={this.selectComponent(3)}
-                            style={{ marginTop: 10,  backgroundColor: this.state.activePage === 3 ? null : 'transparent', borderColor: 'transparent', borderColor: 'transparent', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderRightWidth: 0, borderLeftWidth: 0, borderBottomRightRadius: 0, borderTopRightRadius: 0, borderTopWidth: 0, borderBottomWidth: 0,borderBottomWidth: this.state.activePage === 3 ? 1 : 0,borderBottomColor: this.state.activePage === 3 ? '#8FCFEB' : 'transparent',  }}
+                            style={{ marginTop: 10,  backgroundColor: this.state.activePage === 3 ? null : 'transparent', borderColor: 'transparent', borderColor: 'transparent', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderRightWidth: 0, borderLeftWidth: 0, borderBottomRightRadius: 0, borderTopRightRadius: 0, borderTopWidth: 0, borderBottomWidth: 0,borderBottomWidth: this.state.activePage === 3 ? 1 : 0,borderBottomColor: this.state.activePage === 3 ? '#8FCFEB' : 'transparent',height:20 }}
                         >
                             <View style={{ height: 30, flexDirection: 'column' }}>
 
@@ -915,7 +1396,7 @@ onPress={() => {
                         <TouchableOpacity
                             active={this.state.activePage === 4}
                             onPress={this.selectComponent(4)}
-                            style={{ marginTop: 10,   backgroundColor: this.state.activePage === 4 ? 'transparent' : 'transparent', borderColor: 'transparent', borderColor: 'transparent', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderRightWidth: 0, borderLeftWidth: 0, borderBottomRightRadius: 0, borderTopRightRadius: 0, borderTopWidth: 0, borderBottomWidth: 0,borderBottomWidth: this.state.activePage === 4 ? 1 : 0,borderBottomColor: this.state.activePage === 4 ? '#8FCFEB' : 'transparent',  }}
+                            style={{ marginTop: 10,   backgroundColor: this.state.activePage === 4 ? 'transparent' : 'transparent', borderColor: 'transparent', borderColor: 'transparent', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderRightWidth: 0, borderLeftWidth: 0, borderBottomRightRadius: 0, borderTopRightRadius: 0, borderTopWidth: 0, borderBottomWidth: 0,borderBottomWidth: this.state.activePage === 4 ? 1 : 0,borderBottomColor: this.state.activePage === 4 ? '#8FCFEB' : 'transparent', height:20 }}
                         >
                             <View style={{ height: 30, flexDirection: 'column' }}>
 
@@ -985,7 +1466,7 @@ onPress={() => {
                                 width: Dimensions.get('window').width,
                                 height: Dimensions.get('window').height/1.5,
                                 marginTop: Dimensions.get('window').height/15, 
-                                paddingTop: Dimensions.get('window').height/15
+                                paddingTop: Dimensions.get('window').height/15,resizeMode:"contain"
                             }}
 
                                 source={{

@@ -1,5 +1,5 @@
-import  { FETCH_CATEGORIES_ITEMS, RECIVE_CATEGORY_ITEMS } from './types'
-
+import  { FETCH_CATEGORIES_ITEMS, RECIVE_CATEGORY_ITEMS} from './types'
+import client from '../api/constant'
 export const requestCategoryItem = () => {
     return {
         type: FETCH_CATEGORIES_ITEMS

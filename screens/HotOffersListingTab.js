@@ -11,7 +11,6 @@ import axios from 'axios';
 import FlashMessage from "react-native-flash-message";
 import client from '../api/constant'
 import { Avatar, Badge, withBadge } from 'react-native-elements'
-
 import { showMessage, hideMessage } from "react-native-flash-message";
 import {addItem} from '../actions/AddToOrder'
 import { FlatGrid } from 'react-native-super-grid';
@@ -93,7 +92,9 @@ class HotOffersListingTab extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      recordTotal:0,
       item:null,
+      disableddefult:false,
 
       btnVisabilty:false,
       btnVisabilty_defult:false,
@@ -102,6 +103,7 @@ class HotOffersListingTab extends React.Component {
       btnVisabilty_lowtohignt:false,
       btnVisabilty_topseller:false,
       btnVisabilty_mostliked:false,
+      typeOfAll:"",
 
 
       count:1,
@@ -181,6 +183,10 @@ this.offset_mostliked=0;
     this.Navigate = this.Navigate.bind(this)
   }
   handelAddToOrder(item){
+    i18n.fallbacks = true;
+    i18n.translations = { ar, en };
+
+    i18n.locale = this.state.myLang;
     this.setState({testArr: this.state.testArr.concat(item.products_id)});
     let test=0;
     for(let i=0;i<=item.bounce.length;i++){
@@ -241,6 +247,8 @@ this.offset_mostliked=0;
   
     let itemss={
       drug_store:item.drug_store,
+      sub_agent:item.sub_agent,
+
       products_id:item.products_id,
       products_name : item.products_name,
       
@@ -277,7 +285,9 @@ this.offset_mostliked=0;
   }
 
 
-  _retrieveData = async () => {
+  _retrieveData = async (type,z) => {
+    console.log("typeeeeeeeee",type)
+this.setState({typeOfAll:type})
     try {
       const value = await AsyncStorage.getItem('userID');
       const myLang = await AsyncStorage.getItem('myLang');
@@ -291,7 +301,6 @@ this.offset_mostliked=0;
         }
         // We have data!!
         this.setState({userID:value})
-        console.log('user item in itemscreen',value);
         client.post(`/app/getallproducts?type=wishlist&customers_id=${value}&language_id=${lang}`).then((res) => {
           for (let i=0;i<res.data.product_data.length;i++){
           this.setState({
@@ -301,7 +310,6 @@ this.offset_mostliked=0;
         
         
        
-          console.log('wishlist array',this.state.wish)
 
          
          
@@ -310,179 +318,301 @@ this.offset_mostliked=0;
 
 
 
-    client.post(`/app/getallproducts?page_number=${this.offset_defult}&type=special&language_id=${lang}`).then((res) => {
-      console.log('filter a to z', res.data)
-      console.log('filter a to z', res.data.product_data)
-      if(res.data.status==200){
-        this.setState({status:200})
-      }else{
-        this.setState({status:204})        }
-      if(res.data.message=='Returned all products.'){
-      this.offset_defult = this.offset_defult + 1;
+//     client.post(`/app/getallproducts?page_number=${this.offset_defult}&type=special&language_id=${lang}`).then((res) => {
 
-      this.setState({ defultArr: res.data.product_data, loading_defult: false, })
-      if(this.state.defultArr.length==res.data.total_record){
-        this.setState({btnVisabilty_defult:false})
-      }else{
-        this.setState({btnVisabilty_defult:true})
-      }
+//       if(res.data.status==200){
+//         this.setState({status:200})
+//       }else{
+//         this.setState({status:204})        }
+//       if(res.data.message=='Returned all products.'){
+//       this.offset_defult = this.offset_defult + 1;
+
+//       this.setState({ defultArr: res.data.product_data, loading_defult: false, })
+//       if(this.state.defultArr.length==res.data.total_record){
+//         this.setState({btnVisabilty_defult:false})
+//       }else{
+//         this.setState({btnVisabilty_defult:true})
+//       }
   
-      for (let i=0;i<this.props.Order.length;i++){
-        console.log('order of idssssssss',this.props.Order[i].products_id)
- this.setState({
-      testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
+//       for (let i=0;i<this.props.Order.length;i++){
+//  this.setState({
+//       testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
 
       
-    })
+//     })
       
-      }
+//       }
 
       
-      console.log('order of idssssssss',this.state.testArr)
-    }
+//     }
    
     
-    })
+//     })
 
+if(type==null||type==undefined){
+  client.post(`/app/getallproducts?page_number=${this.offset_defult}&type=special&language_id=${lang}`).then((res) => {
 
-    client.post(`/getallproducts?page_number=${this.offset}&type=special&language_id=${lang}&type=a to z`).then((res) => {
-      console.log('filter a to z', res.data)
-      console.log('filter a to z', res.data.product_data)
-      if(res.data.message=='Returned all products.'){
-      this.offset = this.offset + 1;
+    if(res.data.status==200){
+      this.setState({status:200})
+    }else{
+      this.setState({status:204})        }
+    if(res.data.message=='Returned all products.'){
+    this.offset_defult = this.offset_defult + 1;
 
-      this.setState({ aToZArr: res.data.product_data, loading: false, })
-      if(this.state.aToZArr.length==res.data.total_record){
-        this.setState({btnVisabilty:false})
-      }else{
-        this.setState({btnVisabilty:true})
-      }
-  
-      for (let i=0;i<this.props.Order.length;i++){
-        console.log('order of idssssssss',this.props.Order[i].products_id)
+    this.setState({ defultArr: res.data.product_data, loading_defult: false, })
+    this.setState({recordTotal:res.data.total_record})
 
-      
-      }
-
-      
-      console.log('order of idssssssss',this.state.testArr)
+    if(this.state.defultArr.length==res.data.total_record){
+      this.setState({btnVisabilty_defult:false})
+    }else{
+      this.setState({btnVisabilty_defult:true})
     }
-    this.setState({
-      testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
 
-      
-    })
+    for (let i=0;i<this.props.Order.length;i++){
+this.setState({
+    testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
+
     
-    })
-
-
-    client.get(`/sitesetting`).then((res) => {
-      console.log('phone num',res.data.data[0].value)
-    this.setState({phonCall:res.data.data[0].value})
+  })
     
-      
-    })
+    }
 
-    client.post(`/getallproducts?page_number=${this.offset_ztoa}&type=special&language_id=${lang}&type=z to a`).then((res) => {
-      console.log('filter z to a', res.data.product_data)
-      if(res.data.message=='Returned all products.'){
-        
-        this.offset_ztoa = this.offset_ztoa + 1;
+   
+  }
   
-        this.setState({ zToAArr: res.data.product_data, loading_ztoa: false, })
   
-        for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
-  
-        
-        }}
-if(this.state.zToAArr.length==res.data.total_record){
-  this.setState({btnVisabilty_ztoa:false})
-}else{
-  this.setState({btnVisabilty_ztoa:true})
+  })
 }
-    })
+else if(type=='reset'&&z==0){
+  this.offset_defult=z
+  client.post(`/app/getallproducts?page_number=${this.offset_defult}&type=special&language_id=${lang}`).then((res) => {
 
-    client.post(`/getallproducts?page_number=${this.offset_hightolow}&type=special&language_id=${lang}&type=high to low`).then((res) => {
-      console.log('filter high to low', res.data.product_data)
-      if(res.data.message=='Returned all products.'){
-        this.offset_hightolow = this.offset_hightolow + 1;
+    if(res.data.status==200){
+      this.setState({status:200})
+    }else{
+      this.setState({status:204})        }
+    if(res.data.message=='Returned all products.'){
+    this.offset_defult = this.offset_defult + 1;
+
+    this.setState({ defultArr: res.data.product_data, loading_defult: false, })
+    this.setState({recordTotal:res.data.total_record})
+
+    if(this.state.defultArr.length==res.data.total_record){
+      this.setState({btnVisabilty_defult:false})
+    }else{
+      this.setState({btnVisabilty_defult:true})
+    }
+
+    for (let i=0;i<this.props.Order.length;i++){
+this.setState({
+    testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
+
+    
+  })
+    
+    }
+
+   
+  }
   
-        this.setState({ highToLowArr: res.data.product_data, loading_hightolow: false, })
   
-        for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
+  })
+}
+else{
+  var offset_guest
+  if(type=='a to z'){
+    offset_guest=this.offset
+  }
+  else if(type =='z to a'){
+    offset_guest=this.offset_ztoa
+
+  }
+  else if(type=='high to low'){
+    offset_guest=this.offset_hightolow
+  }
+  else if(type=='low to high'){
+    offset_guest=this.offset_lowtohight
+  }
+  else if(type=='top seller'){
+    offset_guest=this.offset_topseller
+  }
+  else if(type=='most liked'){
+    offset_guest= this.offset_mostliked
+  }
+  console.log("offset_guest",offset_guest)
+  client.post(`/app/getallproducts?page_number=${this.offset_guest}&type=special&language_id=${lang}`).then((res) => {
+console.log("res filterss",res)
+    if(res.data.status==200){
+      this.setState({status:200})
+    }else{
+      this.setState({status:204})        }
+    if(res.data.message=='Returned all products.'){
+    // this.offset_defult = this.offset_defult + 1;
+    if(type=='a to z'){
+      this.offset = this.offset + 1;
+    }
+    else if(type =='z to a'){
+      this.offset_ztoa=this.offset_ztoa+1;
+
+    }
+    else if(type=='high to low'){
+      this.offset_hightolow=this.offset_hightolow+1
+    }
+    else if(type=='low to high'){
+      this.offset_lowtohight=this.offset_lowtohight+1
+    }
+    else if(type=='top seller'){
+      this.offset_topseller=this.offset_topseller+1
+    }
+    else if(type=='most liked'){
+      this.offset_mostliked= this.offset_mostliked+1
+    }
+    this.setState({ defultArr: res.data.product_data, loading_defult: false, })
+    this.setState({recordTotal:res.data.total_record})
+
+    if(this.state.defultArr.length==res.data.total_record){
+      this.setState({btnVisabilty_defult:false})
+    }else{
+      this.setState({btnVisabilty_defult:true})
+    }
+
+    for (let i=0;i<this.props.Order.length;i++){
+this.setState({
+    testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
+
+    
+  })
+    
+    }
+
+   
+  }
+  
+  
+  })
+}
+    // client.post(`/getallproducts?page_number=${this.offset}&type=special&language_id=${lang}&type=a to z`).then((res) => {
+
+    //   if(res.data.message=='Returned all products.'){
+    //   this.offset = this.offset + 1;
+
+    //   this.setState({ aToZArr: res.data.product_data, loading: false, })
+    //   if(this.state.aToZArr.length==res.data.total_record){
+    //     this.setState({btnVisabilty:false})
+    //   }else{
+    //     this.setState({btnVisabilty:true})
+    //   }
+  
+    //   for (let i=0;i<this.props.Order.length;i++){
+
+      
+    //   }
+
+      
+    // }
+    // this.setState({
+    //   testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
+
+      
+    // })
+    
+    // })
+
+
+//     client.get(`/sitesetting`).then((res) => {
+//     this.setState({phonCall:res.data.data[0].value})
+    
+      
+//     })
+
+//     client.post(`/getallproducts?page_number=${this.offset_ztoa}&type=special&language_id=${lang}&type=z to a`).then((res) => {
+//       if(res.data.message=='Returned all products.'){
+        
+//         this.offset_ztoa = this.offset_ztoa + 1;
+  
+//         this.setState({ zToAArr: res.data.product_data, loading_ztoa: false, })
+  
+//         for (let i=0;i<this.props.Order.length;i++){
   
         
-        }
+//         }}
+// if(this.state.zToAArr.length==res.data.total_record){
+//   this.setState({btnVisabilty_ztoa:false})
+// }else{
+//   this.setState({btnVisabilty_ztoa:true})
+// }
+//     })
+
+//     client.post(`/getallproducts?page_number=${this.offset_hightolow}&type=special&language_id=${lang}&type=high to low`).then((res) => {
+//       if(res.data.message=='Returned all products.'){
+//         this.offset_hightolow = this.offset_hightolow + 1;
+  
+//         this.setState({ highToLowArr: res.data.product_data, loading_hightolow: false, })
+  
+//         for (let i=0;i<this.props.Order.length;i++){
+  
+        
+//         }
   
       
-        console.log('order of idssssssss',this.state.testArr)
-      }
-      if(this.state.highToLowArr.length==res.data.total_record){
-        this.setState({btnVisabilty_hightolow:false})
-      }else{
-        this.setState({btnVisabilty_hightolow:true})
-      }
-    })
-    client.post(`/getallproducts?page_number=${this.offset_lowtohight}&type=special&language_id=${lang}&type=low to high`).then((res) => {
-      console.log('filter high to low', res.data.product_data)
-      if(res.data.message=='Returned all products.'){
-        this.offset_lowtohight = this.offset_lowtohight+ 1;
+//       }
+//       if(this.state.highToLowArr.length==res.data.total_record){
+//         this.setState({btnVisabilty_hightolow:false})
+//       }else{
+//         this.setState({btnVisabilty_hightolow:true})
+//       }
+//     })
+//     client.post(`/getallproducts?page_number=${this.offset_lowtohight}&type=special&language_id=${lang}&type=low to high`).then((res) => {
+//       if(res.data.message=='Returned all products.'){
+//         this.offset_lowtohight = this.offset_lowtohight+ 1;
   
-        this.setState({ lowToHightArr: res.data.product_data, loading_lowtohight: false, })
+//         this.setState({ lowToHightArr: res.data.product_data, loading_lowtohight: false, })
   
-        for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
+//         for (let i=0;i<this.props.Order.length;i++){
   
         
-        }}
-        if(this.state.lowToHightArr.length==res.data.total_record){
-          this.setState({btnVisabilty_lowtohignt:false})
-        }else{
-          this.setState({btnVisabilty_lowtohignt:true})
-        }
-    })
-    client.post(`/getallproducts?page_number=${this.offset_topseller}&type=special&language_id=${lang}&type=top seller`).then((res) => {
-      console.log('filter top seller', res.data.product_data)
-      if(res.data.message=='Returned all products.'){
-        this.offset_topseller = this.offset_topseller+ 1;
+//         }}
+//         if(this.state.lowToHightArr.length==res.data.total_record){
+//           this.setState({btnVisabilty_lowtohignt:false})
+//         }else{
+//           this.setState({btnVisabilty_lowtohignt:true})
+//         }
+//     })
+//     client.post(`/getallproducts?page_number=${this.offset_topseller}&type=special&language_id=${lang}&type=top seller`).then((res) => {
+//       if(res.data.message=='Returned all products.'){
+//         this.offset_topseller = this.offset_topseller+ 1;
   
-        this.setState({ topSellerArr: res.data.product_data, loading_topseller: false, })
+//         this.setState({ topSellerArr: res.data.product_data, loading_topseller: false, })
   
-        for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
+//         for (let i=0;i<this.props.Order.length;i++){
   
         
-        }}
-        if(this.state.topSellerArr.length==res.data.total_record){
-          this.setState({btnVisabilty_topseller:false})
-        }else{
-          this.setState({btnVisabilty_topseller:true})
-        }
-    })
-    client.post(`/getallproducts?page_number=${this.offset_mostliked}&type=special&language_id=${lang}&type=most liked`).then((res) => {
-      console.log('filter most liked', res.data.product_data)
-      if(res.data.message=='Returned all products.'){
-        this.offset_mostliked = this.offset_mostliked+ 1;
+//         }}
+//         if(this.state.topSellerArr.length==res.data.total_record){
+//           this.setState({btnVisabilty_topseller:false})
+//         }else{
+//           this.setState({btnVisabilty_topseller:true})
+//         }
+//     })
+//     client.post(`/getallproducts?page_number=${this.offset_mostliked}&type=special&language_id=${lang}&type=most liked`).then((res) => {
+//       if(res.data.message=='Returned all products.'){
+//         this.offset_mostliked = this.offset_mostliked+ 1;
   
-        this.setState({ mostlikedArr: res.data.product_data, loading_mostliked: false, })
+//         this.setState({ mostlikedArr: res.data.product_data, loading_mostliked: false, })
   
-        for (let i=0;i<this.props.Order.length;i++){
-          console.log('order of idssssssss',this.props.Order[i].products_id)
+//         for (let i=0;i<this.props.Order.length;i++){
   
         
-        }}
-        if(this.state.mostlikedArr.length==res.data.total_record){
-          this.setState({btnVisabilty_mostliked:false})
-        }else{
-          this.setState({btnVisabilty_mostliked:true})
-        }
-    })
+//         }}
+//         if(this.state.mostlikedArr.length==res.data.total_record){
+//           this.setState({btnVisabilty_mostliked:false})
+//         }else{
+//           this.setState({btnVisabilty_mostliked:true})
+//         }
+//     })
 
     } catch (error) {
       // Error retrieving data
-      console.log('getstorageitemerrrror',error);
     }
     if(this.state.testArr.includes(item.products_id)){
       this.setState({btnColor:'gray',txtColr:'#8FCFEB',btnDisabled:true,checkDisplay:'flex'})
@@ -542,35 +672,114 @@ setSortModalVisible(visible) {
     title: null,
     drawerLabel: 'Home', backgroundColor: 'red'
   };
-  componentDidMount() {
-    // if (I18nManager.isRTL)
-    // {
-    //   lang=4;
-    // }
-    // else{
-    //   lang=1;
-    // }
-        this._retrieveData()
-        if(this.props.Order.length>0){
+  // componentDidMount() {
+  //   // if (I18nManager.isRTL)
+  //   // {
+  //   //   lang=4;
+  //   // }
+  //   // else{
+  //   //   lang=1;
+  //   // }
+  //       this._retrieveData()
+  //       if(this.props.Order.length>0){
           
       
-        }
+  //       }
         
-    this._retrieveData()
-    if(this.props.Order.length>0){
+    // this._retrieveData()
+    // if(this.props.Order.length>0){
       
   
-    }
+    // }
     
    
 
     
 
-    this.props.getCategoryItem()
+  //   this.props.getCategoryItem()
 
     
-    console.log('my category', this.props.Items)
     
+
+  // }
+
+
+  async componentWillMount(){
+
+    const myLang = await AsyncStorage.getItem('myLang');
+      // We have data!!
+      if(myLang=='ar')
+      {
+        lang=4;
+      }else{
+        lang=1;
+      }
+      client.post(`/app/getallproducts?page_number=${this.offset_defult}&type=special&language_id=${lang}`).then((res) => {
+
+
+      if(res.data.status==200){
+        console.log("ress",res.data.product_data)
+        this.offset_defult = this.offset_defult + 1;
+
+        this.setState({ defultArr: res.data.product_data, loading_defult: false, })
+        this.setState({recordTotal:res.data.total_record})
+
+        if(this.state.defultArr.length==res.data.total_record){
+          this.setState({btnVisabilty_defult:false})
+        }else{
+          this.setState({btnVisabilty_defult:true})
+        }
+      }
+    this.setState({loading_defult:false})
+    })
+    
+      
+  //   Image.getSize(this.props.uri, (width, height) => {
+  //     if (this.props.width && !this.props.height) {
+  //         this.setState({
+  //             width: this.props.width,
+  //             height: height * (this.props.width / width)
+  //         });
+  //     } else if (!this.props.width && this.props.height) {
+  //         this.setState({
+  //             width: width * (this.props.height / height),
+  //             height: this.props.height
+  //         });
+  //     } else {
+  //         this.setState({ width: width, height: height });
+  //     }
+  // });
+  //   if (I18nManager.isRTL)
+  //   {
+  //     lang=4;
+  //   }
+  //   else{
+  //     lang=1;
+  //   }
+  // }
+  }
+  async componentDidMount() {
+    const value = await AsyncStorage.getItem('userID');
+    client.post(`/app/getallproducts?type=wishlist&customers_id=${value}&language_id=${1}`).then((res) => {
+      for (let i=0;i<res.data.product_data.length;i++){
+      this.setState({
+        wish: [...this.state.wish, (res.data.product_data[i]).products_id]
+      })
+    }
+    
+    
+   
+
+     
+     
+    })
+    // this._retrieveData()
+
+    // this.props.getCategoryItem()
+
+    // let itemId = this.props.navigation.state.params.itemId
+    // let image = this.props.navigation.state.params.image
+  
 
   }
   static navigationOptions = {
@@ -600,17 +809,15 @@ setSortModalVisible(visible) {
 
 
   loadMoreData = () => {
-console.log('in load moreeee')
     //On click of Load More button We will call the web API again
     this.setState({ fetching_from_server: true }, () => {
 
     client.post(`/getallproducts?page_number=${this.offset}&type=special&language_id=${lang}&type=a to z`).then((res) => {
-      console.log('filter a to z', res.data)
-      console.log('filter a to z', res.data.product_data)
+      this.setState({recordTotal:res.data.total_record})
+
       if(res.data.message=='Returned all products.'){
         this.offset = this.offset + 1;
         for (let i=0;i<res.data.product_data.length;i++){
-          console.log("final retail array",res.data.product_data[i])
          
           this.setState({
             aToZArr: [...this.state.aToZArr,res.data.product_data[i]],fetching_from_server: false
@@ -640,255 +847,142 @@ console.log('in load moreeee')
     loadMoreDataDefult = () => {
     
           //On click of Load More button We will call the web API again
-          this.setState({ fetching_from_server_defult: true }, () => {
+          this.setState({ fetching_from_server_defult: true,disableddefult:true  }, () => {
       
-          client.post(`/getallproducts?page_number=${this.offset_defult}&type=special&language_id=${lang}`).then((res) => {
+          // client.post(`/getallproducts?page_number=${this.offset_defult}&type=special&language_id=${lang}`).then((res) => {
           
-            if(res.data.message=='Returned all products.'){
-              this.offset_defult = this.offset_defult + 1;
-              for (let i=0;i<res.data.product_data.length;i++){
+          //   if(res.data.message=='Returned all products.'){
+          //     this.offset_defult = this.offset_defult + 1;
+          //     for (let i=0;i<res.data.product_data.length;i++){
                
-                this.setState({
-                  defultArr: [...this.state.defultArr,res.data.product_data[i]],fetching_from_server_defult: false
-                })
-                if(this.state.defultArr.length==res.data.total_record){
-                  this.setState({btnVisabilty_defult:false})
-                }else{
-                  this.setState({btnVisabilty_defult:true})
-                }
+          //       this.setState({
+          //         defultArr: [...this.state.defultArr,res.data.product_data[i]],fetching_from_server_defult: false
+          //       })
+          //       if(this.state.defultArr.length==res.data.total_record){
+          //         this.setState({btnVisabilty_defult:false})
+          //       }else{
+          //         this.setState({btnVisabilty_defult:true})
+          //       }
             
                 
         
-              }
+          //     }
             
              
         
-            }
+          //   }
            
       
-          })
+          // })
+          if(type==undefined||type==null||type=='reset'||type=='')
+          {
+              client.post(`/app/getallproducts?page_number=${this.offset_defult}&type=special&language_id=${lang}`).then((res) => {
+    
+                if(res.data.message=='Returned all products.'){
+                  this.offset_defult = this.offset_defult + 1;
+                  // for (let i=0;i<res.data.product_data.length;i++){
+                   
+                  //   this.setState({
+                  //     defultArr: [...this.state.defultArr,res.data.product_data[i]],fetching_from_server_defult: false
+                  //   })
+                  this.setState({defultArr:this.state.defultArr.concat(res.data.product_data),fetching_from_server_defult: false,disableddefult:false}) 
+                  this.setState({recordTotal:res.data.total_record})
+
+                    if(this.state.defultArr.length==res.data.total_record){
+                      this.setState({btnVisabilty_defult:false})
+                    }else{
+                      this.setState({btnVisabilty_defult:true})
+                    }
+                
+                    
+            
+                  // }
+                
+            
+                }
+               
+          
+              })
+            }
+         
+          else{
+            var offset_guest_load
+            if(type=='most liked'){
+              offset_guest_load=this.offset_mostliked
+            }
+            else if(type=='z to a'){
+              offset_guest_load=this.offset_ztoa
+            }
+            else if(type=='a to z'){
+              offset_guest_load=this.offset
+            }
+            else if(type=='low to high'){
+              offset_guest_load=this.offset_lowtohight
+            }
+            else if(type=='high to low'){
+              offset_guest_load=this.offset_hightolow
+            }
+            else if(type=='top seller'){
+              offset_guest_load=this.offset_topseller
+            }
+            client.post(`/app/getallproducts?page_number=${offset_guest_load}&type=special&language_id=${lang}`).then((res) => {
+    
+              if(res.data.message=='Returned all products.'){
+                // this.offset_defult = this.offset_defult + 1;
+                if(type=='most liked'){
+                  this.offset_mostliked=this.offset_mostliked+1
+                }
+                else if(type=='z to a'){
+    this.offset_ztoa=this.offset_ztoa+1
+                }
+                else if(type=='a to z'){
+                  this.offset=this.offset+1
+                }
+                else if(type=='low to high'){
+                  this.offset_lowtohight=this.offset_lowtohight+1
+                }
+                else if(type=='high to low'){
+                  this.offset_hightolow=this.offset_hightolow+1
+                }
+                else if(type=='top seller'){
+                  this.offset_topseller=this.offset_topseller+1
+                }
+                for (let i=0;i<res.data.product_data.length;i++){
+                 
+                  this.setState({
+                    defultArr: [...this.state.defultArr,res.data.product_data[i]],fetching_from_server_defult: false
+                  })
+                  this.setState({recordTotal:res.data.total_record})
+
+                  if(this.state.defultArr.length==res.data.total_record){
+                    this.setState({btnVisabilty_defult:false})
+                  }else{
+                    this.setState({btnVisabilty_defult:true})
+                  }
+              
+                  
+          
+                }
+              
+          
+              }
+             
+        
+            })
+          }
       
         });
           };
 
-    loadMoreDatamostliked = () => {
-      console.log('in load moreeee')
-          //On click of Load More button We will call the web API again
-          this.setState({ fetching_from_server_mostliked: true }, () => {
-
-          client.post(`/getallproducts?page_number=${this.offset_mostliked}&type=special&language_id=${lang}&type=most liked`).then((res) => {
-          
-            if(res.data.message=='Returned all products.'){
-              this.offset_mostliked = this.offset_mostliked + 1;
-              for (let i=0;i<res.data.product_data.length;i++){
-               
-                this.setState({
-                  mostlikedArr: [...this.state.mostlikedArr,res.data.product_data[i]],fetching_from_server: false
-                })
-                if(this.state.mostlikedArr.length==res.data.total_record){
-                  this.setState({btnVisabilty_mostliked:false})
-                }else{
-                  this.setState({btnVisabilty_mostliked:true})
-                }
-            
-        
-              }
-             
-           
-        
-            }
-           
-      
-         
-    })
-
-  });
-      
-          };
+   
       
 
 
-    loadMoreDataztoa = () => {
-          //On click of Load More button We will call the web API again
-          this.setState({ fetching_from_server_ztoa: true }, () => {
-
-          client.post(`/getallproducts?page_number=${this.offset_ztoa}&type=special&language_id=${lang}&type=z to a`).then((res) => {
-           
-            if(res.data.message=='Returned all products.'){
-              this.offset_ztoa = this.offset_ztoa + 1;
-              for (let i=0;i<res.data.product_data.length;i++){
-               
-               
-                this.setState({
-                  zToAArr: [...this.state.zToAArr,res.data.product_data[i]],fetching_from_server_ztoa: false
-                })
-                if(this.state.zToAArr.length==res.data.total_record){
-                  this.setState({btnVisabilty_ztoa:false})
-                }else{
-                  this.setState({btnVisabilty_ztoa:true})
-                }
-            
-        
-              }
-             
-            }
-           
-      
-    })
-
-  });
-      
-          };
-          loadMoreDatahightolow = () => {
-            this.setState({ fetching_from_server_hightolow: true }, () => {
-
-                //On click of Load More button We will call the web API again
-                client.post(`/getallproducts?page_number=${this.offset_hightolow}&type=special&language_id=${lang}&type=high to low`).then((res) => {
-                 
-                  if(res.data.message=='Returned all products.'){
-                    this.offset_hightolow = this.offset_hightolow + 1;
-                    for (let i=0;i<res.data.product_data.length;i++){
-                     
-                      this.setState({
-                        highToLowArr: [...this.state.highToLowArr,res.data.product_data[i]],fetching_from_server_hightolow: false
-                      })
-                      if(this.state.highToLowArr.length==res.data.total_record){
-                        this.setState({btnVisabilty_hightolow:false})
-                      }else{
-                        this.setState({btnVisabilty_hightolow:true})
-                      }
-                  
-              
-                    }
-                   
-              
-                  }
-                 
-            
-               
-    })
-
-  });
-                };
-
-                loadMoreDatalowtohight = () => {
-                  this.setState({ fetching_from_server_lowtohight: true }, () => {
-
-                      //On click of Load More button We will call the web API again
-                      client.post(`/getallproducts?page_number=${this.offset_lowtohight}&type=special&language_id=${lang}&type=low to high`).then((res) => {
-                        
-                        if(res.data.message=='Returned all products.'){
-                          this.offset_lowtohight = this.offset_lowtohight + 1;
-                          // this.state.aToZArr.push(res.data.product_data)
-                          for (let i=0;i<res.data.product_data.length;i++){
-                           
-                            this.setState({
-                              lowToHightArr: [...this.state.lowToHightArr,res.data.product_data[i]],fetching_from_server_lowtohight: false
-                            })
-                            if(this.state.lowToHightArr.length==res.data.total_record){
-                              this.setState({btnVisabilty_lowtohignt:false})
-                            }else{
-                              this.setState({btnVisabilty_lowtohignt:true})
-                            }
-                        
-                    
-                          }
-                          
-                    
-                        }
-                       
-                  
-                    
-    })
-
-  });
-                  
-                      };
-
-
-                      loadMoreDatatopseller = () => {
-                        this.setState({ fetching_from_server_topseller: true }, () => {
-
-                            //On click of Load More button We will call the web API again
-                            client.post(`/getallproducts?page_number=${this.offset_topseller}&type=special&language_id=${lang}&type=top seller`).then((res) => {
-                             
-                              if(res.data.message=='Returned all products.'){
-                                this.offset_topseller = this.offset_topseller + 1;
-                                for (let i=0;i<res.data.product_data.length;i++){
-                                
-                                 
-                                  this.setState({
-                                    topSellerArr: [...this.state.topSellerArr,res.data.product_data[i]],fetching_from_server_topseller: false
-                                  })
-                                  if(this.state.topSellerArr.length==res.data.total_record){
-                                    this.setState({btnVisabilty_topseller:false})
-                                  }else{
-                                    this.setState({btnVisabilty_topseller:true})
-                                  }
-                              
-                          
-                                }
-                              
-                          
-                              }
-                             
-                        
-                          
-    })
-
-  });
-                        
-                            };
-                        
                         
 
 
    
-    renderFooter() {
-      if(this.state.btnVisabilty){
-
-      
-      return (
-      //Footer View with Load More button
-        <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-          justifyContent: 'center',height:80,paddingBottom:60,
-          
-          alignItems: 'center',
-          flexDirection: 'row',}}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={this.loadMoreData}
-
-            style={{padding: 10,
-              backgroundColor: 'white',shadowOffset: {
-                width: 0,
-                height: 2,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              
-              elevation: 5,
-              
-              borderRadius: 4,
-              flexDirection: 'row',
-              justifyContent: 'center',width:50,height:50,borderRadius:25,
-              alignItems: 'center',}}>
-           
-    <Image  style={{ height:this.state.fetching_from_server? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-            {this.state.fetching_from_server ? (
-              <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-            ) : null}
-          </TouchableOpacity>
-        </View>
-      );
-            } else{
-              return(
-                null
-              )
-            }
-           
-    }
-
+    
 
     renderFooterDefult() {
       if(this.state.btnVisabilty_defult){
@@ -903,7 +997,9 @@ console.log('in load moreeee')
           flexDirection: 'row',}}>
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={this.loadMoreDataDefult}
+            disabled={this.state.disableddefult?true:false}
+
+            onPress={()=>{this.loadMoreDataDefult(this.state.typeOfAll)}}
 
             style={{padding: 10,
               backgroundColor: 'white',shadowOffset: {
@@ -920,7 +1016,9 @@ console.log('in load moreeee')
               justifyContent: 'center',width:50,height:50,borderRadius:25,
               alignItems: 'center',}}>
            
-    <Image  style={{ height:this.state.fetching_from_server_defult? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
+    {/* <Image  style={{ height:this.state.fetching_from_server_defult? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/> */}
+    <Icon name="md-add" style={{ height:this.state.fetching_from_server_defult? 0:27,width:27,color:"#8FCFEB",textAlign:"center"}}/>
+
             {this.state.fetching_from_server_defult ? (
               <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
             ) : null}
@@ -937,137 +1035,12 @@ console.log('in load moreeee')
 
 
 
-    renderFootermostliked() {
-      if(this.state.btnVisabilty_mostliked){
-
-      return (
-      //Footer View with Load More button
-      <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-      justifyContent: 'center',height:80,paddingBottom:60,
-      
-      alignItems: 'center',
-      flexDirection: 'row',}}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={this.loadMoreDatamostliked}
-
-        style={{padding: 10,
-          backgroundColor: 'white',shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          
-          elevation: 5,
-          
-          borderRadius: 4,
-          flexDirection: 'row',
-          justifyContent: 'center',width:50,height:50,borderRadius:25,
-          alignItems: 'center',}}>
-      
-<Image  style={{ height:this.state.fetching_from_server_mostliked? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-        {this.state.fetching_from_server_mostliked ? (
-          <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-        ) : null}
-      </TouchableOpacity>
-    </View>
-      );
-            }
-      else{
-        return(
-          null
-        )
-      }
-    }
-
-
-
-    renderFooterztoa() {
-      if(this.state.btnVisabilty_ztoa){
-
-      return (
-      //Footer View with Load More button
-      <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-      justifyContent: 'center',height:80,paddingBottom:60,
-      
-      alignItems: 'center',
-      flexDirection: 'row',}}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={this.loadMoreDataztoa}
-
-        style={{padding: 10,
-          backgroundColor: 'white',shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          
-          elevation: 5,
-          
-          borderRadius: 4,
-          flexDirection: 'row',
-          justifyContent: 'center',width:50,height:50,borderRadius:25,
-          alignItems: 'center',}}>
-      
-<Image  style={{ height:this.state.fetching_from_server_ztoa? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-        {this.state.fetching_from_server_ztoa ? (
-          <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-        ) : null}
-      </TouchableOpacity>
-    </View>
-      );
-            }
-            else{
-              return(
-                null
-              )
-            }
-    }
-  //   likedPress(products_id){
-  //     // if(this.state.wish.includes() !=undefined){
-  // if(this.state.wish.includes(products_id)){
-  // client.post(`/app/unlikeproduct?liked_products_id=${products_id}&liked_customers_id=${this.state.userID}`).then((res) => {
-  //   console.log('wishlist',res)
-  //   // this.setState({wish:[]})
-  // if(res.data.status==200){
-  //   this.setState({wish:[]})
-  
-  //   client.post(`/app/getallproducts?type=wishlist&customers_id=${this.state.userID}&language_id=${lang}`).then((res) => {
-  //     for (let i=0;i<res.data.product_data.length;i++){
-  //       this.setState({
-  //         wish: [...this.state.wish, (res.data.product_data[i]).products_id]
-  //       })       }
-  
-  //   })
-  // }
-  // })
-  
-  // }else{
-  
-  // client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_id=${this.state.userID}`).then((res) => {
-  //   console.log('wishlist',res)
-  //   console.log('wishlist user id',this.state.userID)
-  //     console.log('wishlist item id',products_id)
-  //     if(res.data.status==200){
-  //       client.post(`/app/getallproducts?type=wishlist&customers_id=${this.state.userID}&language_id=${lang}`).then((res) => {
-  //         for (let i=0;i<res.data.product_data.length;i++){
-  //         this.setState({
-  //           wish: [...this.state.wish, (res.data.product_data[i]).products_id]
-  //         })      }
-  
-  //       })}
-  // })
-  // }
-  // }
+    
 
   likedPress(products_id){
     // if(this.state.wish.includes() !=undefined){
 if(this.state.wish.includes(products_id)){
 client.post(`/app/unlikeproduct?liked_products_id=${products_id}&liked_customers_id=${this.state.userID}`).then((res) => {
-  console.log('wishlist',res)
   // this.setState({wish:[]})
 if(res.data.status==200){
   Alert.alert(
@@ -1094,9 +1067,7 @@ if(res.data.status==200){
 }else{
 
 client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_id=${this.state.userID}`).then((res) => {
-  console.log('wishlist',res)
-  console.log('wishlist user id',this.state.userID)
-    console.log('wishlist item id',products_id)
+
     if(res.data.status==200){
 
 
@@ -1128,141 +1099,27 @@ client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_i
 }
 }
 
-    renderFooterhightolow() {
-      if(this.state.btnVisabilty_hightolow){
+ 
 
-      return (
-      //Footer View with Load More button
-      <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-      justifyContent: 'center',height:80,paddingBottom:60,
-      
-      alignItems: 'center',
-      flexDirection: 'row',}}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={this.loadMoreDatahightolow}
 
-        style={{padding: 10,
-          backgroundColor: 'white',shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          
-          elevation: 5,
-          
-          borderRadius: 4,
-          flexDirection: 'row',
-          justifyContent: 'center',width:50,height:50,borderRadius:25,
-          alignItems: 'center',}}>
-      
-<Image  style={{ height:this.state.fetching_from_server_hightolow? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-        {this.state.fetching_from_server_hightolow ? (
-          <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-        ) : null}
-      </TouchableOpacity>
-    </View>
-      );
-            } else{
-              return(
-                null
-              )
-            }
-    }
-
-    renderFooterlowtohight() {
-      if(this.state.btnVisabilty_lowtohignt){
-
-      return (
-      //Footer View with Load More button
-      <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-      justifyContent: 'center',height:80,paddingBottom:60,
-      
-      alignItems: 'center',
-      flexDirection: 'row',}}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={this.loadMoreDatalowtohight}
-
-        style={{padding: 10,
-          backgroundColor: 'white',shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          
-          elevation: 5,
-          
-          borderRadius: 4,
-          flexDirection: 'row',
-          justifyContent: 'center',width:50,height:50,borderRadius:25,
-          alignItems: 'center',}}>
-        
-<Image  style={{ height:this.state.fetching_from_server_lowtohight? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-        {this.state.fetching_from_server_lowtohight ? (
-          <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-        ) : null}
-      </TouchableOpacity>
-    </View>
-      );
-            } else{
-              return(
-                null
-              )
-            }
-    }
-
-    renderFootertopseller() {
-      if(this.state.btnVisabilty_topseller){
-
-      return (
-      //Footer View with Load More button
-      <View style={{ padding: 10,width:Dimensions.get('window').width,backgroundColor:'white',
-          justifyContent: 'center',height:80,paddingBottom:60,
-          
-          alignItems: 'center',
-          flexDirection: 'row',}}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={this.loadMoreDatatopseller}
-
-            style={{padding: 10,
-              backgroundColor: 'white',shadowOffset: {
-                width: 0,
-                height: 2,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              
-              elevation: 5,
-              
-              borderRadius: 4,
-              flexDirection: 'row',
-              justifyContent: 'center',width:50,height:50,borderRadius:25,
-              alignItems: 'center',}}>
-          
-    <Image  style={{ height:this.state.fetching_from_server_topseller? 0:27,width:27}}  source={require('../assets/images/loadmore.png')}/>
-            {this.state.fetching_from_server_topseller ? (
-              <ActivityIndicator color="#8FCFEB" style={{ marginLeft: -25.5,}} />
-            ) : null}
-          </TouchableOpacity>
-        </View>
-      );
-            } else{
-              return(
-                null
-              )
-            }
-    }
+ 
 
 
  
   returnArray() {
+    var testArrTest=this.state.testArr
+    for (let i=0;i<this.props.Order.length;i++){
+      // this.setState({
+      //     //   testArr: [...this.state.testArr, (this.props.Order[i]).products_id],
+      
+            
+      //     // })
+          testArrTest=[...testArrTest, (this.props.Order[i]).products_id]
+        }
+        console.log("testArrTest22",testArrTest)
+
     const { Items } = this.props;
-    console.log('listingarray',Items)
-    if (this.state.filter === 'defult') {
+    if (this.state.filter === 'defult'||this.state.filter === 'AtoZ'||this.state.filter=='ZtoA'||this.state.filter=='hightolow'||this.state.filter=='lowtohigh'||this.state.filter=='topseller'||this.state.filter=='mostliked') {
       return (
         <Content>
           <View style={{ flex: 1 }}>
@@ -1276,9 +1133,15 @@ client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_i
             }
            
          {this.state.status==200 ?(
+                    this.state.loading_defult? (
+                      <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB',marginTop:50}}/>
+                    ) : 
           this.state.defultArr.length > 0 ? (
+   
               <FlatGrid
-              itemDimension={130}
+              // itemDimension={130}
+              itemDimension={Dimensions.get('window').width>420?200:130}
+
               items={this.state.defultArr}
               // items={arr}
               style={styles.gridView}
@@ -1315,23 +1178,23 @@ client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_i
                               bottom: 0,
                               right: 0,}}/>
                               {I18nManager.isRTL?
-                                   <View style={{width:'100%',height:'100%',justifyContent:'flex-start',alignItems:'flex-start',paddingStart:5}}>
-          <View style={{ height: '45%',marginTop:-(Dimensions.get('window').height/35),
-            width:'13%',alignItems:'center',justifyContent:'center',
+                                   <View style={{width:'100%',height:'100%',justifyContent:'flex-start',alignItems:'flex-start'}}>
+          <View style={{ height: '18%',marginTop:0,marginEnd:15,marginStart:10,
+            width:'9%',alignItems:'center',justifyContent:'center',
             backgroundColor:'#8FCFEB',
             transform: [{ rotate: '140deg' }],}}>
-            <Text style={{fontSize: 10, color: '#fff', fontFamily:"GEFlow", transform: [{ rotate: '-90deg' }],}}>مميز</Text>
+            <Text style={{fontSize: 10, color: '#fff', fontFamily:"GEFlow", transform: [{ rotate: '-90deg' }],textAlign:'center',width:25}}>مميز</Text>
             </View>
             
             
             </View>
             :
-            <View style={{width:'100%',height:'100%',justifyContent:'flex-start',alignItems:'flex-end',paddingStart:5}}>
-          <View style={{ height: '45%',marginTop:-(Dimensions.get('window').height/35),
-            width:'13%',alignItems:'center',justifyContent:'center',
+            <View style={{width:'100%',height:'100%',justifyContent:'flex-start',alignItems:'flex-end'}}>
+          <View style={{ height: '18%',marginTop:0,marginEnd:10,marginStart:0,
+            width:'9%',alignItems:'center',justifyContent:'center',
             backgroundColor:'#8FCFEB',
             transform: [{ rotate: '140deg' }],}}>
-            <Text style={{fontSize: 10, color: '#fff', fontFamily:"GEFlow", transform: [{ rotate: '90deg' }],width:30}}>Offer</Text>
+            <Text style={{fontSize: 8, color: '#fff', fontFamily:"GEFlow", transform: [{ rotate: '-90deg' }],textAlign:"center",width:25}}>Offer</Text>
             </View>
             
             
@@ -1340,8 +1203,11 @@ client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_i
                    </TouchableOpacity> 
                    <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
              
-              <Text   numberOfLines={1}
+              <Text   numberOfLines={2}
               style={{  fontSize: 13,
+                height:40,
+
+                textAlign:I18nManager.isRTL?"left":null,
                 fontWeight: "normal",
                 fontStyle: "normal",
                 letterSpacing: 0,
@@ -1416,10 +1282,10 @@ client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_i
 
                               //  this.Navigate (item.products_id,item.products_name)
                                }}
-                               disabled={ this.state.testArr.includes(item.products_id)? true:false}
+                               disabled={ testArrTest.includes(item.products_id)||item.in_stock==0? true:false}
 
                              // disabled={ Order.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
+                             style={{height:30,backgroundColor:testArrTest.includes(item.products_id)||item.in_stock==0?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'}} 
                              block 
                             //onPress={()=>{
                              
@@ -1434,7 +1300,7 @@ client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_i
                  fontStyle: "normal",
                  letterSpacing: 0,
                  color: "#ffffff"
-               }}>{I18nManager.isRTL?'أضف الى السلة':'Add to Cart'}</Text>      
+               }}>{I18nManager.isRTL?testArrTest.includes(item.products_id)?'تمت الاضافه الى السلة':'أضف الى السلة':testArrTest.includes(item.products_id)?'Added to Cart':'Add to Cart'}</Text>      
                    </Button>
                          </Body>
                            </View>
@@ -1444,9 +1310,17 @@ client.post(`/app/likeproduct?liked_products_id=${products_id}&liked_customers_i
               )}
               ListFooterComponent={this.renderFooterDefult.bind(this)}
             />
+            
             ) : 
-            <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB'}}/>
-
+            <View style={{justifyContent:'center',alignItems:'center',width:'100%'}}>
+            <Text style={{fontFamily: "Acens",
+         fontSize: 15,marginTop:100,
+         fontWeight: "normal",
+         fontStyle: "normal",
+         letterSpacing: 0,
+         textAlign: "left",
+         color: "#777777"}} >{i18n.t('noRecordFound')}</Text>
+          </View>
    ):
 
   
@@ -1465,1065 +1339,105 @@ color: "#777777"}} >{i18n.t('noRecordFound')}</Text>
         </Content>
       
     
-       ) } else if (this.state.filter === 'AtoZ') {
+       ) }
+  
 
 
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-              />
-            }
-             {this.state.loading ? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB'}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.aToZArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: "Acens",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 13,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'red'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <CardItem style={{
-                           }}>
-                           <Body>
-                           <Button 
-                            onPress={() =>{
-                              this.handelAddToOrder(item)
-
-                            //  this.Navigate (item.products_id,item.products_name)
-                             }}
-                             disabled={ this.state.testArr.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'
-                             ,backgroundColor:((this.state.testArr.includes(item.products_id))?'gray':'#8FCFEB'),
-                            }} 
-                           block 
-                          //onPress={()=>{
-                           
-                         
-                          //    props.navigate(props.item.products_id)
-                             
-                          //  }}
-                           >
-             <Text style={{fontFamily: "Acens",
-               fontSize: 12,textAlign:'center',
-               fontWeight: "normal",
-               fontStyle: "normal",
-               letterSpacing: 0,
-               color: (this.state.testArr.includes(item.products_id )?'#8FCFEB':'white'),
-               
-             }}>{(this.state.testArr.includes(item.products_id))?i18n.t('inCart'):i18n.t('addToCart')}</Text>      
-                 </Button>
-                       </Body>
-                         </CardItem>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
 
 
-              )}
-          
-              ListFooterComponent={this.renderFooter.bind(this)}
-              //Adding Load More button as footer component
-            />
-        )}
-          </View>
-        </Content>
-      );
-    }
-
-    else if (this.state.filter === 'ZtoA') {
-
-
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-                
-
-              />
-            }
-             {this.state.loading_ztoa ? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB'}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.zToAArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: "Acens",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 13,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'red'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <CardItem style={{
-                           }}>
-                           <Body>
-                           <Button 
-                            onPress={() =>{
-                              this.handelAddToOrder(item)
-
-                            //  this.Navigate (item.products_id,item.products_name)
-                             }}
-                             disabled={ this.state.testArr.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'
-                             ,backgroundColor:((this.state.testArr.includes(item.products_id))?'gray':'#8FCFEB'),
-                            }} 
-                           block 
-                          //onPress={()=>{
-                           
-                         
-                          //    props.navigate(props.item.products_id)
-                             
-                          //  }}
-                           >
-             <Text style={{fontFamily: "Acens",
-               fontSize: 12,textAlign:'center',
-               fontWeight: "normal",
-               fontStyle: "normal",
-               letterSpacing: 0,
-               color: (this.state.testArr.includes(item.products_id )?'#8FCFEB':'white'),
-               
-             }}>{(this.state.testArr.includes(item.products_id))?i18n.t('inCart'):i18n.t('addToCart')}</Text>      
-                 </Button>
-                       </Body>
-                         </CardItem>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-              )}
-              ListFooterComponent={this.renderFooterztoa.bind(this)}
-              />
-        )}
-          </View>
-        </Content>
-      );
-    }
-
-    else if (this.state.filter === 'hightolow') {
-
-
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-              />
-            }
-             {this.state.loading_hightolow? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB'}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.highToLowArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: "Acens",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 13,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'red'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <CardItem style={{
-                           }}>
-                           <Body>
-                           <Button 
-                            onPress={() =>{
-                              this.handelAddToOrder(item)
-
-                            //  this.Navigate (item.products_id,item.products_name)
-                             }}
-                             disabled={ this.state.testArr.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'
-                             ,backgroundColor:((this.state.testArr.includes(item.products_id))?'gray':'#8FCFEB'),
-                            }} 
-                           block 
-                          //onPress={()=>{
-                           
-                         
-                          //    props.navigate(props.item.products_id)
-                             
-                          //  }}
-                           >
-             <Text style={{fontFamily: "Acens",
-               fontSize: 12,textAlign:'center',
-               fontWeight: "normal",
-               fontStyle: "normal",
-               letterSpacing: 0,
-               color: (this.state.testArr.includes(item.products_id )?'#8FCFEB':'white'),
-               
-             }}>{(this.state.testArr.includes(item.products_id))?i18n.t('inCart'):i18n.t('addToCart')}</Text>      
-                 </Button>
-                       </Body>
-                         </CardItem>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-
-              )}
-              ListFooterComponent={this.renderFooterhightolow.bind(this)}
-              />
-        )}
-          </View>
-        </Content>
-      );
-    }
-    else if (this.state.filter === 'lowtohigh') {
-
-
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-              />
-            }
-             {this.state.loading_lowtohight ? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB'}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.lowToHightArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: "Acens",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 13,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'red'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <CardItem style={{
-                           }}>
-                           <Body>
-                           <Button 
-                            onPress={() =>{
-                              this.handelAddToOrder(item)
-
-                            //  this.Navigate (item.products_id,item.products_name)
-                             }}
-                             disabled={ this.state.testArr.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'
-                             ,backgroundColor:((this.state.testArr.includes(item.products_id))?'gray':'#8FCFEB'),
-                            }} 
-                           block 
-                          //onPress={()=>{
-                           
-                         
-                          //    props.navigate(props.item.products_id)
-                             
-                          //  }}
-                           >
-             <Text style={{fontFamily: "Acens",
-               fontSize: 12,textAlign:'center',
-               fontWeight: "normal",
-               fontStyle: "normal",
-               letterSpacing: 0,
-               color: (this.state.testArr.includes(item.products_id )?'#8FCFEB':'white'),
-               
-             }}>{(this.state.testArr.includes(item.products_id))?i18n.t('inCart'):i18n.t('addToCart')}</Text>      
-                 </Button>
-                       </Body>
-                         </CardItem>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-              )}
-              ListFooterComponent={this.renderFooterlowtohight.bind(this)}
-              />
-        )}
-          </View>
-        </Content>
-      );
-    }
-
-    else if (this.state.filter === 'topseller') {
-
-
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-              />
-            }
-             {this.state.loading_topseller? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB'}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.topSellerArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: "Acens",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 13,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'red'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <CardItem style={{
-                           }}>
-                           <Body>
-                           <Button 
-                            onPress={() =>{
-                              this.handelAddToOrder(item)
-
-                            //  this.Navigate (item.products_id,item.products_name)
-                             }}
-                             disabled={ this.state.testArr.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'
-                             ,backgroundColor:((this.state.testArr.includes(item.products_id))?'gray':'#8FCFEB'),
-                            }} 
-                           block 
-                          //onPress={()=>{
-                           
-                         
-                          //    props.navigate(props.item.products_id)
-                             
-                          //  }}
-                           >
-             <Text style={{fontFamily: "Acens",
-               fontSize: 12,textAlign:'center',
-               fontWeight: "normal",
-               fontStyle: "normal",
-               letterSpacing: 0,
-               color: (this.state.testArr.includes(item.products_id )?'#8FCFEB':'white'),
-               
-             }}>{(this.state.testArr.includes(item.products_id))?i18n.t('inCart'):i18n.t('addToCart')}</Text>      
-                 </Button>
-                       </Body>
-                         </CardItem>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-              )}
-              ListFooterComponent={this.renderFootertopseller.bind(this)}
-              />
-        )}
-          </View>
-        </Content>
-      );
-    }
-
-
-    else if (this.state.filter === 'mostliked') {
-
-
-      
-      return (
-        <Content>
-          <View style={{ flex: 1 }}>
-            {this.state.isModalVisible &&
-              <AddToCartModal
-                _toggleModal={this._toggleModal}
-                isModalVisible={this.state.isModalVisible}
-                setItem={this.setItem}
-                item={this.state.item}
-              />
-            }
-             {this.state.loading_mostliked ? (
-          <ActivityIndicator color='#8FCFEB' size="large"  style={{color:'#8FCFEB'}}/>
-        ) : (
-            <FlatGrid
-              itemDimension={130}
-              items={this.state.mostlikedArr}
-              style={styles.gridView}
-              renderItem={({ item, index }) => (
-                // <ItemCard
-                //   navigate={this.Navigate}
-                //   _toggleModal={this._toggleModal}
-                //   setItem={this.setItem}
-                //   index={index}
-                //   item={item}
-                //   Order={this.state.testArr}
-                //   wish={this.state.wish}
-
-                // />
-                <Card cardBorderRadius={5}>     
-                <View
-                   
-                    
-                   >
-             
-             
-                   
-                   <View>
-                  <View style={{width:'100%',justifyContent:'center',alignItems:'center'}}>
-                 <TouchableOpacity  style={{ width: '100%', flex: 1,flex:1,height:Dimensions.get('window').height/3.7,
-    alignItems: 'stretch'}} onPress={() =>{
-                             this.Navigate (item.products_id,item.products_name)
-                             }}> 
-                  <Image resizeMode={'stretch'}
-                              source={{uri: BaseURL +item.products_image}}  style={{  position: 'absolute',
-                              top: 0,height:null,
-                              flex:1,
-                              left: 0,
-                              bottom: 0,
-                              right: 0,}}/>
-                   </TouchableOpacity> 
-                   <View style={{justifyContent:'flex-start',width:'85%',flexDirection:'column',alignItems:'flex-start',padding:3}}>
-             
-              <Text   numberOfLines={1}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily: "Acens",marginTop:5,marginBottom:5,color:'#8FCFEB'}}>{item.products_name}</Text>
-                 {/* <Text   numberOfLines={2}
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'gray',fontFamily:'#newFont'}]}>{item.products_description}</Text> */}
-                
-               
-                 </View>
-                
-                 {/* <Text   numberOfLines={1}
-                  
-              style={[styles.itemText,{marginTop:0,marginBottom:0,color:'#383838',}]}>{item.new_price} JOD</Text>
-                 */}
-                 <View style={{justifyContent:'space-between',width:'85%',flexDirection:'row',alignItems:'center'}}>
-                
-                
-                 {item.new_price !=null &&item.new_price !=''?(
-                  <Text   numberOfLines={1}
-                  
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838',textDecorationLine: 'line-through',color:'gray'}}>{item.cost_price} JOD</Text>
-                
-                 ):
-                 <Text   numberOfLines={1}
-                  
-                 style={{  fontSize: 13,
-                  fontWeight: "normal",
-                  fontStyle: "normal",
-                  letterSpacing: 0,
-                  color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'#383838'}}>{item.cost_price} JOD </Text>
-
-                  
-                 }  
-
-{item.new_price !=null &&item.new_price !=''?(
-                   
-                   <Text   numberOfLines={2}
-              style={{  fontSize: 13,
-                fontWeight: "normal",
-                fontStyle: "normal",
-                letterSpacing: 0,
-                color: "#8FCFEB",fontFamily:"numFont",marginTop:0,marginBottom:0,color:'red'}}> - {item.new_price}JOD</Text>
-               
-                ):
-                null}
-                 <TouchableOpacity onPress={()=>{this.likedPress(item.products_id)}}>
-                {/* <Image source={this.state.wish.includes(item.products_id) ? require('../assets/images/hart.png') : require('../assets/images/hartempty.png')} style={{width:17,height:23,marginBottom:10,resizeMode:'contain',}}/> */}
-                {this.state.wish.includes(item.products_id) ? 
-                <Icon name="md-heart" style={{fontSize:25,color:"red",alignSelf:"center"}} />
-                :
-                <Icon name="md-heart" style={{fontSize:25,color:"#8FCFEB",alignSelf:"center"}} />
-
-                }
-             </TouchableOpacity> 
-                 </View>
-                  </View>
-                 
-                
-                   </View>
-                  
-                          
-                         </View>
-                         <CardItem style={{
-                           }}>
-                           <Body>
-                           <Button 
-                            onPress={() =>{
-                              this.handelAddToOrder(item)
-
-                            //  this.Navigate (item.products_id,item.products_name)
-                             }}
-                             disabled={ this.state.testArr.includes(item.products_id)? true:false}
-                             style={{height:30,backgroundColor:this.state.testArr.includes(item.products_id)?'gray':'#8FCFEB',borderBottomEndRadius:7,borderBottomStartRadius:7,justifyContent:'center',alignItems:'center'
-                             ,backgroundColor:((this.state.testArr.includes(item.products_id))?'gray':'#8FCFEB'),
-                            }} 
-                           block 
-                          //onPress={()=>{
-                           
-                         
-                          //    props.navigate(props.item.products_id)
-                             
-                          //  }}
-                           >
-             <Text style={{fontFamily: "Acens",
-               fontSize: 12,textAlign:'center',
-               fontWeight: "normal",
-               fontStyle: "normal",
-               letterSpacing: 0,
-               color: (this.state.testArr.includes(item.products_id )?'#8FCFEB':'white'),
-               
-             }}>{(this.state.testArr.includes(item.products_id))?i18n.t('inCart'):i18n.t('addToCart')}</Text>      
-                 </Button>
-                       </Body>
-                         </CardItem>
-                         {/* <View style={{height:20}}/> */}
-                     </Card>
-
-
-              )}
-              ListFooterComponent={this.renderFootermostliked.bind(this)}
-              />
-        )}
-          </View>
-        </Content>
-      );
-    }
   
   }
+  // defultSort() {
+  //   this.setSortModalVisible(false)
+  //   this.setState({ filter: 'defult' })
+  // }
+  // aToz() {
+  //   this.setSortModalVisible(false)
+  //   this.setState({ filter: 'AtoZ' })
+  // }
+  // zToa() {
+  //   this.setSortModalVisible(false)
+
+  //   this.setState({ filter: 'ZtoA' })
+  // }
+  // highToLow() {
+  //   this.setSortModalVisible(false)
+
+  //   this.setState({ filter: 'hightolow' })
+  // }
+  
+  // lowToHight(){
+  //   this.setSortModalVisible(false)
+
+  //   this.setState({ filter: 'lowtohigh' })
+
+  // }
+  // topseller(){
+  //   this.setSortModalVisible(false)
+
+  //   this.setState({ filter: 'topseller' })
+
+  // }
+  // mostliked(){
+  //   this.setSortModalVisible(false)
+
+  //   this.setState({ filter: 'mostliked' })
+
+  // }
   defultSort() {
     this.setSortModalVisible(false)
     this.setState({ filter: 'defult' })
-    console.log("defult",this.state. defultArr)
+    this.setState({ loading_defult: true })
+
+    this._retrieveData('reset',0)
+
   }
   aToz() {
     this.setSortModalVisible(false)
     this.setState({ filter: 'AtoZ' })
-    console.log("atoz",this.state. aToZArr)
+    this.setState({ loading_defult: true })
+    this._retrieveData('a to z')
+
+
   }
   zToa() {
     this.setSortModalVisible(false)
 
     this.setState({ filter: 'ZtoA' })
+    this.setState({ loading_defult: true })
+    this._retrieveData('z to a')
+   
   }
   highToLow() {
     this.setSortModalVisible(false)
 
+  
     this.setState({ filter: 'hightolow' })
+    this.setState({ loading_defult: true })
+    this._retrieveData('high to low')
   }
   
   lowToHight(){
     this.setSortModalVisible(false)
 
     this.setState({ filter: 'lowtohigh' })
+    this.setState({ loading_defult: true })
+    this._retrieveData('low to high')
 
   }
   topseller(){
     this.setSortModalVisible(false)
 
     this.setState({ filter: 'topseller' })
-
+    this.setState({ loading_defult: true })
+    this._retrieveData('top seller')
   }
   mostliked(){
     this.setSortModalVisible(false)
 
     this.setState({ filter: 'mostliked' })
+    this.setState({ loading_defult: true })
+    this._retrieveData('most liked')
 
   }
   popup() { }
@@ -2532,7 +1446,6 @@ color: "#777777"}} >{i18n.t('noRecordFound')}</Text>
     i18n.fallbacks = true;
     i18n.translations = { ar, en };
     //i18n.locale =null;
-    console.log('test:' + this.state.myLang);
 
     i18n.locale = this.state.myLang;
     const { Items } = this.props;
@@ -2715,7 +1628,7 @@ const styles = StyleSheet.create({
   },
 
   gridView: {
-    marginTop: 20,
+    marginTop: 10,
     flex: 1,
   },
   loader: {

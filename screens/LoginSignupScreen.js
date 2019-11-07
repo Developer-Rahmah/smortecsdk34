@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, Dimensions, ImageBackground, Image, TouchableOpacity,AsyncStorage,I18nManager,Platform,Alert,BackHandler, } from 'react-native';
+import { View, Text, Dimensions, ImageBackground, Image, TouchableOpacity,AsyncStorage,I18nManager,Platform,Alert,BackHandler,TouchableHighlight } from 'react-native';
 import styles from '../css/styles';
+import { Updates } from 'expo';
+
 // import { AppLoading, Asset, Font, Icon,SplashScreen,Permissions, Notifications,Constants } from 'expo';
 import * as Permissions from 'expo-permissions';
 
@@ -24,11 +26,13 @@ import {
 
 import i18n from 'i18n-js';
 // import Content from '../native-base-theme/components/Content';
+const { width, height } = Dimensions.get('window')
 
 const en = {
     signup: 'SIGN UP',
     login: 'LOG IN',
-   
+    chooselanguage:"Choose Lnaguage"
+
 };
 const ar = {
     signup: 'إنشاء حساب',
@@ -89,7 +93,6 @@ export default class LoginSignupScreen extends Component {
       
         // POST the token to your backend server from where you can retrieve it to send push notifications.
         // this.setState({token:token})
-        console.log('tokeeen:'+token)
        
         
       }
@@ -120,16 +123,36 @@ export default class LoginSignupScreen extends Component {
       componentWillUnmount() {
         BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
       }
-
+      _onChangeDirection = async (lang) => {
+        console.log("langgggggg",lang)
+        // save the lang in storage
+        await AsyncStorage.setItem("myLang", lang);
+    
+        this.setState({ "myLang": lang });
+    
+        I18nManager.forceRTL(lang === "ar");
+    
+        // this.setState({ isRTL: lang === "ar" });
+    
+        // i18n.locale = this.state.myLang;
+        i18n.locale=I18nManager.isRTL?'ar':'en'
+    
+        // Updates.reloadFromCache();
+        try {
+        //   await AsyncStorage.setItem('@MySuperStore:key', JSON.stringify(this.props.Order)); 
+            Updates.reloadFromCache();
+  
+        } catch (error) {
+          // Error saving data
+          console.log('errror in saving cart arrrrr',error)
+        }
+    }
     _retrieveData = async () => {
         try {
             const token = await AsyncStorage.getItem("deviceToken");
             const platform = await AsyncStorage.getItem("devicePlatform");
 
-            console.log('my device token iiiis',token);
-            console.log('my device platfooorm iiiis',platform);
-
-            console.log('tokeeen:'+token)
+   
             if(Platform.OS === 'ios') {
                 console.log(" ios") 
              } else {
@@ -163,31 +186,14 @@ this.setState({switchOn:switchOn})
           
   
           if (value !== null) {
-            console.log('my device token iiiis',token);
-            console.log('my device platfooorm iiiis',platform);
-
-            // We have data!!
-            console.log('userid:',value);
-            console.log('namevalue:',namevalue);
-            console.log('phonevalue:',phonevalue);
-            console.log('passwvalue:',passwvalue);
-            console.log('ordeeer async arr newww',JSON.parse(myArray));
+        
 
              this.props.navigation.navigate('Home')
           }
         } catch (error) {
           // Error retrieving data
-          console.log('getstorageitemerrrror',error);
         }
-        // try {
-        //     const myArray = await AsyncStorage.getItem('orderArr');
-        //     if (myArray !== null) {
-        //       // We have data!!
-        //       console.log('ordeeer async arr',JSON.parse(myArray));
-        //     }
-        //   } catch (error) {
-        //     // Error retrieving data
-        //   }
+    
       };
     async componentWillMount() {
         if(Platform.OS === 'ios') {
@@ -208,7 +214,6 @@ this.setState({switchOn:switchOn})
         }
     //    this._retrieveData()
         this.setState({ loading: false });
-        console.log('willmountaaaa=' + this.state.isRTL)
         BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
 
     }
@@ -246,7 +251,6 @@ this.setState({switchOn:switchOn})
         })
     }
     onSignupPreesd() {
-        console.log('signupPreesd')
         this.signupBG();
         this.props.navigation.navigate('SignUpScreen')
 
@@ -257,7 +261,6 @@ this.setState({switchOn:switchOn})
         i18n.fallbacks = true;
         i18n.translations = { ar, en };
         //i18n.locale =null;
-        console.log('test:' + this.state.myLang);
 
         i18n.locale = this.state.myLang;
 
@@ -347,9 +350,80 @@ this.setState({switchOn:switchOn})
                         <View style={{ height: Dimensions.get('window').height / 20 ,flexDirection:'column'}}>
 <Text style={{fontSize:30,fontFamily:'Acens',color:'#8FCFEB',textAlign:'center'}}>SMORTEC</Text>
 <Text style={{fontSize:30,fontFamily:'Acens',color:'gray',textAlign:'center'}}>We are the future</Text> */}
+            
 
             </View>
-                    <View style={mainScreenLoginSignupContainer}>
+            <View style={{        flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: Dimensions.get('window').width /6
+}}>
+                          {I18nManager.isRTL?
+                  <Text style={{ fontFamily: "Acens",
+                  fontSize: 20,
+                  fontWeight: "normal",
+                  fontStyle: "normal",
+                  lineHeight: 30,
+                  letterSpacing: 0,
+                  color: "#8FCFEB"  }}>اختر لغة</Text>
+                  :
+                  <Text style={{ fontFamily: "Acens",
+                  fontSize: 20,
+                  fontWeight: "normal",
+                  fontStyle: "normal",
+                  lineHeight: 30,
+                  letterSpacing: 0,
+                  color: "#8FCFEB" }}>Choose Language</Text>
+
+                          }
+                        </View>
+            <View style={{	width: width * 0.80,
+	alignSelf: 'center',
+	flexDirection: 'row',
+	justifyContent: 'space-between'}}>
+              <TouchableHighlight
+                info
+                style={{	borderWidth: 1,
+                  borderColor: "#8FCFEB",
+                  backgroundColor:'transparent',
+                  alignSelf:'center',
+                  marginTop:height * 0.03,
+                  borderRadius:7,
+                   width: width *0.35,
+                  height: height * 0.09,
+                  justifyContent: 'center'}}
+                  onPress={() => this._onChangeDirection("ar")}
+              >
+                <Text autoCapitalize="words" style={{
+    fontFamily:'helivet',
+	alignContent: 'center',
+	color:"#8FCFEB",
+	alignSelf: 'center',
+	fontSize: 20}}>
+                  عربي
+                </Text>
+              </TouchableHighlight>
+              <TouchableHighlight
+                info
+                style={{	borderWidth: 1,
+                  borderColor: "#8FCFEB",
+                  backgroundColor:'transparent',
+                  alignSelf:'center',
+                  marginTop:height * 0.03,
+                  borderRadius:7,
+                   width: width *0.35,
+                  height: height * 0.09,
+                  justifyContent: 'center'}}
+                  onPress={() => this._onChangeDirection("en")}
+              >
+                <Text autoCapitalize="words" style={{ fontFamily:'helivet',
+	alignContent: 'center',
+	color:"#8FCFEB",
+	alignSelf: 'center',
+	fontSize: 20}}>
+                  English
+                </Text>
+              </TouchableHighlight>
+            </View>
+                    <View style={{        flexDirection: 'column', height: Dimensions.get('window').height / 3, width: Dimensions.get('window').width, justifyContent: 'flex-end', alignItems: 'center'
+}}>
                         <TouchableOpacity
 
                             onPress={this.onLoginPreesd.bind(this)}
@@ -362,10 +436,10 @@ this.setState({switchOn:switchOn})
                               
                                loginTextStyle, {
                                 //    color: this.state.loginFontColor
-                                color:'black',
+                                color:'white',
                                 fontFamily:'Acens'
                                 },
-                            ]}> {i18n.t('login')} </Text>
+                            ]}> {I18nManager.isRTL==false?'LOG IN':'تسجيل دخول'} </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={this.onSignupPreesd.bind(this)}
@@ -375,9 +449,9 @@ this.setState({switchOn:switchOn})
                             }]}>
 
                             <Text style={[signUpTextStyle,{
-                                 color:'black',  fontFamily:'Acens'
+                                 color:'white',  fontFamily:'Acens'
                                 // color: this.state.signupFontColor,
-                                }]}> {i18n.t('signup')}</Text>
+                                }]}> {I18nManager.isRTL==false?'SIGN UP':'إنشاء حساب'}</Text>
                         </TouchableOpacity>
 
 
